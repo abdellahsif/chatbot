@@ -1,4 +1,4 @@
-# FinGhadi Chatbot MVP Starter (Mock Data)
+# Chatbot
 
 This workspace contains mock data and now also supports direct ingestion from `BDD_MCD_Universites.xlsx` when present at workspace root.
 
