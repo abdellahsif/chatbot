@@ -1,0 +1,11 @@
+school_id,name,country,city,type,tuition_min_mad,tuition_max_mad,programs,admission_selectivity,employability_score,salary_entry_min_mad,salary_entry_max_mad,international_double_degree
+sch_ma_001,EMSI Casablanca,MA,Casablanca,private,35000,52000,computer_science|cybersecurity|data,medium,4.1,7000,12000,false
+sch_ma_002,UM6P Benguerir,MA,Benguerir,private,80000,130000,engineering|data|business,high,4.7,10000,18000,true
+sch_ma_003,ENSA Rabat,MA,Rabat,public,0,8000,engineering|computer_science,high,4.4,8000,14000,false
+sch_ma_004,ISCAE Casablanca,MA,Casablanca,public,0,12000,business|finance|management,high,4.3,9000,16000,false
+sch_ma_005,Al Akhawayn,MA,Ifrane,private,95000,140000,business|computer_science|communication,high,4.5,9000,17000,true
+sch_ma_006,UIR Rabat,MA,Rabat,private,70000,110000,engineering|health|business,medium,4.2,8500,15000,true
+sch_ma_007,FST Fes,MA,Fes,public,0,7000,computer_science|math|physics,medium,3.8,5500,10000,false
+sch_ma_008,EST Agadir,MA,Agadir,public,0,6000,networking|software|logistics,medium,3.7,5000,9000,false
+sch_ma_009,SUPMTI Tanger,MA,Tanger,private,28000,45000,computer_science|telecom,medium,3.9,6500,11000,false
+sch_ma_010,HEM Rabat,MA,Rabat,private,40000,65000,business|marketing|finance,medium,4.0,7000,12500,true
