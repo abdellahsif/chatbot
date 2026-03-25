@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from threading import Lock
 from typing import Any
@@ -12,11 +13,12 @@ from app.models import UserProfile
 
 
 class QwenGenerator:
-    def __init__(self) -> None:
+    def __init__(self, model_id: str | None = None) -> None:
         self._lock = Lock()
         self._loaded = False
         self._tokenizer: Any = None
         self._model: Any = None
+        self.model_id = model_id or os.getenv("GENERATOR_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
 
     def _ensure_loaded(self) -> bool:
         if self._loaded:
@@ -25,15 +27,14 @@ class QwenGenerator:
         with self._lock:
             if self._loaded:
                 return self._tokenizer is not None and self._model is not None
-            model_id = "Qwen/Qwen2.5-3B-Instruct"
             try:
-                self._tokenizer = AutoTokenizer.from_pretrained(model_id)
+                self._tokenizer = AutoTokenizer.from_pretrained(self.model_id)
                 if self._tokenizer.pad_token is None and self._tokenizer.eos_token is not None:
                     self._tokenizer.pad_token = self._tokenizer.eos_token
 
                 dtype = torch.float16 if torch.cuda.is_available() else torch.float32
                 self._model = AutoModelForCausalLM.from_pretrained(
-                    model_id,
+                    self.model_id,
                     dtype=dtype,
                     device_map="auto",
                     low_cpu_mem_usage=True,
@@ -79,19 +80,20 @@ class QwenGenerator:
                 "next_action": "Tell me your target program and city.",
             }
 
-        top_hits = hits[:5]
+        top_hits = hits[:3]
         evidence_lines = []
         for item in top_hits:
             c = item["chunk"]
             s = item["school"]
             evidence_lines.append(
                 f"chunk_id={c.get('chunk_id', '')} | school={s.get('name', '')} | city={s.get('city', '')} | "
-                f"program={c.get('program', '')} | tuition_max={s.get('tuition_max_mad', '')} | text={str(c.get('text', ''))[:500]}"
+                f"program={c.get('program', '')} | tuition_max={s.get('tuition_max_mad', '')} | text={str(c.get('text', ''))[:160]}"
             )
 
         prompt = (
             "You are a strict education advisor. Use only provided evidence. Do not invent facts. "
-            "If data is missing, say it clearly and ask one focused follow-up in next_action.\n\n"
+            "If data is missing, say it clearly and ask one focused follow-up in next_action. "
+            "Cite at least one chunk_id explicitly in short_answer or why_it_fits.\n\n"
             f"Question: {question}\n"
             f"Profile: bac_stream={profile.bac_stream}, expected_grade_band={profile.expected_grade_band}, "
             f"motivation={profile.motivation}, budget_band={profile.budget_band}, city={profile.city}, country={profile.country}\n\n"
@@ -116,7 +118,7 @@ class QwenGenerator:
             with torch.no_grad():
                 out = self._model.generate(
                     **inputs,
-                    max_new_tokens=220,
+                    max_new_tokens=96,
                     do_sample=False,
                     pad_token_id=self._tokenizer.pad_token_id,
                 )

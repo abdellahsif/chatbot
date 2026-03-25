@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from threading import Lock
 from typing import Any
 
@@ -173,5 +174,72 @@ def retrieve(
     if not candidates:
         return []
 
-    candidates.sort(key=lambda x: x["score"], reverse=True)
-    return candidates[:top_k]
+    def _tokenize(text: str) -> set[str]:
+        return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
+
+    query_tokens = _tokenize(question)
+    rescored: list[dict] = []
+
+    for item in candidates:
+        school = item["school"]
+        chunk = item["chunk"]
+
+        semantic_score = float(item["score"])
+        lexical_tokens = _tokenize(
+            " ".join(
+                [
+                    str(chunk.get("program", "")),
+                    str(chunk.get("text", "")),
+                    str(school.get("name", "")),
+                    " ".join(school.get("programs", [])),
+                ]
+            )
+        )
+        lexical_score = (len(query_tokens & lexical_tokens) / len(query_tokens)) if query_tokens else 0.0
+
+        profile_bonus = 0.0
+        school_city = str(school.get("city", "")).strip().lower()
+        if profile.city and school_city == profile.city.strip().lower():
+            profile_bonus += 0.03
+
+        program_tokens = _tokenize(str(chunk.get("program", "")))
+        if program_tokens and (query_tokens & program_tokens):
+            profile_bonus += 0.02
+
+        final_score = (0.75 * semantic_score) + (0.20 * lexical_score) + profile_bonus
+        rescored.append(
+            {
+                "score": float(final_score),
+                "semantic_score": float(semantic_score),
+                "lexical_score": float(lexical_score),
+                "chunk": chunk,
+                "school": school,
+            }
+        )
+
+    rescored.sort(key=lambda x: x["score"], reverse=True)
+
+    school_cap = 2 if top_k >= 3 else top_k
+    selected: list[dict] = []
+    per_school_counts: dict[str, int] = {}
+
+    for item in rescored:
+        school = item["school"]
+        school_key = str(school.get("school_id") or school.get("name") or "")
+        count = per_school_counts.get(school_key, 0)
+        if count >= school_cap:
+            continue
+        selected.append(item)
+        per_school_counts[school_key] = count + 1
+        if len(selected) >= top_k:
+            break
+
+    if len(selected) < top_k:
+        for item in rescored:
+            if item in selected:
+                continue
+            selected.append(item)
+            if len(selected) >= top_k:
+                break
+
+    return selected

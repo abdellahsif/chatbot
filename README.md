@@ -28,11 +28,12 @@ Build a chatbot that:
 ## Retrieval Stack
 By default, retrieval runs in semantic mode with one production path:
 - Embeddings: `intfloat/multilingual-e5-base`
-- Generator LLM: `Qwen/Qwen2.5-3B-Instruct`
+- Generator LLM: `Qwen/Qwen2.5-0.5B-Instruct`
 
 Notes:
 - First run requires internet to download model weights.
 - After cache is populated, it can run offline.
+- Production default is 0.5B based on benchmark winner for best quality/latency/cost trade-off.
 
 ## Run Local API
 1. Install dependencies:
