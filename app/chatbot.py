@@ -25,15 +25,11 @@ def answer_question(
 
     if not hits:
         return QueryResponse(
-            short_answer=(
-                "I do not have enough matching data for your current profile and constraints."
-            ),
-            why_it_fits=(
-                "Your budget/country filters removed all candidates. Try widening budget or changing city/country."
-            ),
+            short_answer="No suitable school found for your constraints.",
+            why_it_fits="No candidate passed budget/bac/country filtering. Try widening budget or changing city.",
             evidence=[],
-            alternative="Consider public options first and ask for computer science or business specifically.",
-            next_action="Tell me your target program and whether you can stretch your budget.",
+            alternative="Try public schools or a nearby city with lower tuition.",
+            next_action="Tell me your exact target program and acceptable budget range.",
             confidence=0.1,
         )
 
@@ -53,7 +49,35 @@ def answer_question(
             )
         )
 
-    generated = QWEN_GENERATOR.generate(question=question, profile=profile, hits=hits)
+    top_schools: list[dict] = []
+    for hit in hits[:5]:
+        school = hit["school"]
+        components = hit.get("score_components", {})
+        top_schools.append(
+            {
+                "school_id": school.get("school_id"),
+                "name": school.get("name"),
+                "city": school.get("city"),
+                "programs": school.get("programs", []),
+                "tuition_min_mad": school.get("tuition_min_mad"),
+                "tuition_max_mad": school.get("tuition_max_mad"),
+                "admission_selectivity": school.get("admission_selectivity"),
+                "score": round(float(hit.get("score", 0.0)), 4),
+                "score_components": {
+                    "program_match": round(float(components.get("program_match", 0.0)), 4),
+                    "budget_match": round(float(components.get("budget_match", 0.0)), 4),
+                    "grade_match": round(float(components.get("grade_match", 0.0)), 4),
+                    "location_match": round(float(components.get("location_match", 0.0)), 4),
+                    "weighted": round(float(components.get("weighted", 0.0)), 4),
+                },
+            }
+        )
+
+    generated = QWEN_GENERATOR.generate(
+        question=question,
+        profile=profile,
+        top_schools=top_schools,
+    )
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
 

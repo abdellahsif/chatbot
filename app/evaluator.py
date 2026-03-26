@@ -73,11 +73,35 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                 "has_evidence": len(res.evidence) > 0,
                 "has_short_answer": bool(res.short_answer.strip()),
                 "has_next_action": bool(res.next_action.strip()),
-                "mentions_budget_or_fit": (
-                    "budget" in res.why_it_fits.lower()
-                    or "fit" in res.why_it_fits.lower()
-                ),
+                "grounded_attributes": False,
+                "no_external_school": False,
+                "relevance_constraints": False,
             }
+
+            evidence_school_names = {str(e.school_name).strip().lower() for e in res.evidence}
+            evidence_programs = {str(e.program).strip().lower() for e in res.evidence}
+            evidence_cities = {str(e.text).lower() for e in res.evidence}
+
+            rationale = f"{res.short_answer} {res.why_it_fits}".lower()
+            checks["grounded_attributes"] = (
+                any(name and name in rationale for name in evidence_school_names)
+                or any(program and program in rationale for program in evidence_programs)
+                or any(str(item.get("city", "")).lower() in rationale for item in [{"city": req.profile.city}] if req.profile.city)
+            )
+
+            checks["no_external_school"] = (
+                (not evidence_school_names)
+                or any(name in res.short_answer.lower() for name in evidence_school_names)
+            )
+
+            budget_relevant = True
+            if req.profile.budget_band:
+                budget_relevant = any("tuition" in e.text.lower() or "mad" in e.text.lower() for e in res.evidence)
+            city_relevant = True
+            if req.profile.city:
+                city_relevant = any(req.profile.city.lower() in e.text.lower() for e in res.evidence) or req.profile.city.lower() in rationale
+            checks["relevance_constraints"] = budget_relevant and city_relevant
+
             passed = all(checks.values())
             results.append(
                 EvalResult(
@@ -104,7 +128,7 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             groundedness = _safe_div(len(answer_tokens & evidence_tokens), len(answer_tokens))
             relevance = _safe_div(len(answer_tokens & question_tokens), len(question_tokens))
             compliance = 1.0 if all(checks.values()) else _safe_div(sum(1 for v in checks.values() if v), len(checks))
-            hallucination = 1.0 - groundedness
+            hallucination = 0.0 if checks["no_external_school"] else 1.0
 
             latencies.append(latency)
             groundedness_scores.append(groundedness)

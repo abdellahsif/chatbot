@@ -70,45 +70,44 @@ class QwenGenerator:
         *,
         question: str,
         profile: UserProfile,
-        hits: list[dict],
+        top_schools: list[dict],
     ) -> dict[str, str]:
-        if not hits:
+        if not top_schools:
             return {
-                "short_answer": "I do not have enough matching data for your current profile and constraints.",
-                "why_it_fits": "Your constraints removed all candidates from retrieval.",
-                "alternative": "Try widening your budget or changing city.",
-                "next_action": "Tell me your target program and city.",
+                "short_answer": "No suitable school found for your constraints.",
+                "why_it_fits": "No candidate passed strict filtering on budget/bac/country.",
+                "alternative": "Try widening budget, changing city, or selecting a related program.",
+                "next_action": "Tell me your exact program and whether your budget can be extended.",
             }
 
-        top_hits = hits[:3]
-        evidence_lines = []
-        for item in top_hits:
-            c = item["chunk"]
-            s = item["school"]
-            evidence_lines.append(
-                f"chunk_id={c.get('chunk_id', '')} | school={s.get('name', '')} | city={s.get('city', '')} | "
-                f"program={c.get('program', '')} | tuition_max={s.get('tuition_max_mad', '')} | text={str(c.get('text', ''))[:160]}"
-            )
+        selected = top_schools[:5]
+        selected_json = json.dumps(selected, ensure_ascii=True)
 
         prompt = (
-            "You are a strict education advisor. Use only provided evidence. Do not invent facts. "
-            "If data is missing, say it clearly and ask one focused follow-up in next_action. "
-            "Cite at least one chunk_id explicitly in short_answer or why_it_fits.\n\n"
+            "You are a strict education recommendation explainer. "
+            "School selection is already done by Python. You must NOT change ranking and must NOT add any external school. "
+            "Use ONLY provided JSON schools. If empty, say 'No suitable school found...'.\n\n"
             f"Question: {question}\n"
             f"Profile: bac_stream={profile.bac_stream}, expected_grade_band={profile.expected_grade_band}, "
             f"motivation={profile.motivation}, budget_band={profile.budget_band}, city={profile.city}, country={profile.country}\n\n"
-            "Evidence:\n"
-            + "\n".join(f"- {line}" for line in evidence_lines)
-            + "\n\nReturn ONLY valid JSON with keys: short_answer, why_it_fits, alternative, next_action"
+            f"Selected schools JSON (ordered best to worst):\n{selected_json}\n\n"
+            "Return ONLY valid JSON with keys: short_answer, why_it_fits, alternative, next_action. "
+            "Requirements: short_answer mentions Best match and confidence score (0-1). "
+            "why_it_fits must reference concrete attributes: city, tuition, and score components. "
+            "alternative must include 1-2 school names from the provided JSON."
         )
 
         if not self._ensure_loaded():
-            top_school = top_hits[0]["school"]
+            top_school = selected[0]
+            score = float(top_school.get("score", 0.0))
             return {
-                "short_answer": f"Top match right now is {top_school.get('name', 'the top school')}.",
-                "why_it_fits": "This result is based on semantic retrieval against your profile constraints.",
-                "alternative": "Ask me to compare two schools for a direct trade-off.",
-                "next_action": "Tell me the exact program you want so I can narrow options.",
+                "short_answer": f"Best match: {top_school.get('name', 'N/A')} (confidence {score:.2f}).",
+                "why_it_fits": (
+                    f"Fit based on Python ranking using program, budget, grade, and location. "
+                    f"City={top_school.get('city', 'N/A')}, tuition_max={top_school.get('tuition_max_mad', 'N/A')} MAD."
+                ),
+                "alternative": "Alternatives: " + ", ".join(str(s.get("name", "N/A")) for s in selected[1:3]) if len(selected) > 1 else "No alternative available.",
+                "next_action": "Tell me your exact specialization to refine ranking.",
             }
 
         try:
@@ -127,16 +126,22 @@ class QwenGenerator:
         except Exception:
             parsed = {}
 
-        top_school = top_hits[0]["school"]
+        top_school = selected[0]
+        score = float(top_school.get("score", 0.0))
+        alternatives = ", ".join(str(s.get("name", "N/A")) for s in selected[1:3]) if len(selected) > 1 else "No alternative available"
         return {
             "short_answer": str(parsed.get("short_answer", "")).strip()
-            or f"Top match right now is {top_school.get('name', 'the top school')}",
+            or f"Best match: {top_school.get('name', 'N/A')} (confidence {score:.2f}).",
             "why_it_fits": str(parsed.get("why_it_fits", "")).strip()
-            or "This recommendation aligns with your profile constraints and retrieved evidence.",
+            or (
+                f"This recommendation matches your budget and profile fit. "
+                f"City={top_school.get('city', 'N/A')}, tuition_max={top_school.get('tuition_max_mad', 'N/A')} MAD, "
+                f"weighted_score={score:.2f}."
+            ),
             "alternative": str(parsed.get("alternative", "")).strip()
-            or "Ask for one alternative with a lower cost or different city.",
+            or f"Alternatives: {alternatives}.",
             "next_action": str(parsed.get("next_action", "")).strip()
-            or "Tell me your exact target program and city to refine results.",
+            or "Share your exact program and acceptable tuition cap to refine ranking.",
         }
 
 
