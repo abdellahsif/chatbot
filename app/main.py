@@ -11,6 +11,7 @@ from app.models import QueryRequest
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA: DataBundle | None = None
+WEB_FILE = ROOT_DIR / "app" / "web" / "index.html"
 
 
 def ensure_data_loaded() -> DataBundle:
@@ -36,11 +37,29 @@ class ChatbotHandler(BaseHTTPRequestHandler):
             return {}
         return json.loads(raw.decode("utf-8"))
 
+    def _send_html(self, status: int, html_text: str) -> None:
+        body = html_text.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def log_message(self, format: str, *args) -> None:
         return
 
     def do_GET(self) -> None:
         data = ensure_data_loaded()
+        if self.path == "/":
+            if WEB_FILE.exists():
+                self._send_html(200, WEB_FILE.read_text(encoding="utf-8"))
+                return
+            self._send_html(
+                200,
+                "<h1>Chatbot API</h1><p>Use POST /chat/query or open the UI at / when app/web/index.html exists.</p>",
+            )
+            return
+
         if self.path == "/health":
             self._send_json(
                 200,

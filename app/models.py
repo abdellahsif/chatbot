@@ -87,6 +87,8 @@ class EvalSummary:
     passed: int
     failed: int
     results: list[EvalResult]
+    metrics: dict[str, Any] | None = None
+    log_path: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -94,4 +96,6 @@ class EvalSummary:
             "passed": self.passed,
             "failed": self.failed,
             "results": [asdict(item) for item in self.results],
+            "metrics": self.metrics or {},
+            "log_path": self.log_path,
         }

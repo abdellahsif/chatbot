@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chatbot Interface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-1: #f8f4ec;
+      --bg-2: #c9e6dc;
+      --ink: #1c2a2f;
+      --ink-soft: #3b4f56;
+      --accent: #d65a31;
+      --accent-2: #117a65;
+      --card: rgba(255, 255, 255, 0.82);
+      --border: rgba(28, 42, 47, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Space Grotesk", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 14%, #fff3cc 0, transparent 35%),
+        radial-gradient(circle at 87% 18%, #e5f4ef 0, transparent 38%),
+        linear-gradient(130deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      animation: settle 600ms ease-out;
+    }
+
+    @keyframes settle {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .wrap {
+      width: min(1080px, 94vw);
+      margin: 24px auto;
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 320px 1fr;
+    }
+
+    .panel {
+      background: var(--card);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 14px 40px rgba(28, 42, 47, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+      letter-spacing: 0.02em;
+    }
+
+    p.note {
+      margin: 0 0 12px;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    .group {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+
+    input, select, textarea, button {
+      font: inherit;
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      background: white;
+      color: var(--ink);
+    }
+
+    textarea {
+      min-height: 92px;
+      resize: vertical;
+    }
+
+    .row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 700;
+      border: none;
+      transition: transform 140ms ease, box-shadow 140ms ease;
+    }
+
+    button.primary {
+      color: #fff;
+      background: linear-gradient(120deg, var(--accent), #ef8f38);
+      box-shadow: 0 10px 20px rgba(214, 90, 49, 0.28);
+    }
+
+    button.secondary {
+      color: #fff;
+      background: linear-gradient(120deg, var(--accent-2), #1ea188);
+      box-shadow: 0 10px 20px rgba(17, 122, 101, 0.25);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      min-height: 1.2rem;
+    }
+
+    .response {
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .bubble {
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.85);
+      opacity: 0;
+      transform: translateY(8px);
+      animation: bubble-in 360ms ease forwards;
+    }
+
+    .bubble h3 {
+      margin: 0 0 8px;
+      font-size: 0.96rem;
+      color: var(--ink-soft);
+    }
+
+    .bubble p {
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    @keyframes bubble-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .evidence li {
+      margin: 0 0 8px;
+      line-height: 1.45;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 920px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="panel">
+      <h1>University Chatbot</h1>
+      <p class="note">Ask a question and get an evidence-based recommendation.</p>
+
+      <div class="group">
+        <label for="question">Question</label>
+        <textarea id="question" placeholder="Example: I want a computer science school in Rabat with medium budget."></textarea>
+      </div>
+
+      <div class="row">
+        <div class="group">
+          <label for="city">City</label>
+          <input id="city" value="Rabat" />
+        </div>
+        <div class="group">
+          <label for="country">Country</label>
+          <input id="country" value="MA" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="group">
+          <label for="bac">Bac Stream</label>
+          <input id="bac" value="science_math" />
+        </div>
+        <div class="group">
+          <label for="grade">Grade Band</label>
+          <input id="grade" value="12_14" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="group">
+          <label for="motivation">Motivation</label>
+          <input id="motivation" value="career" />
+        </div>
+        <div class="group">
+          <label for="budget">Budget Band</label>
+          <select id="budget">
+            <option value="zero_public">zero_public</option>
+            <option value="tight_25k">tight_25k</option>
+            <option value="comfort_50k" selected>comfort_50k</option>
+            <option value="no_limit_70k_plus">no_limit_70k_plus</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="group">
+        <label for="topk">Top K</label>
+        <input id="topk" type="number" min="1" max="10" value="3" />
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="askBtn">Ask Chatbot</button>
+        <button class="secondary" id="evalBtn">Run Evaluation</button>
+      </div>
+
+      <div class="status" id="status"></div>
+    </section>
+
+    <section class="panel response" id="responsePanel">
+      <div class="bubble">
+        <h3>Ready</h3>
+        <p>Submit a question to see short answer, why it fits, confidence, and evidence.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById("status");
+    const panelEl = document.getElementById("responsePanel");
+
+    function setStatus(text) {
+      statusEl.textContent = text || "";
+    }
+
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderChatResult(data) {
+      const evidenceItems = Array.isArray(data.evidence)
+        ? data.evidence.map((e) => `<li><strong>${escapeHtml(e.school_name || "N/A")}</strong> (${escapeHtml(e.program || "N/A")})<br/><span class="mono">score=${escapeHtml(e.score)} chunk=${escapeHtml(e.chunk_id)}</span><br/>${escapeHtml(e.text || "")}</li>`).join("")
+        : "";
+
+      panelEl.innerHTML = `
+        <div class="bubble"><h3>Short Answer</h3><p>${escapeHtml(data.short_answer || "")}</p></div>
+        <div class="bubble"><h3>Why It Fits</h3><p>${escapeHtml(data.why_it_fits || "")}</p></div>
+        <div class="bubble"><h3>Alternative</h3><p>${escapeHtml(data.alternative || "")}</p></div>
+        <div class="bubble"><h3>Next Action</h3><p>${escapeHtml(data.next_action || "")}</p></div>
+        <div class="bubble"><h3>Confidence</h3><p class="mono">${escapeHtml(data.confidence ?? "N/A")}</p></div>
+        <div class="bubble"><h3>Evidence</h3><ul class="evidence">${evidenceItems || "<li>No evidence returned.</li>"}</ul></div>
+      `;
+    }
+
+    function renderEvalResult(data) {
+      const m = data.metrics || {};
+      panelEl.innerHTML = `
+        <div class="bubble"><h3>Eval Summary</h3><p class="mono">passed=${escapeHtml(data.passed)} / total=${escapeHtml(data.total)} | failed=${escapeHtml(data.failed)}</p></div>
+        <div class="bubble"><h3>Model Quality Score</h3><p class="mono">final_score_100=${escapeHtml(m.final_score_100 ?? "N/A")} | final_score=${escapeHtml(m.final_score ?? "N/A")}</p></div>
+        <div class="bubble"><h3>Metrics</h3><p class="mono">groundedness=${escapeHtml(m.avg_groundedness ?? "N/A")}, relevance=${escapeHtml(m.avg_relevance ?? "N/A")}, compliance=${escapeHtml(m.avg_compliance ?? "N/A")}, hallucination=${escapeHtml(m.avg_hallucination ?? "N/A")}, latency_s=${escapeHtml(m.avg_latency_s ?? "N/A")}</p></div>
+        <div class="bubble"><h3>Log Path</h3><p class="mono">${escapeHtml(data.log_path || "")}</p></div>
+      `;
+    }
+
+    async function askChatbot() {
+      const payload = {
+        question: document.getElementById("question").value.trim(),
+        top_k: Number(document.getElementById("topk").value || "3"),
+        profile: {
+          bac_stream: document.getElementById("bac").value.trim(),
+          expected_grade_band: document.getElementById("grade").value.trim(),
+          motivation: document.getElementById("motivation").value.trim(),
+          budget_band: document.getElementById("budget").value,
+          city: document.getElementById("city").value.trim(),
+          country: document.getElementById("country").value.trim(),
+        },
+      };
+
+      if (!payload.question) {
+        setStatus("Please enter a question.");
+        return;
+      }
+
+      setStatus("Asking chatbot...");
+      try {
+        const res = await fetch("/chat/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          throw new Error(`Request failed with status ${res.status}`);
+        }
+        const data = await res.json();
+        renderChatResult(data);
+        setStatus("Done.");
+      } catch (err) {
+        setStatus(`Error: ${err.message}`);
+      }
+    }
+
+    async function runEval() {
+      setStatus("Running evaluation...");
+      try {
+        const res = await fetch("/chat/evaluate", { method: "POST" });
+        if (!res.ok) {
+          throw new Error(`Eval failed with status ${res.status}`);
+        }
+        const data = await res.json();
+        renderEvalResult(data);
+        setStatus("Evaluation completed and logged.");
+      } catch (err) {
+        setStatus(`Error: ${err.message}`);
+      }
+    }
+
+    document.getElementById("askBtn").addEventListener("click", askChatbot);
+    document.getElementById("evalBtn").addEventListener("click", runEval);
+  </script>
+</body>
+</html>
