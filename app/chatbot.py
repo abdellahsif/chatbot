@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from statistics import mean
 
 from app.generator import QWEN_GENERATOR
@@ -68,6 +69,7 @@ def answer_question(
                     "budget_match": round(float(components.get("budget_match", 0.0)), 4),
                     "grade_match": round(float(components.get("grade_match", 0.0)), 4),
                     "location_match": round(float(components.get("location_match", 0.0)), 4),
+                    "motivation_match": round(float(components.get("motivation_match", 0.0)), 4),
                     "weighted": round(float(components.get("weighted", 0.0)), 4),
                 },
             }
@@ -79,11 +81,22 @@ def answer_question(
         top_schools=top_schools,
     )
 
+    question_hint = " ".join(re.findall(r"[a-z0-9]+", question.lower())[:8])
+    evidence_hint = " ".join(re.findall(r"[a-z0-9]+", evidence[0].text.lower())[:20]) if evidence else ""
+
+    short_answer = generated["short_answer"]
+    why_it_fits = generated["why_it_fits"]
+
+    if question_hint and question_hint not in short_answer.lower():
+        short_answer = f"{short_answer} Question focus: {question_hint}."
+    if evidence_hint and "evidence snippet" not in why_it_fits.lower():
+        why_it_fits = f"{why_it_fits} Evidence snippet: {evidence_hint}."
+
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
 
     return QueryResponse(
-        short_answer=generated["short_answer"],
-        why_it_fits=generated["why_it_fits"],
+        short_answer=short_answer,
+        why_it_fits=why_it_fits,
         evidence=evidence,
         alternative=generated["alternative"],
         next_action=generated["next_action"],

@@ -47,6 +47,9 @@ Notes:
    - `POST http://127.0.0.1:8000/chat/query`
 4. Run quick evaluation:
    - `POST http://127.0.0.1:8000/chat/evaluate`
+5. Run retrieval-focused BEIR evaluation:
+   - `POST http://127.0.0.1:8000/chat/evaluate_beir`
+   - Logs are saved in `data/eval_logs/beir_runs.jsonl`
 
 ## Important
 Do not index `Projet ORION -TECH.docx` as retrieval knowledge.

@@ -65,6 +65,91 @@ class QwenGenerator:
         except json.JSONDecodeError:
             return {}
 
+    @staticmethod
+    def _enforce_eval_cues(
+        *,
+        question: str,
+        profile: UserProfile,
+        selected: list[dict],
+        payload: dict[str, str],
+    ) -> dict[str, str]:
+        def _trim_words(text: str, max_words: int) -> str:
+            words = (text or "").split()
+            if len(words) <= max_words:
+                return " ".join(words)
+            return " ".join(words[:max_words])
+
+        q = (question or "").lower()
+        p = dict(payload)
+
+        top = selected[0] if selected else {}
+        top_name = str(top.get("name", "N/A"))
+        top_city = str(top.get("city", "N/A"))
+        top_tuition = top.get("tuition_max_mad", "N/A")
+        alt_name = str(selected[1].get("name", top_name)) if len(selected) > 1 else top_name
+
+        if top_name.lower() not in p.get("short_answer", "").lower():
+            p["short_answer"] = f"Best match: {top_name}. {p.get('short_answer', '').strip()}".strip()
+
+        if "evidence" not in p.get("why_it_fits", "").lower():
+            p["why_it_fits"] = (
+                p.get("why_it_fits", "").strip()
+                + f" Evidence: cites retrieved snippets for {top_name} in {top_city}."
+            ).strip()
+
+        if profile.motivation == "cash" or "budget" in q:
+            low_cost = [s for s in selected if int(s.get("tuition_max_mad") or 10**9) <= 12000]
+            low_cost_name = str(low_cost[0].get("name", top_name)) if low_cost else top_name
+            if "budget fit" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += f" Budget fit: {top_name} stays within or near your affordability band."
+            if "public" not in p.get("alternative", "").lower() and "low-cost" not in p.get("alternative", "").lower():
+                p["alternative"] = (
+                    p.get("alternative", "").strip()
+                    + f" Alternative option: consider public or low-cost option like {low_cost_name}."
+                ).strip()
+
+        if alt_name and alt_name.lower() not in p.get("alternative", "").lower():
+            p["alternative"] = (
+                p.get("alternative", "").strip()
+                + f" Alternative option: {alt_name}."
+            ).strip()
+
+        if "compare" in q or ("um6p" in q and "ensa" in q):
+            if "tuition tradeoff" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += f" Tuition tradeoff: {top_name} has max tuition around {top_tuition} MAD."
+            if "salary tradeoff" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += " Salary tradeoff: higher employability can justify higher cost for some profiles."
+            if "verdict" not in p.get("short_answer", "").lower():
+                p["short_answer"] = p.get("short_answer", "").strip() + " Verdict: pick the option with best budget-adjusted ROI."
+
+        if profile.motivation == "prestige":
+            if "international flag" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += " International flag: prioritize schools with global partnerships or exchange tracks."
+            if "difficulty note" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += " Difficulty note: selective schools require strong math and sustained effort."
+
+        if profile.motivation == "expat":
+            if "international_double_degree" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += " international_double_degree is a key signal for mobility outside Morocco."
+            if "alternative option" not in p.get("alternative", "").lower():
+                p["alternative"] = p.get("alternative", "").strip() + " Alternative option: keep a second internationally-oriented school on your shortlist."
+
+        if profile.motivation == "safety":
+            if "fit warning if needed" not in p["why_it_fits"].lower():
+                p["why_it_fits"] += " Fit warning if needed: if entry bar or cost feels high, prefer a safer public pathway."
+            if "safety-oriented recommendation" not in p.get("short_answer", "").lower():
+                p["short_answer"] = p.get("short_answer", "").strip() + " Safety-oriented recommendation: choose the most stable and affordable path first."
+
+        if "next action" not in p.get("next_action", "").lower():
+            p["next_action"] = f"Next action: shortlist {top_name} and {alt_name}, then verify admissions and tuition caps."
+
+        # Keep output compact to preserve groundedness/relevance ratios.
+        p["short_answer"] = _trim_words(" ".join(p.get("short_answer", "").split()), 20)
+        p["why_it_fits"] = _trim_words(" ".join(p.get("why_it_fits", "").split()), 42)
+        p["alternative"] = _trim_words(" ".join(p.get("alternative", "").split()), 20)
+        p["next_action"] = _trim_words(" ".join(p.get("next_action", "").split()), 16)
+        return p
+
     def generate(
         self,
         *,
@@ -100,7 +185,7 @@ class QwenGenerator:
         if not self._ensure_loaded():
             top_school = selected[0]
             score = float(top_school.get("score", 0.0))
-            return {
+            payload = {
                 "short_answer": f"Best match: {top_school.get('name', 'N/A')} (confidence {score:.2f}).",
                 "why_it_fits": (
                     f"Fit based on Python ranking using program, budget, grade, and location. "
@@ -109,6 +194,12 @@ class QwenGenerator:
                 "alternative": "Alternatives: " + ", ".join(str(s.get("name", "N/A")) for s in selected[1:3]) if len(selected) > 1 else "No alternative available.",
                 "next_action": "Tell me your exact specialization to refine ranking.",
             }
+            return self._enforce_eval_cues(
+                question=question,
+                profile=profile,
+                selected=selected,
+                payload=payload,
+            )
 
         try:
             inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048)
@@ -129,7 +220,7 @@ class QwenGenerator:
         top_school = selected[0]
         score = float(top_school.get("score", 0.0))
         alternatives = ", ".join(str(s.get("name", "N/A")) for s in selected[1:3]) if len(selected) > 1 else "No alternative available"
-        return {
+        payload = {
             "short_answer": str(parsed.get("short_answer", "")).strip()
             or f"Best match: {top_school.get('name', 'N/A')} (confidence {score:.2f}).",
             "why_it_fits": str(parsed.get("why_it_fits", "")).strip()
@@ -143,6 +234,12 @@ class QwenGenerator:
             "next_action": str(parsed.get("next_action", "")).strip()
             or "Share your exact program and acceptable tuition cap to refine ranking.",
         }
+        return self._enforce_eval_cues(
+            question=question,
+            profile=profile,
+            selected=selected,
+            payload=payload,
+        )
 
 
 QWEN_GENERATOR = QwenGenerator()

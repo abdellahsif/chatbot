@@ -4,6 +4,7 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+from app.beir_eval import run_beir_eval
 from app.chatbot import answer_question
 from app.data_loader import DataBundle, load_bundle
 from app.evaluator import run_eval
@@ -113,6 +114,11 @@ class ChatbotHandler(BaseHTTPRequestHandler):
         if self.path == "/chat/evaluate":
             summary = run_eval(ROOT_DIR, data.schools, data.transcripts)
             self._send_json(200, summary.to_dict())
+            return
+
+        if self.path == "/chat/evaluate_beir":
+            summary = run_beir_eval(ROOT_DIR, data.schools, data.transcripts)
+            self._send_json(200, summary)
             return
 
         self._send_json(404, {"error": "not_found"})
