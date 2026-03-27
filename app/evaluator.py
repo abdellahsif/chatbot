@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import unicodedata
 from datetime import datetime, timezone
@@ -13,6 +14,10 @@ from app.models import EvalResult, EvalSummary, QueryRequest
 
 def _tokens(text: str) -> set[str]:
     return set(re.findall(r"[a-z0-9]+", (text or "").lower()))
+
+
+def _token_count(text: str) -> int:
+    return len(re.findall(r"[a-z0-9]+", (text or "").lower()))
 
 
 def _safe_div(a: float, b: float) -> float:
@@ -126,8 +131,23 @@ def _append_eval_log(root_dir: Path, payload: dict) -> str:
     return str(log_path.relative_to(root_dir)).replace("\\", "/")
 
 
+def _write_metrics_snapshot(root_dir: Path, file_name: str, payload: dict) -> str:
+    log_dir = root_dir / "data" / "eval_logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    out_path = log_dir / file_name
+    out_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+    return str(out_path.relative_to(root_dir)).replace("\\", "/")
+
+
+def _to_float(value: str | None, default: float = 0.0) -> float:
+    try:
+        return float(value) if value is not None else default
+    except (TypeError, ValueError):
+        return default
+
+
 def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) -> EvalSummary:
-    eval_path = root_dir / "data" / "mock" / "eval_questions.jsonl"
+    eval_path = root_dir / "data" / "eval_questions.jsonl"
     results: list[EvalResult] = []
     latencies: list[float] = []
     groundedness_scores: list[float] = []
@@ -140,6 +160,15 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     retrieval_recall_scores: list[float] = []
     retrieval_precision_scores: list[float] = []
     retrieval_f1_scores: list[float] = []
+    faithfulness_scores: list[float] = []
+    correctness_scores: list[float] = []
+    completeness_scores: list[float] = []
+    input_tokens_per_query: list[int] = []
+    output_tokens_per_query: list[int] = []
+    total_input_tokens = 0
+    total_output_tokens = 0
+    input_cost_per_1k = _to_float(os.getenv("COST_PER_1K_INPUT_TOKENS"), 0.0)
+    output_cost_per_1k = _to_float(os.getenv("COST_PER_1K_OUTPUT_TOKENS"), 0.0)
     detailed_rows: list[dict] = []
 
     with eval_path.open("r", encoding="utf-8") as f:
@@ -223,6 +252,10 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             relevance = _safe_div(len(answer_tokens & question_tokens), len(question_tokens))
             compliance = 1.0 if all(checks.values()) else _safe_div(sum(1 for v in checks.values() if v), len(checks))
             hallucination = 0.0 if checks["no_external_school"] else 1.0
+            faithfulness = _safe_div(
+                len(_tokens(f"{res.short_answer} {res.why_it_fits}") & evidence_tokens),
+                len(_tokens(f"{res.short_answer} {res.why_it_fits}")),
+            )
 
             must_include = _as_list(row.get("must_include"))
             generated_item_count = sum(
@@ -267,6 +300,24 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                 retrieval_precision = 0.0
                 retrieval_f1 = 0.0
 
+            prompt_text = " ".join(
+                [
+                    str(req.question),
+                    str(req.profile.bac_stream),
+                    str(req.profile.expected_grade_band),
+                    str(req.profile.motivation),
+                    str(req.profile.budget_band),
+                    str(req.profile.city),
+                    str(req.profile.country),
+                ]
+            )
+            query_input_tokens = _token_count(prompt_text)
+            query_output_tokens = _token_count(answer_text)
+            total_input_tokens += query_input_tokens
+            total_output_tokens += query_output_tokens
+            input_tokens_per_query.append(query_input_tokens)
+            output_tokens_per_query.append(query_output_tokens)
+
             latencies.append(latency)
             groundedness_scores.append(groundedness)
             relevance_scores.append(relevance)
@@ -278,6 +329,9 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             retrieval_recall_scores.append(retrieval_recall)
             retrieval_precision_scores.append(retrieval_precision)
             retrieval_f1_scores.append(retrieval_f1)
+            faithfulness_scores.append(faithfulness)
+            correctness_scores.append(retrieval_recall)
+            completeness_scores.append(must_include_recall)
 
             detailed_rows.append(
                 {
@@ -287,12 +341,20 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                     "relevance": round(relevance, 4),
                     "compliance": round(compliance, 4),
                     "hallucination": round(hallucination, 4),
+                    "faithfulness": round(faithfulness, 4),
                     "must_include_recall": round(must_include_recall, 4),
                     "must_include_precision": round(must_include_precision, 4),
                     "must_include_f1": round(must_include_f1, 4),
                     "retrieval_recall_at_k": round(retrieval_recall, 4),
                     "retrieval_precision_at_k": round(retrieval_precision, 4),
                     "retrieval_f1_at_k": round(retrieval_f1, 4),
+                    "answer_correctness": round(retrieval_recall, 4),
+                    "answer_completeness": round(must_include_recall, 4),
+                    "token_usage": {
+                        "input_tokens": query_input_tokens,
+                        "output_tokens": query_output_tokens,
+                        "total_tokens": query_input_tokens + query_output_tokens,
+                    },
                     "hits": len(res.evidence),
                     "short_answer": res.short_answer,
                 }
@@ -310,6 +372,9 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     avg_retrieval_recall = _safe_div(sum(retrieval_recall_scores), len(retrieval_recall_scores))
     avg_retrieval_precision = _safe_div(sum(retrieval_precision_scores), len(retrieval_precision_scores))
     avg_retrieval_f1 = _safe_div(sum(retrieval_f1_scores), len(retrieval_f1_scores))
+    avg_faithfulness = _safe_div(sum(faithfulness_scores), len(faithfulness_scores))
+    avg_correctness = _safe_div(sum(correctness_scores), len(correctness_scores))
+    avg_completeness = _safe_div(sum(completeness_scores), len(completeness_scores))
 
     avg_recall = avg_retrieval_recall
     avg_precision = avg_retrieval_precision
@@ -317,6 +382,11 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
 
     latency_score = _normalize_scores(latencies, higher_is_better=False)
     avg_latency_score = _safe_div(sum(latency_score), len(latency_score)) if latency_score else 0.0
+    total_tokens = total_input_tokens + total_output_tokens
+    total_cost = _safe_div(total_input_tokens, 1000.0) * input_cost_per_1k + _safe_div(total_output_tokens, 1000.0) * output_cost_per_1k
+    avg_cost_per_query = _safe_div(total_cost, len(results))
+    avg_input_tokens = _safe_div(sum(input_tokens_per_query), len(input_tokens_per_query))
+    avg_output_tokens = _safe_div(sum(output_tokens_per_query), len(output_tokens_per_query))
 
     # Final quality score in [0, 100], aligned with prior benchmark formula.
     final_score_0_1 = (
@@ -358,6 +428,32 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         "details": detailed_rows,
     }
     log_path = _append_eval_log(root_dir, log_payload)
+
+    generation_metrics = {
+        "groundedness": round(avg_groundedness, 4),
+        "relevance": round(avg_relevance, 4),
+        "faithfulness": round(avg_faithfulness, 4),
+        "hallucination_rate": round(_safe_div(sum(1.0 for s in hallucination_scores if s > 0.0), len(hallucination_scores)), 4),
+        "answer_correctness": round(avg_correctness, 4),
+        "answer_completeness": round(avg_completeness, 4),
+        "latency_s": round(avg_latency, 4),
+        "cost_per_query": round(avg_cost_per_query, 8),
+        "token_usage": {
+            "total_input_tokens": int(total_input_tokens),
+            "total_output_tokens": int(total_output_tokens),
+            "total_tokens": int(total_tokens),
+            "avg_input_tokens_per_query": round(avg_input_tokens, 2),
+            "avg_output_tokens_per_query": round(avg_output_tokens, 2),
+            "avg_total_tokens_per_query": round(avg_input_tokens + avg_output_tokens, 2),
+        },
+    }
+    generation_payload = {
+        "run_at": datetime.now(timezone.utc).isoformat(),
+        "total_queries": len(results),
+        "metrics": generation_metrics,
+    }
+    generation_metrics_path = _write_metrics_snapshot(root_dir, "generation_metrics.json", generation_payload)
+    metrics["generation_metrics_file"] = generation_metrics_path
 
     return EvalSummary(
         total=len(results),

@@ -1,6 +1,6 @@
 # Chatbot
 
-This workspace contains mock data and now also supports direct ingestion from `BDD_MCD_Universites.xlsx` when present at workspace root.
+This workspace supports direct ingestion from `BDD_MCD_Universites.xlsx` when present at workspace root.
 
 ## Goal
 Build a chatbot that:
@@ -9,15 +9,12 @@ Build a chatbot that:
 - returns evidence with each answer
 
 ## Files
-- `data/mock/schools.csv`: mock school facts
-- `data/mock/transcripts.jsonl`: mock transcript snippets linked to schools
-- `data/mock/eval_questions.jsonl`: evaluation questions with expected constraints
 - `config/policy_rules.yaml`: chatbot behavior and compliance rules
 - `docs/data_schema.md`: required fields and validation rules
 
 ## Quick Start
 1. If `BDD_MCD_Universites.xlsx` exists at workspace root, the server ingests it automatically.
-2. Otherwise, it falls back to `data/mock/schools.csv` and `data/mock/transcripts.jsonl`.
+2. If no local dataset exists, the API still starts in clean-start mode with empty data.
 3. Apply metadata filters (`country`, `budget_band`, `program`, `level`) before vector search.
 4. For each answer, return:
    - short answer
@@ -50,6 +47,23 @@ Notes:
 5. Run retrieval-focused BEIR evaluation:
    - `POST http://127.0.0.1:8000/chat/evaluate_beir`
    - Logs are saved in `data/eval_logs/beir_runs.jsonl`
+   - Optional mode comparison env var: `BEIR_RETRIEVAL_MODES=dense,sparse,hybrid`
+
+## Retrieval Modes
+- `RETRIEVAL_MODE=dense`: semantic retrieval only
+- `RETRIEVAL_MODE=sparse`: TF-IDF retrieval + bi-encoder reranking
+- `RETRIEVAL_MODE=hybrid` (default): dense + sparse candidate union + bi-encoder fusion
+- Optional sparse fusion weight: `SPARSE_BI_WEIGHT=0.9` (range 0..1)
+- Optional hybrid fusion weights:
+   - `HYBRID_DENSE_WEIGHT=0.2`
+   - `HYBRID_SPARSE_WEIGHT=0.1`
+   - `HYBRID_BI_WEIGHT=0.7`
+
+### Optional Cross-Encoder Reranking
+- `USE_CROSS_ENCODER_RERANKER=1` to enable final reranking
+- `CROSS_ENCODER_MODEL=cross-encoder/mmarco-mMiniLMv2-L12-H384-v1`
+- `CROSS_ENCODER_TOP_N=8` (rerank only top-N candidates)
+- `CROSS_ENCODER_BLEND=0.6` (0..1 blend between base score and cross-encoder score)
 
 ## Important
 Do not index `Projet ORION -TECH.docx` as retrieval knowledge.

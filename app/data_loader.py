@@ -297,17 +297,134 @@ def load_transcripts(jsonl_path: Path) -> list[dict]:
     return transcripts
 
 
+def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]]:
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    rows = payload.get("etablissements", []) if isinstance(payload, dict) else []
+
+    schools: dict[str, dict] = {}
+    transcripts: list[dict] = []
+
+    chunk_size = 4
+    for i, row in enumerate(rows):
+        if not isinstance(row, dict):
+            continue
+
+        name = _safe_str(row.get("nom"))
+        city = _safe_str(row.get("ville"))
+        if not name:
+            continue
+
+        school_id = f"uni_{_normalize_token(name)}_{_normalize_token(city)}"
+        filieres = row.get("filieres", [])
+        if isinstance(filieres, list):
+            programs = [_normalize_token(v) for v in filieres if _safe_str(v)]
+        else:
+            programs = [_normalize_token(row.get("domaine"))] if _safe_str(row.get("domaine")) else []
+        programs = sorted(set(programs)) or ["general"]
+
+        statut = _safe_str(row.get("statut")).lower()
+        school_type = "public" if "public" in statut else "private"
+        annuels = _parse_int(row.get("frais_annuels_mad"), default=-1)
+        inscription = _parse_int(row.get("frais_inscription_mad"), default=-1)
+        if annuels < 0:
+            annuels = 0 if school_type == "public" else 25000
+        if inscription < 0:
+            inscription = 0
+        tuition_min = max(0, min(inscription, annuels))
+        tuition_max = max(inscription, annuels)
+
+        schools[school_id] = {
+            "school_id": school_id,
+            "name": name,
+            "country": "MA",
+            "city": city,
+            "type": school_type,
+            "tuition_min_mad": tuition_min,
+            "tuition_max_mad": tuition_max,
+            "programs": programs,
+            "admission_selectivity": "medium",
+            "employability_score": 3.8,
+            "salary_entry_min_mad": 6000,
+            "salary_entry_max_mad": 12000,
+            "international_double_degree": False,
+        }
+
+        filieres_list = [
+            _safe_str(v)
+            for v in (filieres if isinstance(filieres, list) else [])
+            if _safe_str(v)
+        ]
+
+        base_info = (
+            f"{name} a {city}. Categorie {_safe_str(row.get('categorie'))}. Domaine {_safe_str(row.get('domaine'))}. "
+            f"Cycle {_safe_str(row.get('cycle'))}. Langue {_safe_str(row.get('langue_enseignement'))}."
+        )
+        admissions_info = (
+            f"Admission: {_safe_str(row.get('conditions_acces'))}. "
+            f"Type {_safe_str(row.get('type_etab'))}. Statut {_safe_str(row.get('statut'))}."
+        )
+        cost_info = (
+            f"Frais inscription {inscription} MAD, frais annuels {annuels} MAD. "
+            f"Bourse: {_safe_str(row.get('bourse_disponible')) or 'non precisee'}. "
+            f"Note frais: {_safe_str(row.get('frais_note'))}."
+        )
+
+        chunk_texts: list[tuple[str, str]] = [
+            ("overview", base_info),
+            ("admission", admissions_info),
+            ("cost", cost_info),
+        ]
+
+        for j in range(0, len(filieres_list), chunk_size):
+            subset = filieres_list[j : j + chunk_size]
+            if not subset:
+                continue
+            prog_text = f"Filieres: {' | '.join(subset)}."
+            chunk_texts.append(("programs", prog_text))
+
+        for c_idx, (chunk_kind, chunk_text) in enumerate(chunk_texts, start=1):
+            transcripts.append(
+                {
+                    "chunk_id": f"etab_{i + 1}_{chunk_kind}_{c_idx}",
+                    "video_id": "json_catalog",
+                    "school_id": school_id,
+                    "program": programs[min(c_idx - 1, len(programs) - 1)] if programs else "general",
+                    "level": "bac_plus_1",
+                    "language": "fr",
+                    "recorded_at": _safe_str(row.get("date_collecte")) or "2026-01-01",
+                    "text": chunk_text,
+                    "sentiment": "positive",
+                    "tags": [
+                        _normalize_token(row.get("categorie")),
+                        _normalize_token(city),
+                        _normalize_token(chunk_kind),
+                    ],
+                }
+            )
+
+    return schools, transcripts
+
+
 def load_policy(policy_path: Path) -> dict:
     with policy_path.open("r", encoding="utf-8") as f:
         return {"raw_text": f.read()}
 
 
 def load_bundle(root_dir: Path) -> DataBundle:
-    xlsx_path = root_dir / "BDD_MCD_Universites.xlsx"
-    if xlsx_path.exists():
+    json_catalog_path = root_dir / "etablissements_maroc_complet.json"
+    xlsx_candidates = [
+        root_dir / "BDD_MCD_Universites.xlsx",
+        root_dir / "etablissements_maroc_complet.xlsx",
+    ]
+    xlsx_path = next((p for p in xlsx_candidates if p.exists()), None)
+
+    if json_catalog_path.exists():
+        schools, transcripts = load_from_json_catalog(json_catalog_path)
+    elif xlsx_path is not None:
         schools, transcripts = load_from_excel_mcd(xlsx_path)
     else:
-        schools = load_schools(root_dir / "data" / "mock" / "schools.csv")
-        transcripts = load_transcripts(root_dir / "data" / "mock" / "transcripts.jsonl")
+        # Clean start mode: no mock fallback.
+        schools = {}
+        transcripts = []
     policy = load_policy(root_dir / "config" / "policy_rules.yaml")
     return DataBundle(schools=schools, transcripts=transcripts, policy=policy)
