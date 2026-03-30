@@ -1,22 +1,22 @@
 {
-  "run_at": "2026-03-27T10:57:14.576995+00:00",
+  "run_at": "2026-03-29T17:39:29.656525+00:00",
   "total_queries": 13,
   "metrics": {
-    "groundedness": 0.3637,
-    "relevance": 0.6501,
-    "faithfulness": 0.3263,
+    "groundedness": 0.3497,
+    "relevance": 0.6334,
+    "faithfulness": 0.2869,
     "hallucination_rate": 0.0,
-    "answer_correctness": 0.4359,
-    "answer_completeness": 0.6026,
-    "latency_s": 7.4227,
+    "answer_correctness": 0.6154,
+    "answer_completeness": 0.5833,
+    "latency_s": 9.8172,
     "cost_per_query": 0.0,
     "token_usage": {
       "total_input_tokens": 292,
-      "total_output_tokens": 1625,
-      "total_tokens": 1917,
+      "total_output_tokens": 1627,
+      "total_tokens": 1919,
       "avg_input_tokens_per_query": 22.46,
-      "avg_output_tokens_per_query": 125.0,
-      "avg_total_tokens_per_query": 147.46
+      "avg_output_tokens_per_query": 125.15,
+      "avg_total_tokens_per_query": 147.62
     }
   }
 }

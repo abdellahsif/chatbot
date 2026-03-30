@@ -10,6 +10,7 @@ from time import perf_counter
 
 from app.chatbot import answer_question
 from app.models import EvalResult, EvalSummary, QueryRequest
+from app.retriever import resolve_effective_profile
 
 
 def _tokens(text: str) -> set[str]:
@@ -147,7 +148,8 @@ def _to_float(value: str | None, default: float = 0.0) -> float:
 
 
 def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) -> EvalSummary:
-    eval_path = root_dir / "data" / "eval_questions.jsonl"
+    eval_file = os.getenv("EVAL_QUESTIONS_FILE", "data/eval_questions.jsonl")
+    eval_path = (root_dir / eval_file).resolve() if not Path(eval_file).is_absolute() else Path(eval_file)
     results: list[EvalResult] = []
     latencies: list[float] = []
     groundedness_scores: list[float] = []
@@ -181,10 +183,15 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                     "top_k": 5,
                 }
             )
+            effective_profile = resolve_effective_profile(
+                question=req.question,
+                profile=req.profile,
+                schools=schools,
+            )
             t0 = perf_counter()
             res = answer_question(
                 question=req.question,
-                profile=req.profile,
+                profile=effective_profile,
                 schools=schools,
                 transcripts=transcripts,
                 top_k=req.top_k,
@@ -208,7 +215,7 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             checks["grounded_attributes"] = (
                 any(name and name in rationale for name in evidence_school_names)
                 or any(program and program in rationale for program in evidence_programs)
-                or any(str(item.get("city", "")).lower() in rationale for item in [{"city": req.profile.city}] if req.profile.city)
+                or any(str(item.get("city", "")).lower() in rationale for item in [{"city": effective_profile.city}] if effective_profile.city)
             )
 
             checks["no_external_school"] = (
@@ -217,11 +224,11 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             )
 
             budget_relevant = True
-            if req.profile.budget_band:
+            if effective_profile.budget_band:
                 budget_relevant = any("tuition" in e.text.lower() or "mad" in e.text.lower() for e in res.evidence)
             city_relevant = True
-            if req.profile.city:
-                city_relevant = any(req.profile.city.lower() in e.text.lower() for e in res.evidence) or req.profile.city.lower() in rationale
+            if effective_profile.city:
+                city_relevant = any(effective_profile.city.lower() in e.text.lower() for e in res.evidence) or effective_profile.city.lower() in rationale
             checks["relevance_constraints"] = budget_relevant and city_relevant
 
             passed = all(checks.values())
@@ -307,8 +314,8 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                     str(req.profile.expected_grade_band),
                     str(req.profile.motivation),
                     str(req.profile.budget_band),
-                    str(req.profile.city),
-                    str(req.profile.country),
+                    str(effective_profile.city),
+                    str(effective_profile.country),
                 ]
             )
             query_input_tokens = _token_count(prompt_text)

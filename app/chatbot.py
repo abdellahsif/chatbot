@@ -5,7 +5,7 @@ from statistics import mean
 
 from app.generator import QWEN_GENERATOR
 from app.models import EvidenceItem, QueryResponse, UserProfile
-from app.retriever import retrieve
+from app.retriever import resolve_effective_profile, retrieve
 
 
 def answer_question(
@@ -16,9 +16,15 @@ def answer_question(
     transcripts: list[dict],
     top_k: int,
 ) -> QueryResponse:
-    hits = retrieve(
+    effective_profile = resolve_effective_profile(
         question=question,
         profile=profile,
+        schools=schools,
+    )
+
+    hits = retrieve(
+        question=question,
+        profile=effective_profile,
         schools=schools,
         transcripts=transcripts,
         top_k=top_k,
@@ -77,7 +83,7 @@ def answer_question(
 
     generated = QWEN_GENERATOR.generate(
         question=question,
-        profile=profile,
+        profile=effective_profile,
         top_schools=top_schools,
     )
 

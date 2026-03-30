@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import unicodedata
 from datetime import datetime, timezone
@@ -147,7 +148,8 @@ def run_beir_eval(
             "message": f"Install BEIR first: {exc}",
         }
 
-    eval_path = root_dir / "data" / "eval_questions.jsonl"
+    eval_file = os.getenv("EVAL_QUESTIONS_FILE", "data/eval_questions.jsonl")
+    eval_path = (root_dir / eval_file).resolve() if not Path(eval_file).is_absolute() else Path(eval_file)
     if not eval_path.exists():
         return {
             "status": "error",
@@ -220,7 +222,13 @@ def run_beir_eval(
 
             ranked: dict[str, float] = {}
             for hit in hits:
-                cid = str(hit.get("chunk", {}).get("chunk_id", "")).strip()
+                school_id = str(hit.get("school", {}).get("school_id", "")).strip()
+                school_chunks = chunks_by_school.get(school_id, [])
+                # Keep school-level scoring consistent with qrels by using one stable
+                # representative chunk id per school.
+                cid = str(school_chunks[0].get("chunk_id", "")).strip() if school_chunks else ""
+                if not cid:
+                    cid = str(hit.get("chunk", {}).get("chunk_id", "")).strip()
                 if not cid:
                     continue
                 ranked[cid] = float(hit.get("score", 0.0))

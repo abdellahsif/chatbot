@@ -44,10 +44,17 @@ Notes:
    - `POST http://127.0.0.1:8000/chat/query`
 4. Run quick evaluation:
    - `POST http://127.0.0.1:8000/chat/evaluate`
+   - Optional fixed set: set `EVAL_QUESTIONS_FILE=data/eval_questions_fixed_200.jsonl`
 5. Run retrieval-focused BEIR evaluation:
    - `POST http://127.0.0.1:8000/chat/evaluate_beir`
    - Logs are saved in `data/eval_logs/beir_runs.jsonl`
    - Optional mode comparison env var: `BEIR_RETRIEVAL_MODES=dense,sparse,hybrid`
+
+## Build Fixed 200-Question Test Set
+- Generate deterministic set:
+  - `c:/Users/abdos/OneDrive/Documents/pfe/.venv/Scripts/python.exe -m app.generate_fixed_eval_set`
+- Output file:
+  - `data/eval_questions_fixed_200.jsonl`
 
 ## Retrieval Modes
 - `RETRIEVAL_MODE=dense`: semantic retrieval only

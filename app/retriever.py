@@ -217,8 +217,8 @@ class _SemanticIndex:
             show_progress_bar=False,
         )[0].astype("float32")
 
-        retrieve_k = min(max(top_k, 5), 10)
-        retrieve_k = min(max(top_k, 5), max(10, _env_int("DENSE_RETRIEVE_MAX", 60)))
+        retrieve_k = max(top_k, 5)
+        retrieve_k = min(retrieve_k, max(10, _env_int("DENSE_RETRIEVE_MAX", 60)))
         retrieve_k = min(retrieve_k, len(self._school_docs))
 
         candidates: list[dict[str, Any]] = []
@@ -378,6 +378,7 @@ INTENT_SYNONYMS: dict[str, set[str]] = {
     "arts": {"art", "arts", "beaux", "design", "portfolio", "creative", "cinema"},
     "military": {"military", "armee", "defense", "officier", "royale"},
     "vocational": {"ofppt", "technician", "technicien", "technologique", "pratique", "credential"},
+    "international": {"international", "global", "exposure", "abroad", "expat", "double", "degree"},
 }
 
 DOMAIN_TERMS: dict[str, set[str]] = {
@@ -616,6 +617,124 @@ def _extract_city_intent(question: str, schools: dict[str, dict]) -> str | None:
     return None
 
 
+    def _has_strict_city_phrase(question: str) -> bool:
+        q = _normalize_city_text(question)
+        if not q:
+            return False
+        # "near/proche" should be soft (nearby city allowance), while in/at/en/au is strict.
+        if re.search(r"\b(near|nearby|proche|around|autour)\b", q):
+            return False
+        return bool(re.search(r"\b(in|at|en|au|aux|dans)\b", q))
+
+
+def _extract_budget_override(question: str) -> str | None:
+    q = _normalize_city_text(question)
+    if not q:
+        return None
+
+    if re.search(r"\b(no\s*limit|unlimited|sans\s*limite|illimite)\b", q):
+        return "no_limit_70k_plus"
+    if re.search(r"\b(70k|70000|70\s*000)\b", q):
+        return "no_limit_70k_plus"
+    if re.search(r"\b(50k|50000|50\s*000)\b", q):
+        return "comfort_50k"
+    if re.search(r"\b(25k|25000|25\s*000)\b", q):
+        return "tight_25k"
+    if re.search(r"\b(public\s*only|zero\s*budget|free|gratuit|very\s*low\s*budget|budget\s*zero)\b", q):
+        return "zero_public"
+    if re.search(r"\b(affordable|cheap|low\s*cost|pas\s*cher|economique)\b", q):
+        return "tight_25k"
+    return None
+
+
+def _extract_motivation_override(question: str) -> str | None:
+    q_tokens = _tokenize(question)
+    if not q_tokens:
+        return None
+
+    rules: list[tuple[str, set[str]]] = [
+        ("expat", {"abroad", "expat", "international", "global", "leave", "outside"}),
+        ("prestige", {"prestige", "elite", "top", "ranking", "reputation"}),
+        ("cash", {"budget", "cheap", "affordable", "cost", "roi", "salary", "income"}),
+        ("employability", {"job", "jobs", "work", "employability", "hire", "career"}),
+        ("safety", {"safe", "safer", "stable", "realistic", "fallback"}),
+        ("passion", {"passion", "love", "interested", "interest"}),
+    ]
+    best = None
+    best_hits = 0
+    for label, vocab in rules:
+        hits = len(q_tokens & vocab)
+        if hits > best_hits:
+            best_hits = hits
+            best = label
+    return best if best_hits > 0 else None
+
+
+def _extract_country_override(question: str) -> str | None:
+    q = _normalize_city_text(question)
+    if re.search(r"\b(morocco|maroc|ma)\b", q):
+        return "MA"
+    if re.search(r"\b(senegal|sn)\b", q):
+        return "SN"
+    if re.search(r"\b(cote\s*d\s*ivoire|ivory\s*coast|ci)\b", q):
+        return "CI"
+    return None
+
+
+def _extract_bac_stream_override(question: str) -> str | None:
+    q = _normalize_city_text(question)
+    if re.search(r"\b(science\s*math|sm)\b", q):
+        return "sm"
+    if re.search(r"\b(physics|pc|spc|physique)\b", q):
+        return "spc"
+    if re.search(r"\b(svt|bio|biology)\b", q):
+        return "svt"
+    if re.search(r"\b(eco|economics|economie)\b", q):
+        return "eco"
+    if re.search(r"\b(lettres|literature|humanities)\b", q):
+        return "lettres"
+    return None
+
+
+def _extract_grade_override(question: str) -> str | None:
+    q = _normalize_city_text(question)
+    if re.search(r"\b(elite|excellent|16\s*20|16\s*/\s*20|17\s*/\s*20|18\s*/\s*20|19\s*/\s*20|20\s*/\s*20)\b", q):
+        return "elite"
+    if re.search(r"\b(tres\s*bien|14\s*16|14\s*/\s*20|15\s*/\s*20|16\s*/\s*20)\b", q):
+        return "tres_bien"
+    if re.search(r"\b(bien|12\s*14|12\s*/\s*20|13\s*/\s*20|14\s*/\s*20)\b", q):
+        return "bien"
+    if re.search(r"\b(passable|10\s*12|10\s*/\s*20|11\s*/\s*20|12\s*/\s*20)\b", q):
+        return "passable"
+    return None
+
+
+def resolve_effective_profile(
+    *,
+    question: str,
+    profile: UserProfile,
+    schools: dict[str, dict],
+) -> UserProfile:
+    city_intent = _extract_city_intent(question, schools)
+    budget_override = _extract_budget_override(question)
+    motivation_override = _extract_motivation_override(question)
+    country_override = _extract_country_override(question)
+    bac_override = _extract_bac_stream_override(question)
+    grade_override = _extract_grade_override(question)
+
+    if not any([city_intent, budget_override, motivation_override, country_override, bac_override, grade_override]):
+        return profile
+
+    return UserProfile(
+        bac_stream=bac_override or profile.bac_stream,
+        expected_grade_band=grade_override or profile.expected_grade_band,
+        motivation=motivation_override or profile.motivation,
+        budget_band=budget_override or profile.budget_band,
+        city=city_intent or profile.city,
+        country=(country_override or profile.country).upper(),
+    )
+
+
 def _city_matches_intent(school_city: str, city_intent: str | None) -> bool:
     if not city_intent:
         return True
@@ -635,6 +754,18 @@ def _city_matches_intent(school_city: str, city_intent: str | None) -> bool:
         if difflib.SequenceMatcher(a=candidate, b=city_intent).ratio() >= 0.84:
             return True
     return False
+
+
+def _has_explicit_city_constraint(question: str, city_intent: str | None) -> bool:
+    if not city_intent:
+        return False
+    q = _normalize_city_text(question)
+    if not q:
+        return False
+    if re.search(r"\b(near|around|proche)\b", q):
+        return False
+    city_pat = re.escape(city_intent)
+    return bool(re.search(rf"\b(in|at|en|au|aux|dans)\s+{city_pat}\b", q))
 
 
 def _school_breadth_score(school: dict[str, Any]) -> float:
@@ -680,6 +811,33 @@ def _is_location_only_query(question: str, city_intent: str | None) -> bool:
 
     core = {t for t in q_tokens if t not in generic and not _looks_like_city_token(t)}
     return len(core) == 0 and not _has_explicit_program_intent(question)
+
+
+def _sanitize_query_text(question: str) -> str:
+    text = (question or "").strip()
+    if not text:
+        return ""
+
+    patterns = [
+        r"^please answer in english only\.?\s*",
+        r"^reponds en francais:?\s*",
+        r"^jawbni b darija:?\s*",
+        r"^give me a strict recommendation with tradeoffs\.?\s*",
+        r"^edge case:\s*very low budget and uncertain grades\.?\s*",
+        r"^keep answer grounded in evidence only\.?\s*",
+    ]
+
+    changed = True
+    while changed:
+        changed = False
+        for pat in patterns:
+            new_text = re.sub(pat, "", text, flags=re.IGNORECASE)
+            if new_text != text:
+                text = new_text.strip()
+                changed = True
+
+    text = re.sub(r"\s+", " ", text).strip()
+    return text or (question or "").strip()
 
 
 def _build_query_variants(question: str, profile: UserProfile) -> list[str]:
@@ -788,6 +946,7 @@ def _intent_group_match_score(question: str, school: dict[str, Any], chunks: lis
         [
             str(school.get("name", "")),
             str(school.get("type", "")),
+            str(school.get("international_double_degree", "")),
             " ".join(school.get("programs", [])),
             " ".join(str(c.get("program", "")) for c in chunks[:6]),
             " ".join(str(c.get("text", "")) for c in chunks[:4]),
@@ -832,16 +991,20 @@ def _budget_match_score(profile: UserProfile, school: dict[str, Any]) -> float:
 
 
 def _program_match_score(question: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> float:
+    raw_q_tokens = _tokenize(question)
     q_tokens = _expanded_query_tokens(question)
     intent_tokens = set().union(*INTENT_SYNONYMS.values())
-    focused_q = q_tokens & intent_tokens
+    matched_groups = [group for group in INTENT_SYNONYMS.values() if raw_q_tokens & group]
     strict_intent = _has_explicit_program_intent(question)
-    if focused_q and strict_intent:
-        q_tokens = focused_q
+    if strict_intent and matched_groups:
+        q_tokens = set().union(*matched_groups)
     if not q_tokens:
         return 0.0
     school_text = " ".join(school.get("programs", []))
-    chunk_text = " ".join(str(c.get("program", "")) for c in chunks[:5])
+    chunk_text = " ".join(
+        f"{str(c.get('program', ''))} {str(c.get('text', ''))}"
+        for c in chunks[:3]
+    )
     target_tokens = _tokenize(f"{school_text} {chunk_text}")
     overlap = len(q_tokens & target_tokens)
     base = min(1.0, overlap / max(1, len(q_tokens)))
@@ -868,9 +1031,9 @@ def _location_match_score(profile: UserProfile, school: dict[str, Any], city_int
     if city_intent:
         return 1.0 if _city_matches_intent(school_city, city_intent) else 0.0
     if profile.city and school_city.lower() == profile.city.strip().lower():
-        return 1.0
+        return 0.35
     if str(school.get("country", "")).upper() == profile.country:
-        return 0.4
+        return 0.25
     return 0.0
 
 
@@ -891,9 +1054,12 @@ def _motivation_match_score(profile: UserProfile, school: dict[str, Any]) -> flo
         return min(1.0, max(0.0, roi * 6.0))
     if motivation == "prestige":
         selectivity_bonus = {"high": 1.0, "medium": 0.6, "low": 0.3}.get(selectivity, 0.5)
-        return min(1.0, 0.6 * selectivity_bonus + 0.4 * min(1.0, employability / 5.0))
+        intl_bonus = 0.2 if has_international else 0.0
+        return min(1.0, 0.5 * selectivity_bonus + 0.3 * min(1.0, employability / 5.0) + intl_bonus)
     if motivation == "expat":
         return 1.0 if has_international else 0.25
+    if motivation == "employability":
+        return min(1.0, employability / 5.0)
     if motivation == "safety":
         budget_safety = 1.0 if budget_allows(profile.budget_band, tuition_max) else 0.3
         selectivity_safety = {"low": 1.0, "medium": 0.75, "high": 0.4}.get(selectivity, 0.6)
@@ -948,13 +1114,13 @@ def _score_candidate(
     motivation_match = _motivation_match_score(profile, school)
 
     weighted = (
-        0.2 * program_match
-        + 0.2 * intent_match
-        + 0.15 * bac_match
-        + 0.1 * budget_match
-        + 0.1 * grade_match
+        0.4 * program_match
+        + 0.3 * intent_match
+        + 0.06 * bac_match
+        + 0.04 * budget_match
+        + 0.03 * grade_match
         + 0.1 * location_match
-        + 0.15 * motivation_match
+        + 0.07 * motivation_match
     )
     final_score = 0.45 * weighted + 0.55 * max(0.0, semantic)
     return {
@@ -992,6 +1158,87 @@ def _lexical_match_score(question: str, school: dict[str, Any], chunks: list[dic
     return min(1.0, _safe_div(overlap, max(1, min(len(q_tokens), 12))))
 
 
+def _name_query_match_score(question: str, school_name: str) -> float:
+    q_tokens = _tokenize(question)
+    n_tokens = _tokenize(school_name)
+    if not q_tokens or not n_tokens:
+        return 0.0
+
+    overlap = _safe_div(len(q_tokens & n_tokens), max(1, len(n_tokens)))
+    acronym = _acronym_from_name(school_name)
+    q_norm = _normalize_city_text(question)
+    acronym_hit = 1.0 if acronym and acronym in q_norm else 0.0
+    return min(1.0, max(overlap, acronym_hit))
+
+
+def _tech_path_bonus(question: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> float:
+    q_tokens = _tokenize(question)
+    if not q_tokens:
+        return 0.0
+
+    software_like = INTENT_SYNONYMS.get("software", set()) | INTENT_SYNONYMS.get("data", set()) | INTENT_SYNONYMS.get("cyber", set())
+    if not (q_tokens & software_like):
+        return 0.0
+
+    school_text = " ".join(
+        [
+            str(school.get("name", "")),
+            " ".join(school.get("programs", [])),
+            " ".join(str(c.get("program", "")) for c in chunks[:6]),
+            " ".join(str(c.get("text", "")) for c in chunks[:2]),
+        ]
+    )
+    st = _tokenize(school_text)
+    core_terms = {"informatique", "software", "computer", "programmation", "code", "developpement", "cyber"}
+    support_terms = {"ingenieur", "ingenierie", "technologie", "techniques", "appliquees", "science", "sciences"}
+
+    core_hits = len(st & core_terms)
+    support_hits = len(st & support_terms)
+    if core_hits >= 2:
+        return 0.08
+    if core_hits >= 1 and support_hits >= 1:
+        return 0.06
+    if core_hits >= 1 or support_hits >= 2:
+        return 0.04
+    return 0.0
+
+
+def _affordable_public_tech_bonus(
+    question: str,
+    profile: UserProfile,
+    school: dict[str, Any],
+    chunks: list[dict[str, Any]],
+) -> float:
+    q_tokens = _tokenize(question)
+    if not q_tokens:
+        return 0.0
+
+    software_like = INTENT_SYNONYMS.get("software", set()) | INTENT_SYNONYMS.get("data", set()) | INTENT_SYNONYMS.get("cyber", set())
+    if not (q_tokens & software_like):
+        return 0.0
+
+    if profile.budget_band not in {"zero_public", "tight_25k"}:
+        return 0.0
+    if str(school.get("type", "")).strip().lower() != "public":
+        return 0.0
+
+    school_text = " ".join(
+        [
+            str(school.get("name", "")),
+            " ".join(school.get("programs", [])),
+            " ".join(str(c.get("program", "")) for c in chunks[:5]),
+        ]
+    )
+    st = _tokenize(school_text)
+    public_tech_terms = {"faculte", "sciences", "techniques", "est", "ofppt", "informatique", "appliquees"}
+    hits = len(st & public_tech_terms)
+    if hits >= 3:
+        return 0.05
+    if hits >= 2:
+        return 0.035
+    return 0.0
+
+
 def retrieve(
     *,
     question: str,
@@ -1000,13 +1247,22 @@ def retrieve(
     transcripts: list[dict],
     top_k: int,
 ) -> list[dict]:
+    query_text = _sanitize_query_text(question)
+    profile = resolve_effective_profile(
+        question=query_text,
+        profile=profile,
+        schools=schools,
+    )
     SEMANTIC_INDEX.ensure(schools, transcripts)
     SPARSE_INDEX.ensure(schools, transcripts)
-    city_intent = _extract_city_intent(question, schools)
-    query_constraints = _extract_query_constraints(question)
-    location_only_query = _is_location_only_query(question, city_intent)
+    city_intent = _extract_city_intent(query_text, schools)
+    q_norm = _normalize_city_text(query_text)
+    near_city_query = bool(re.search(r"\b(near|around|proche)\b", q_norm))
+    query_constraints = _extract_query_constraints(query_text)
+    location_only_query = _is_location_only_query(query_text, city_intent)
+    explicit_city_constraint = _has_explicit_city_constraint(query_text, city_intent)
     candidate_k = max(40, min(120, top_k * 12))
-    variants = _build_query_variants(question, profile)
+    variants = _build_query_variants(query_text, profile)
 
     merged: dict[str, dict[str, Any]] = {}
     for q in variants or [question]:
@@ -1047,20 +1303,27 @@ def retrieve(
         return []
 
     filtered: list[dict] = []
-    mentioned_school_ids = _extract_school_mentions(question, schools)
+    mentioned_school_ids = _extract_school_mentions(query_text, schools)
     for item in candidates:
         school = item["school"]
         chunks = item.get("chunks", [])
         if not school_matches_profile(school, profile):
             continue
-        if city_intent and not _city_matches_intent(str(school.get("city", "")), city_intent):
-            continue
         filtered.append(item)
+
+    if city_intent and (location_only_query or explicit_city_constraint):
+        city_filtered = [
+            item
+            for item in filtered
+            if _city_matches_intent(str(item.get("school", {}).get("city", "")), city_intent)
+        ]
+        if city_filtered:
+            filtered = city_filtered
 
     if not filtered:
         # Recall-safe fallback: keep country-matching candidates if stream constraints are too strict.
         filtered = [item for item in candidates if school_matches_profile(item["school"], profile)]
-        if city_intent:
+        if city_intent and (location_only_query or explicit_city_constraint):
             city_filtered = [
                 item
                 for item in filtered
@@ -1071,28 +1334,35 @@ def retrieve(
     if not filtered:
         return []
 
-    constrained = [
-        item
+    constraint_hits = {
+        str(item.get("school", {}).get("school_id", "")): _school_matches_query_constraints(
+            item.get("school", {}),
+            item.get("chunks", []),
+            query_constraints,
+        )
         for item in filtered
-        if _school_matches_query_constraints(item.get("school", {}), item.get("chunks", []), query_constraints)
-    ]
-    if constrained:
-        filtered = constrained
+    }
 
     rescored: list[dict] = []
-    strict_intent = _has_explicit_program_intent(question)
+    strict_intent = _has_explicit_program_intent(query_text)
     for item in filtered:
         school = item["school"]
         chunks = item.get("chunks", [])
         semantic = float(item.get("semantic_score", 0.0))
         sparse = float(item.get("sparse_score", 0.0))
-        lexical = _lexical_match_score(question, school, chunks)
+        lexical = _lexical_match_score(query_text, school, chunks)
+        name_query_match = _name_query_match_score(query_text, str(school.get("name", "")))
         sparse_weight = min(0.7, max(0.1, _env_float("HYBRID_SPARSE_WEIGHT", 0.35)))
+        if strict_intent:
+            sparse_weight = min(0.7, max(sparse_weight, 0.5))
         dense_weight = 1.0 - sparse_weight
         hybrid_semantic = dense_weight * semantic + sparse_weight * sparse
-        hybrid_semantic = 0.85 * hybrid_semantic + 0.15 * lexical
+        if strict_intent:
+            hybrid_semantic = 0.72 * hybrid_semantic + 0.2 * lexical + 0.08 * name_query_match
+        else:
+            hybrid_semantic = 0.8 * hybrid_semantic + 0.12 * lexical + 0.08 * name_query_match
         components = _score_candidate(
-            question,
+            query_text,
             profile,
             school,
             chunks,
@@ -1100,17 +1370,41 @@ def retrieve(
             city_intent=city_intent,
         )
         components["lexical_match"] = lexical
+        components["name_query_match"] = name_query_match
         components["sparse_score"] = sparse
         components["hybrid_semantic"] = hybrid_semantic
+        sid = str(school.get("school_id", ""))
+        matches_constraints = constraint_hits.get(sid, True)
+        matches_city_intent = _city_matches_intent(str(school.get("city", "")), city_intent) if city_intent else True
+        if query_constraints.get("has_constraints", False):
+            # Favor constraint-aligned schools without hard-pruning recall.
+            components["final"] += 0.08 if matches_constraints else -0.03
+        components["constraint_match"] = 1.0 if matches_constraints else 0.0
+        if city_intent:
+            # Question city has precedence: strong boost when city matches, soft penalty otherwise.
+            if near_city_query:
+                components["final"] += 0.10 if matches_city_intent else 0.0
+            else:
+                components["final"] += 0.16 if matches_city_intent else -0.05
+        components["city_intent_match"] = 1.0 if matches_city_intent else 0.0
+        tech_bonus = _tech_path_bonus(query_text, school, chunks)
+        components["final"] += tech_bonus
+        components["tech_path_bonus"] = tech_bonus
+        affordable_bonus = _affordable_public_tech_bonus(query_text, profile, school, chunks)
+        components["final"] += affordable_bonus
+        components["affordable_public_tech_bonus"] = affordable_bonus
         school_id = str(school.get("school_id", ""))
         is_mentioned = school_id in mentioned_school_ids
 
         # If user clearly asks for a domain, keep only reasonably aligned programs.
-        if strict_intent and components["program_match"] < 0.03 and components["intent_match"] < 0.05 and hybrid_semantic < 0.08 and not is_mentioned:
-            continue
+        if strict_intent and not is_mentioned:
+            very_weak_intent = components["program_match"] < 0.02 and components["intent_match"] < 0.08
+            weak_surface_alignment = lexical < 0.06 and name_query_match < 0.06
+            if very_weak_intent and weak_surface_alignment:
+                continue
 
         if is_mentioned:
-            components["final"] += 0.12
+            components["final"] += 0.28
 
         if location_only_query:
             breadth = _school_breadth_score(school)
@@ -1120,7 +1414,7 @@ def retrieve(
 
         evidence_chunks = sorted(
             chunks,
-            key=lambda c: _program_match_score(question, school, [c]),
+            key=lambda c: _program_match_score(query_text, school, [c]),
             reverse=True,
         )
         chosen_chunk = evidence_chunks[0] if evidence_chunks else {
@@ -1141,6 +1435,46 @@ def retrieve(
         )
 
     rescored.sort(key=lambda x: x["score"], reverse=True)
+    if not rescored:
+        # Recall-safe fallback: rank by hybrid retrieval signals only.
+        for item in filtered:
+            school = item["school"]
+            chunks = item.get("chunks", [])
+            semantic = float(item.get("semantic_score", 0.0))
+            sparse = float(item.get("sparse_score", 0.0))
+            lexical = _lexical_match_score(query_text, school, chunks)
+            name_query_match = _name_query_match_score(query_text, str(school.get("name", "")))
+
+            sparse_weight = min(0.7, max(0.1, _env_float("HYBRID_SPARSE_WEIGHT", 0.35)))
+            dense_weight = 1.0 - sparse_weight
+            hybrid_semantic = dense_weight * semantic + sparse_weight * sparse
+
+            fallback_score = 0.75 * hybrid_semantic + 0.15 * lexical + 0.10 * name_query_match
+            chosen_chunk = (chunks or [
+                {
+                    "chunk_id": f"school_{school.get('school_id', school.get('name', 'unknown'))}",
+                    "school_id": school.get("school_id", ""),
+                    "program": (school.get("programs", ["general"]) or ["general"])[0],
+                    "recorded_at": "2026-01-01",
+                    "text": item.get("text", ""),
+                }
+            ])[0]
+
+            rescored.append(
+                {
+                    "score": float(fallback_score),
+                    "chunk": chosen_chunk,
+                    "school": school,
+                    "score_components": {
+                        "fallback": 1.0,
+                        "lexical_match": lexical,
+                        "name_query_match": name_query_match,
+                        "hybrid_semantic": hybrid_semantic,
+                    },
+                }
+            )
+
+        rescored.sort(key=lambda x: x["score"], reverse=True)
     if not rescored:
         return []
     # Return up to requested top_k (capped) for stronger recall during evaluation.
