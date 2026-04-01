@@ -1,22 +1,37 @@
 {
-  "run_at": "2026-04-01T10:08:30.828567+00:00",
-  "total_queries": 200,
+  "run_at": "2026-04-01T13:59:15.064739+00:00",
+  "total_queries": 10,
   "metrics": {
-    "groundedness": 0.8056,
-    "relevance": 0.0946,
-    "faithfulness": 0.8004,
-    "hallucination_rate": 0.0,
-    "answer_correctness": 0.7767,
-    "answer_completeness": 0.1965,
-    "latency_s": 0.1532,
+    "groundedness": 0.4167,
+    "relevance": 0.295,
+    "faithfulness": 0.4831,
+    "context_precision": 0.3733,
+    "hallucination_rate": 0.1,
+    "answer_correctness": 0.9333,
+    "answer_completeness": 0.29,
+    "success_rate": 0.1,
+    "latency_s": 1.2404,
+    "retrieval_metrics": {
+      "recall_at_5": 0.9167,
+      "recall_at_10": 0.9667,
+      "precision_at_5": 0.44,
+      "mrr": 0.8667,
+      "ndcg_at_10": 0.9848,
+      "hit_rate_at_10": 1.0
+    },
+    "robustness": {
+      "multilingual_pass_rate": 0.0,
+      "noisy_query_pass_rate": 0.0,
+      "conflicting_constraints_pass_rate": 0.3333
+    },
     "cost_per_query": 0.0,
     "token_usage": {
-      "total_input_tokens": 6162,
-      "total_output_tokens": 17647,
-      "total_tokens": 23809,
-      "avg_input_tokens_per_query": 30.81,
-      "avg_output_tokens_per_query": 88.23,
-      "avg_total_tokens_per_query": 119.05
+      "total_input_tokens": 308,
+      "total_output_tokens": 1029,
+      "total_tokens": 1337,
+      "avg_input_tokens_per_query": 30.8,
+      "avg_output_tokens_per_query": 102.9,
+      "avg_total_tokens_per_query": 133.7
     }
   }
 }

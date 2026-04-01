@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import unicodedata
@@ -186,6 +187,91 @@ def _count_name_hits(expected_names: set[str], retrieved_names: set[str], min_ov
     return hits
 
 
+def _is_multilingual_query(question: str) -> bool:
+    q = (question or "").lower()
+    return any(
+        marker in q
+        for marker in [
+            "please answer in english only",
+            "reponds en francais",
+            "jawbni b darija",
+        ]
+    )
+
+
+def _is_noisy_query(question: str) -> bool:
+    q_tokens = _tokens(question)
+    noisy_markers = {
+        "affrodable",
+        "whch",
+        "optns",
+        "internatonal",
+        "managment",
+        "enginering",
+        "optns",
+    }
+    if q_tokens & noisy_markers:
+        return True
+    # Repeated prompt prefixes are treated as instruction noise.
+    q = (question or "").lower()
+    return ("please answer in english only." in q and q.count("please answer in english only") > 1) or (
+        "keep answer grounded in evidence only." in q and q.count("keep answer grounded in evidence only") > 1
+    )
+
+
+def _is_conflicting_constraints_query(question: str, req: QueryRequest) -> bool:
+    q_tokens = _tokens(question)
+    q = (question or "").lower()
+
+    if "edge case: very low budget and uncertain grades" in q:
+        return True
+
+    low_budget = req.profile.budget_band in {"zero_public", "tight_25k"} or bool(
+        q_tokens & {"affordable", "cheap", "low", "budget", "public"}
+    )
+    high_aspiration = req.profile.motivation in {"prestige", "expat"} or bool(
+        q_tokens & {"prestige", "elite", "international", "global", "abroad", "roi"}
+    )
+    return low_budget and high_aspiration
+
+
+def _is_relevant_retrieval_item(
+    school_id: str,
+    school_name: str,
+    expected_school_ids: set[str],
+    expected_school_names: set[str],
+    min_overlap: float = 0.45,
+) -> bool:
+    sid = _normalize_label(school_id)
+    sname = _normalize_label(school_name)
+
+    if expected_school_ids and sid and sid in expected_school_ids:
+        return True
+
+    if expected_school_names and sname:
+        best = max((_name_overlap(exp, sname) for exp in expected_school_names), default=0.0)
+        if best >= min_overlap:
+            return True
+
+    return False
+
+
+def _dcg_at_k(relevance: list[int], k: int) -> float:
+    score = 0.0
+    for i, rel in enumerate(relevance[:k]):
+        if rel <= 0:
+            continue
+        score += float(rel) / math.log2(i + 2)
+    return score
+
+
+def _ndcg_at_k(relevance: list[int], ideal_relevant_count: int, k: int) -> float:
+    dcg = _dcg_at_k(relevance, k)
+    ideal = [1] * min(max(0, ideal_relevant_count), k)
+    idcg = _dcg_at_k(ideal, k)
+    return _safe_div(dcg, idcg)
+
+
 def _append_eval_log(root_dir: Path, payload: dict) -> str:
     log_dir = root_dir / "data" / "eval_logs"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -231,7 +317,14 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     retrieval_recall_scores: list[float] = []
     retrieval_precision_scores: list[float] = []
     retrieval_f1_scores: list[float] = []
+    recall_at_5_scores: list[float] = []
+    recall_at_10_scores: list[float] = []
+    precision_at_5_scores: list[float] = []
+    mrr_scores: list[float] = []
+    ndcg_at_10_scores: list[float] = []
+    hit_rate_at_10_scores: list[float] = []
     faithfulness_scores: list[float] = []
+    context_precision_scores: list[float] = []
     correctness_scores: list[float] = []
     completeness_scores: list[float] = []
     input_tokens_per_query: list[int] = []
@@ -246,6 +339,11 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     except ValueError:
         max_queries = 0
     detailed_rows: list[dict] = []
+    robustness_slices: dict[str, dict[str, int]] = {
+        "multilingual": {"total": 0, "passed": 0},
+        "noisy_query": {"total": 0, "passed": 0},
+        "conflicting_constraints": {"total": 0, "passed": 0},
+    }
 
     with eval_path.open("r", encoding="utf-8") as f:
         for line in f:
@@ -256,7 +354,7 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                 {
                     "question": row.get("question", ""),
                     "profile": row.get("profile", {}),
-                    "top_k": 5,
+                    "top_k": 10,
                 }
             )
             effective_profile = resolve_effective_profile(
@@ -308,6 +406,22 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
             checks["relevance_constraints"] = budget_relevant and city_relevant
 
             passed = all(checks.values())
+
+            if _is_multilingual_query(req.question):
+                robustness_slices["multilingual"]["total"] += 1
+                if passed:
+                    robustness_slices["multilingual"]["passed"] += 1
+
+            if _is_noisy_query(req.question):
+                robustness_slices["noisy_query"]["total"] += 1
+                if passed:
+                    robustness_slices["noisy_query"]["passed"] += 1
+
+            if _is_conflicting_constraints_query(req.question, req):
+                robustness_slices["conflicting_constraints"]["total"] += 1
+                if passed:
+                    robustness_slices["conflicting_constraints"]["passed"] += 1
+
             results.append(
                 EvalResult(
                     id=row["id"],
@@ -379,14 +493,49 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                 if str(e.school_id).strip() or str(e.school_name).strip()
             }
 
-            expected_total = len(expected_school_ids) + len(expected_school_names)
+            relevance_by_rank: list[int] = [
+                1
+                if _is_relevant_retrieval_item(
+                    school_id=str(e.school_id),
+                    school_name=str(e.school_name),
+                    expected_school_ids=expected_school_ids,
+                    expected_school_names=expected_school_names,
+                )
+                else 0
+                for e in res.evidence
+            ]
+
+            if relevance_by_rank:
+                context_precision_scores.append(_safe_div(sum(relevance_by_rank), len(relevance_by_rank)))
+            else:
+                context_precision_scores.append(0.0)
+
+            expected_total = max(len(expected_school_names), len(expected_school_ids))
             if expected_total > 0:
                 id_hits = len(expected_school_ids & retrieved_ids)
                 name_hits = _count_name_hits(expected_school_names, retrieved_names)
-                retrieval_hits = id_hits + name_hits
+                if expected_school_names and expected_school_ids:
+                    retrieval_hits = max(id_hits, name_hits)
+                elif expected_school_names:
+                    retrieval_hits = name_hits
+                else:
+                    retrieval_hits = id_hits
                 retrieval_recall = _safe_div(retrieval_hits, expected_total)
                 retrieval_precision = _safe_div(retrieval_hits, max(1, len(retrieved_entities)))
                 retrieval_f1 = _safe_div(2.0 * retrieval_precision * retrieval_recall, retrieval_precision + retrieval_recall)
+
+                rel_5 = relevance_by_rank[:5]
+                rel_10 = relevance_by_rank[:10]
+                hits_5 = min(sum(rel_5), expected_total)
+                hits_10 = min(sum(rel_10), expected_total)
+                recall_at_5_scores.append(_safe_div(hits_5, expected_total))
+                recall_at_10_scores.append(_safe_div(hits_10, expected_total))
+                precision_at_5_scores.append(_safe_div(hits_5, 5.0))
+                hit_rate_at_10_scores.append(1.0 if hits_10 > 0 else 0.0)
+
+                first_rel_rank = next((idx + 1 for idx, rel in enumerate(relevance_by_rank[:10]) if rel > 0), 0)
+                mrr_scores.append(_safe_div(1.0, float(first_rel_rank)))
+                ndcg_at_10_scores.append(_ndcg_at_k(relevance_by_rank, expected_total, 10))
             else:
                 retrieval_recall = 0.0
                 retrieval_precision = 0.0
@@ -467,7 +616,14 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     avg_retrieval_recall = _safe_div(sum(retrieval_recall_scores), len(retrieval_recall_scores))
     avg_retrieval_precision = _safe_div(sum(retrieval_precision_scores), len(retrieval_precision_scores))
     avg_retrieval_f1 = _safe_div(sum(retrieval_f1_scores), len(retrieval_f1_scores))
+    avg_recall_at_5 = _safe_div(sum(recall_at_5_scores), len(recall_at_5_scores))
+    avg_recall_at_10 = _safe_div(sum(recall_at_10_scores), len(recall_at_10_scores))
+    avg_precision_at_5 = _safe_div(sum(precision_at_5_scores), len(precision_at_5_scores))
+    avg_mrr = _safe_div(sum(mrr_scores), len(mrr_scores))
+    avg_ndcg_at_10 = _safe_div(sum(ndcg_at_10_scores), len(ndcg_at_10_scores))
+    avg_hit_rate_at_10 = _safe_div(sum(hit_rate_at_10_scores), len(hit_rate_at_10_scores))
     avg_faithfulness = _safe_div(sum(faithfulness_scores), len(faithfulness_scores))
+    avg_context_precision = _safe_div(sum(context_precision_scores), len(context_precision_scores))
     avg_correctness = _safe_div(sum(correctness_scores), len(correctness_scores))
     avg_completeness = _safe_div(sum(completeness_scores), len(completeness_scores))
 
@@ -482,6 +638,20 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     avg_cost_per_query = _safe_div(total_cost, len(results))
     avg_input_tokens = _safe_div(sum(input_tokens_per_query), len(input_tokens_per_query))
     avg_output_tokens = _safe_div(sum(output_tokens_per_query), len(output_tokens_per_query))
+    success_rate = _safe_div(passed, len(results))
+
+    multilingual_pass_rate = _safe_div(
+        robustness_slices["multilingual"]["passed"],
+        robustness_slices["multilingual"]["total"],
+    )
+    noisy_query_pass_rate = _safe_div(
+        robustness_slices["noisy_query"]["passed"],
+        robustness_slices["noisy_query"]["total"],
+    )
+    conflicting_constraints_pass_rate = _safe_div(
+        robustness_slices["conflicting_constraints"]["passed"],
+        robustness_slices["conflicting_constraints"]["total"],
+    )
 
     # Final quality score in [0, 100], aligned with prior benchmark formula.
     final_score_0_1 = (
@@ -512,6 +682,33 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         "avg_latency_score": round(avg_latency_score, 4),
         "final_score": round(final_score_0_1, 4),
         "final_score_100": round(final_score_0_1 * 100.0, 2),
+        "retrieval_metrics": {
+            "recall_at_5": round(avg_recall_at_5, 4),
+            "recall_at_10": round(avg_recall_at_10, 4),
+            "precision_at_5": round(avg_precision_at_5, 4),
+            "mrr": round(avg_mrr, 4),
+            "ndcg_at_10": round(avg_ndcg_at_10, 4),
+            "hit_rate_at_10": round(avg_hit_rate_at_10, 4),
+        },
+        "answer_quality_metrics": {
+            "faithfulness": round(avg_faithfulness, 4),
+            "answer_relevance": round(avg_relevance, 4),
+            "context_precision": round(avg_context_precision, 4),
+        },
+        "hallucination": {
+            "hallucination_rate": round(avg_hallucination, 4),
+        },
+        "end_to_end": {
+            "success_rate": round(success_rate, 4),
+        },
+        "performance": {
+            "latency_s": round(avg_latency, 4),
+        },
+        "robustness": {
+            "multilingual_pass_rate": round(multilingual_pass_rate, 4),
+            "noisy_query_pass_rate": round(noisy_query_pass_rate, 4),
+            "conflicting_constraints_pass_rate": round(conflicting_constraints_pass_rate, 4),
+        },
     }
 
     log_payload = {
@@ -528,11 +725,26 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         "groundedness": round(avg_groundedness, 4),
         "relevance": round(avg_relevance, 4),
         "faithfulness": round(avg_faithfulness, 4),
+        "context_precision": round(avg_context_precision, 4),
         # Claim-level hallucination rate across answers.
         "hallucination_rate": round(avg_hallucination, 4),
         "answer_correctness": round(avg_correctness, 4),
         "answer_completeness": round(avg_completeness, 4),
+        "success_rate": round(success_rate, 4),
         "latency_s": round(avg_latency, 4),
+        "retrieval_metrics": {
+            "recall_at_5": round(avg_recall_at_5, 4),
+            "recall_at_10": round(avg_recall_at_10, 4),
+            "precision_at_5": round(avg_precision_at_5, 4),
+            "mrr": round(avg_mrr, 4),
+            "ndcg_at_10": round(avg_ndcg_at_10, 4),
+            "hit_rate_at_10": round(avg_hit_rate_at_10, 4),
+        },
+        "robustness": {
+            "multilingual_pass_rate": round(multilingual_pass_rate, 4),
+            "noisy_query_pass_rate": round(noisy_query_pass_rate, 4),
+            "conflicting_constraints_pass_rate": round(conflicting_constraints_pass_rate, 4),
+        },
         "cost_per_query": round(avg_cost_per_query, 8),
         "token_usage": {
             "total_input_tokens": int(total_input_tokens),

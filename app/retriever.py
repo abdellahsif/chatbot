@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import difflib
+import math
 import os
 import re
 from threading import Lock
@@ -13,6 +14,10 @@ import torch
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from sentence_transformers import SentenceTransformer
+try:
+    from sentence_transformers import CrossEncoder
+except Exception:
+    CrossEncoder = None
 
 try:
     import faiss  # type: ignore
@@ -343,6 +348,100 @@ class _SparseSchoolIndex:
 
 SEMANTIC_INDEX = _SemanticIndex()
 SPARSE_INDEX = _SparseSchoolIndex()
+
+
+class _CrossEncoderReranker:
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._model: Any = None
+        self._model_name: str = ""
+
+    def _get_model(self) -> Any:
+        if not _env_bool("USE_CROSS_ENCODER_RERANKER", True):
+            return None
+        if CrossEncoder is None:
+            return None
+
+        model_name = os.getenv("CROSS_ENCODER_MODEL", "cross-encoder/mmarco-mMiniLMv2-L12-H384-v1")
+        if self._model is not None and self._model_name == model_name:
+            return self._model
+
+        with self._lock:
+            if self._model is not None and self._model_name == model_name:
+                return self._model
+            try:
+                self._model = CrossEncoder(model_name)
+                self._model_name = model_name
+            except Exception:
+                # Fail open: keep base ranking if cross-encoder cannot be loaded.
+                self._model = None
+                self._model_name = ""
+        return self._model
+
+    def rerank(self, question: str, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if not candidates:
+            return candidates
+
+        model = self._get_model()
+        if model is None:
+            return candidates
+
+        top_n = max(2, _env_int("CROSS_ENCODER_TOP_N", 8))
+        top_n = min(top_n, len(candidates))
+        blend = min(1.0, max(0.0, _env_float("CROSS_ENCODER_BLEND", 0.6)))
+
+        pairs: list[tuple[str, str]] = []
+        for item in candidates[:top_n]:
+            school = item.get("school", {})
+            chunk = item.get("chunk", {})
+            text = " ".join(
+                [
+                    str(school.get("name", "")),
+                    str(school.get("city", "")),
+                    str(school.get("type", "")),
+                    " ".join(school.get("programs", [])),
+                    str(chunk.get("program", "")),
+                    str(chunk.get("text", "")),
+                ]
+            )
+            pairs.append((question, text))
+
+        try:
+            raw_scores = model.predict(pairs, show_progress_bar=False)
+        except Exception:
+            return candidates
+
+        if hasattr(raw_scores, "tolist"):
+            raw_values = [float(v) for v in raw_scores.tolist()]
+        else:
+            raw_values = [float(v) for v in raw_scores]
+
+        lo = min(raw_values) if raw_values else 0.0
+        hi = max(raw_values) if raw_values else 0.0
+        if hi > lo:
+            ce_norm = [(v - lo) / (hi - lo) for v in raw_values]
+        else:
+            ce_norm = [1.0 / (1.0 + math.exp(-v)) for v in raw_values]
+
+        reranked = list(candidates)
+        for i in range(top_n):
+            item = dict(reranked[i])
+            base_score = float(item.get("score", 0.0))
+            ce_score = float(ce_norm[i])
+            final_score = (1.0 - blend) * base_score + blend * ce_score
+
+            components = dict(item.get("score_components", {}))
+            components["cross_encoder_score"] = ce_score
+            components["cross_encoder_blend"] = blend
+            item["score_components"] = components
+            item["score"] = float(final_score)
+            reranked[i] = item
+
+        reranked.sort(key=lambda x: float(x.get("score", 0.0)), reverse=True)
+        return reranked
+
+
+CROSS_ENCODER_RERANKER = _CrossEncoderReranker()
 
 
 def budget_allows(profile_budget: str, tuition_max_mad: int) -> bool:
@@ -836,6 +935,34 @@ def _sanitize_query_text(question: str) -> str:
                 text = new_text.strip()
                 changed = True
 
+    typo_map = {
+        "affrodable": "affordable",
+        "whch": "which",
+        "optns": "options",
+        "internatonal": "international",
+        "managment": "management",
+        "enginering": "engineering",
+        "universty": "university",
+        "scholl": "school",
+        "agadeer": "agadir",
+    }
+
+    words = text.split()
+    normalized_words: list[str] = []
+    for word in words:
+        leading = ""
+        trailing = ""
+        core = word
+        while core and not core[0].isalnum():
+            leading += core[0]
+            core = core[1:]
+        while core and not core[-1].isalnum():
+            trailing = core[-1] + trailing
+            core = core[:-1]
+        replacement = typo_map.get(core.lower(), core)
+        normalized_words.append(f"{leading}{replacement}{trailing}")
+
+    text = " ".join(normalized_words)
     text = re.sub(r"\s+", " ", text).strip()
     return text or (question or "").strip()
 
@@ -1435,6 +1562,7 @@ def retrieve(
         )
 
     rescored.sort(key=lambda x: x["score"], reverse=True)
+    rescored = CROSS_ENCODER_RERANKER.rerank(query_text, rescored)
     if not rescored:
         # Recall-safe fallback: rank by hybrid retrieval signals only.
         for item in filtered:

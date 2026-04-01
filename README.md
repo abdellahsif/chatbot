@@ -11,6 +11,7 @@ Build a chatbot that:
 ## Files
 - `config/policy_rules.yaml`: chatbot behavior and compliance rules
 - `docs/data_schema.md`: required fields and validation rules
+- `docs/metrics_todo.md`: metric targets and execution checklist before production deployment
 
 ## Quick Start
 1. If `BDD_MCD_Universites.xlsx` exists at workspace root, the server ingests it automatically.

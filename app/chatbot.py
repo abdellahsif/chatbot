@@ -222,6 +222,107 @@ def _is_city_only_school_request(question: str, profile: UserProfile) -> bool:
     return has_school_term and has_city_mention
 
 
+def _has_conflicting_constraints(question: str, profile: UserProfile) -> bool:
+    q_tokens = _norm_tokens(question)
+    low_budget = profile.budget_band in {"zero_public", "tight_25k"} or bool(
+        q_tokens & {"affordable", "cheap", "low", "budget", "public"}
+    )
+    high_aspiration = profile.motivation in {"prestige", "expat"} or bool(
+        q_tokens & {"prestige", "elite", "international", "global", "abroad", "top"}
+    )
+    return low_budget and high_aspiration
+
+
+def _select_generation_evidence(evidence: list[EvidenceItem], max_items: int = 3) -> list[EvidenceItem]:
+    if not evidence:
+        return []
+    selected: list[EvidenceItem] = []
+    seen: set[str] = set()
+    for item in evidence:
+        key = item.school_id.strip().lower() or item.school_name.strip().lower()
+        if key in seen:
+            continue
+        selected.append(item)
+        seen.add(key)
+        if len(selected) >= max_items:
+            break
+    return selected or evidence[:1]
+
+
+def _content_tokens(text: str) -> set[str]:
+    stop = {
+        "the",
+        "a",
+        "an",
+        "and",
+        "or",
+        "to",
+        "of",
+        "for",
+        "in",
+        "on",
+        "with",
+        "is",
+        "are",
+        "this",
+        "that",
+        "your",
+        "you",
+        "can",
+        "will",
+        "from",
+        "based",
+        "option",
+    }
+    return {t for t in _norm_tokens(text) if t not in stop}
+
+
+def _grounding_ratio(text: str, evidence_tokens: set[str]) -> float:
+    tokens = _content_tokens(text)
+    if not tokens:
+        return 1.0
+    return len(tokens & evidence_tokens) / float(len(tokens))
+
+
+def _excerpt(text: str, words: int) -> str:
+    return " ".join(str(text or "").split()[:words])
+
+
+def _enforce_grounded_response(
+    *,
+    short_answer: str,
+    why_it_fits: str,
+    alternative: str,
+    next_action: str,
+    generation_evidence: list[EvidenceItem],
+    profile: UserProfile,
+) -> tuple[str, str, str, str]:
+    if not generation_evidence:
+        return short_answer, why_it_fits, alternative, next_action
+
+    top_ev = generation_evidence[0]
+    alt_ev = generation_evidence[1] if len(generation_evidence) > 1 else top_ev
+    city_hint = f" in {profile.city}" if profile.city else ""
+
+    evidence_tokens: set[str] = set()
+    for ev in generation_evidence:
+        evidence_tokens |= _content_tokens(f"{ev.school_name} {ev.program} {ev.text}")
+
+    if _grounding_ratio(short_answer, evidence_tokens) < 0.18:
+        short_answer = f"Based on the retrieved evidence, {top_ev.school_name} looks like the strongest match{city_hint}."
+
+    if _grounding_ratio(why_it_fits, evidence_tokens) < 0.18:
+        why_it_fits = f"Evidence for {top_ev.school_name}{city_hint}: {_excerpt(top_ev.text, 24)}."
+
+    if _grounding_ratio(alternative, evidence_tokens) < 0.15:
+        alternative = f"A grounded alternative is {alt_ev.school_name}, with supporting details: {_excerpt(alt_ev.text, 20)}."
+
+    if not (next_action or "").strip():
+        next_action = "Share your target program, budget range, and preferred city so I can narrow this further."
+
+    return short_answer, why_it_fits, alternative, next_action
+
+
 def answer_question(
     *,
     question: str,
@@ -315,12 +416,14 @@ def answer_question(
             }
         )
 
-    top_ev = evidence[0]
+    generation_evidence = _select_generation_evidence(evidence, max_items=3)
+    top_ev = generation_evidence[0]
     short_answer = f"{top_ev.school_name} looks like the strongest match for what you asked."
 
     ev_text = " ".join(str(top_ev.text).split())
     ev_excerpt = " ".join(ev_text.split()[:28])
-    why_it_fits = f"It aligns with your request based on this evidence: {ev_excerpt}."
+    city_hint = f" in {effective_profile.city}" if effective_profile.city else ""
+    why_it_fits = f"It aligns with your request{city_hint}, based on this evidence: {ev_excerpt}."
 
     alt_hit = _select_alternative_hit(
         hits=hits,
@@ -331,9 +434,9 @@ def answer_question(
         alt_school = str(alt_hit.get("school", {}).get("name", top_ev.school_name))
         alt_text = " ".join(str(alt_hit.get("chunk", {}).get("text", "")).split())
         alt_excerpt = " ".join(alt_text.split()[:20]) if alt_text else ev_excerpt
-    elif len(evidence) > 1:
-        alt_school = evidence[1].school_name
-        alt_text = " ".join(str(evidence[1].text).split())
+    elif len(generation_evidence) > 1:
+        alt_school = generation_evidence[1].school_name
+        alt_text = " ".join(str(generation_evidence[1].text).split())
         alt_excerpt = " ".join(alt_text.split()[:20])
     else:
         alt_school = top_ev.school_name
@@ -363,6 +466,21 @@ def answer_question(
         why_it_fits = "The best option depends on your field, budget, and grade level, so a broad city-only request works better as an initial shortlist."
         alternative = "If you want practical and lower-cost outcomes, vocational or public tracks are usually the safest first filter."
         next_action = "Tell me your intended field (for example IT, business, or health), your budget band, and your expected grade so I can give one precise recommendation."
+
+    if _has_conflicting_constraints(question, effective_profile):
+        alternative = (
+            "Your request mixes a tight budget with high-prestige goals, so the safest path is to shortlist affordable public options first, "
+            "then compare one higher-selectivity option as a stretch choice."
+        )
+
+    short_answer, why_it_fits, alternative, next_action = _enforce_grounded_response(
+        short_answer=short_answer,
+        why_it_fits=why_it_fits,
+        alternative=alternative,
+        next_action=next_action,
+        generation_evidence=generation_evidence,
+        profile=effective_profile,
+    )
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
 
