@@ -49,7 +49,6 @@ Notes:
    - `POST http://127.0.0.1:8000/chat/evaluate_beir`
    - Logs are saved in `data/eval_logs/beir_runs.jsonl`
    - Optional mode comparison env var: `BEIR_RETRIEVAL_MODES=dense,sparse,hybrid`
-
 ## Build Fixed 200-Question Test Set
 - Generate deterministic set:
   - `c:/Users/abdos/OneDrive/Documents/pfe/.venv/Scripts/python.exe -m app.generate_fixed_eval_set`

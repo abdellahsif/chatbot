@@ -23,9 +23,18 @@ def ensure_data_loaded() -> DataBundle:
 
 
 class ChatbotHandler(BaseHTTPRequestHandler):
+    def _send_cors_headers(self) -> None:
+        # Allow local browser UIs (file://, localhost, VS Code webview/live-server).
+        origin = self.headers.get("Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", origin if origin else "*")
+        self.send_header("Vary", "Origin")
+        self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
     def _send_json(self, status: int, payload: dict) -> None:
         body = json.dumps(payload, ensure_ascii=True).encode("utf-8")
         self.send_response(status)
+        self._send_cors_headers()
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -41,6 +50,7 @@ class ChatbotHandler(BaseHTTPRequestHandler):
     def _send_html(self, status: int, html_text: str) -> None:
         body = html_text.encode("utf-8")
         self.send_response(status)
+        self._send_cors_headers()
         self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -48,6 +58,11 @@ class ChatbotHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args) -> None:
         return
+
+    def do_OPTIONS(self) -> None:
+        self.send_response(204)
+        self._send_cors_headers()
+        self.end_headers()
 
     def do_GET(self) -> None:
         data = ensure_data_loaded()
@@ -112,13 +127,19 @@ class ChatbotHandler(BaseHTTPRequestHandler):
                 return
 
         if self.path == "/chat/evaluate":
-            summary = run_eval(ROOT_DIR, data.schools, data.transcripts)
-            self._send_json(200, summary.to_dict())
+            try:
+                summary = run_eval(ROOT_DIR, data.schools, data.transcripts)
+                self._send_json(200, summary.to_dict())
+            except Exception as exc:
+                self._send_json(500, {"error": "eval_failed", "message": str(exc)})
             return
 
         if self.path == "/chat/evaluate_beir":
-            summary = run_beir_eval(ROOT_DIR, data.schools, data.transcripts)
-            self._send_json(200, summary)
+            try:
+                summary = run_beir_eval(ROOT_DIR, data.schools, data.transcripts)
+                self._send_json(200, summary)
+            except Exception as exc:
+                self._send_json(500, {"error": "beir_eval_failed", "message": str(exc)})
             return
 
         self._send_json(404, {"error": "not_found"})

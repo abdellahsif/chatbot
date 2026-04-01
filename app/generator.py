@@ -115,22 +115,18 @@ class QwenGenerator:
             ).strip()
 
         if "compare" in q or ("um6p" in q and "ensa" in q):
-            if "tuition tradeoff" not in p["why_it_fits"].lower():
+            if "tuition tradeoff" not in p["why_it_fits"].lower() and top_tuition not in {None, "", "N/A"}:
                 p["why_it_fits"] += f" Tuition tradeoff: {top_name} has max tuition around {top_tuition} MAD."
-            if "salary tradeoff" not in p["why_it_fits"].lower():
-                p["why_it_fits"] += " Salary tradeoff: higher employability can justify higher cost for some profiles."
             if "verdict" not in p.get("short_answer", "").lower():
                 p["short_answer"] = p.get("short_answer", "").strip() + " Verdict: pick the option with best budget-adjusted ROI."
 
         if profile.motivation == "prestige":
-            if "international flag" not in p["why_it_fits"].lower():
-                p["why_it_fits"] += " International flag: prioritize schools with global partnerships or exchange tracks."
-            if "difficulty note" not in p["why_it_fits"].lower():
-                p["why_it_fits"] += " Difficulty note: selective schools require strong math and sustained effort."
+            if "difficulty note" not in p["why_it_fits"].lower() and str(top.get("admission_selectivity", "")).strip():
+                p["why_it_fits"] += f" Difficulty note: admission selectivity is {top.get('admission_selectivity')} for this option."
 
         if profile.motivation == "expat":
-            if "international_double_degree" not in p["why_it_fits"].lower():
-                p["why_it_fits"] += " international_double_degree is a key signal for mobility outside Morocco."
+            if "international_double_degree" not in p["why_it_fits"].lower() and top.get("international_double_degree") is not None:
+                p["why_it_fits"] += f" international_double_degree: {top.get('international_double_degree')}."
             if "alternative option" not in p.get("alternative", "").lower():
                 p["alternative"] = p.get("alternative", "").strip() + " Alternative option: keep a second internationally-oriented school on your shortlist."
 

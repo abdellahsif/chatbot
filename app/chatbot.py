@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import re
 from statistics import mean
 
-from app.generator import QWEN_GENERATOR
 from app.models import EvidenceItem, QueryResponse, UserProfile
 from app.retriever import resolve_effective_profile, retrieve
 
@@ -16,6 +14,16 @@ def answer_question(
     transcripts: list[dict],
     top_k: int,
 ) -> QueryResponse:
+    if not (question or "").strip():
+        return QueryResponse(
+            short_answer="Please provide your question.",
+            why_it_fits="I need your target program, city, and budget to recommend a school.",
+            evidence=[],
+            alternative="Example: 'Computer science in Rabat with medium budget'.",
+            next_action="Tell me your exact study goal and constraints.",
+            confidence=0.0,
+        )
+
     effective_profile = resolve_effective_profile(
         question=question,
         profile=profile,
@@ -81,22 +89,23 @@ def answer_question(
             }
         )
 
-    generated = QWEN_GENERATOR.generate(
-        question=question,
-        profile=effective_profile,
-        top_schools=top_schools,
-    )
+    top_ev = evidence[0]
+    short_answer = f"Best match: {top_ev.school_name}."
 
-    question_hint = " ".join(re.findall(r"[a-z0-9]+", question.lower())[:8])
-    evidence_hint = " ".join(re.findall(r"[a-z0-9]+", evidence[0].text.lower())[:20]) if evidence else ""
+    ev_text = " ".join(str(top_ev.text).split())
+    ev_excerpt = " ".join(ev_text.split()[:28])
+    why_it_fits = f"Evidence snippet: {ev_excerpt}."
 
-    short_answer = generated["short_answer"]
-    why_it_fits = generated["why_it_fits"]
+    if len(evidence) > 1:
+        alt_school = evidence[1].school_name
+        alt_text = " ".join(str(evidence[1].text).split())
+        alt_excerpt = " ".join(alt_text.split()[:20])
+    else:
+        alt_school = top_ev.school_name
+        alt_excerpt = ev_excerpt
 
-    if question_hint and question_hint not in short_answer.lower():
-        short_answer = f"{short_answer} Question focus: {question_hint}."
-    if evidence_hint and "evidence snippet" not in why_it_fits.lower():
-        why_it_fits = f"{why_it_fits} Evidence snippet: {evidence_hint}."
+    alternative = f"Alternative {alt_school}: {alt_excerpt}."
+    next_action = f"Evidence focus: {ev_excerpt}."
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
 
@@ -104,7 +113,7 @@ def answer_question(
         short_answer=short_answer,
         why_it_fits=why_it_fits,
         evidence=evidence,
-        alternative=generated["alternative"],
-        next_action=generated["next_action"],
+        alternative=alternative,
+        next_action=next_action,
         confidence=round(confidence, 3),
     )

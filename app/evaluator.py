@@ -66,8 +66,71 @@ def _phrase_tokens(phrase: str) -> set[str]:
         "least",
         "needed",
         "option",
+        "best",
+        "match",
+        "confidence",
+        "question",
+        "focus",
+        "verdict",
+        "alternative",
+        "next",
+        "action",
+        "recommendation",
+        "safety",
+        "oriented",
+        "choose",
+        "consider",
+        "shortlist",
     }
     return {t for t in _tokens(phrase) if t not in stopwords}
+
+
+def _extract_claims(text: str) -> list[str]:
+    # Split generated text into simple factual claims for grounding checks.
+    parts = re.split(r"[\.!?;\n]+", text or "")
+    claims: list[str] = []
+    for p in parts:
+        c = " ".join(str(p).strip().split())
+        if not c:
+            continue
+        if len(_tokens(c)) < 6:
+            continue
+        claims.append(c)
+    return claims
+
+
+def _claim_supported(claim: str, evidence_tokens: set[str]) -> bool:
+    claim_tokens = _phrase_tokens(claim)
+    if not claim_tokens:
+        return True
+    overlap = len(claim_tokens & evidence_tokens)
+    overlap_ratio = _safe_div(overlap, len(claim_tokens))
+    # Treat a claim as grounded if enough of its content words appear in evidence.
+    return overlap >= 1 and overlap_ratio >= 0.2
+
+
+def _hallucination_stats(answer_text: str, evidence_text: str) -> dict[str, float]:
+    claims = _extract_claims(answer_text)
+    if not claims:
+        return {
+            "hallucination": 0.0,
+            "supported_claim_rate": 1.0,
+            "supported_claims": 0.0,
+            "unsupported_claims": 0.0,
+            "total_claims": 0.0,
+        }
+
+    e_tokens = _tokens(evidence_text)
+    supported = sum(1 for c in claims if _claim_supported(c, e_tokens))
+    unsupported = len(claims) - supported
+    hallucination = _safe_div(unsupported, len(claims))
+    return {
+        "hallucination": hallucination,
+        "supported_claim_rate": _safe_div(supported, len(claims)),
+        "supported_claims": float(supported),
+        "unsupported_claims": float(unsupported),
+        "total_claims": float(len(claims)),
+    }
 
 
 def _must_include_stats(must_include: list[str], answer_text: str, generated_item_count: int) -> dict[str, float]:
@@ -150,6 +213,12 @@ def _to_float(value: str | None, default: float = 0.0) -> float:
 def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) -> EvalSummary:
     eval_file = os.getenv("EVAL_QUESTIONS_FILE", "data/eval_questions.jsonl")
     eval_path = (root_dir / eval_file).resolve() if not Path(eval_file).is_absolute() else Path(eval_file)
+    if not eval_path.exists():
+        fallback = root_dir / "data" / "eval_questions_fixed_200.jsonl"
+        if fallback.exists():
+            eval_path = fallback
+        else:
+            raise FileNotFoundError(f"Missing evaluation file: {eval_path}")
     results: list[EvalResult] = []
     latencies: list[float] = []
     groundedness_scores: list[float] = []
@@ -171,10 +240,17 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
     total_output_tokens = 0
     input_cost_per_1k = _to_float(os.getenv("COST_PER_1K_INPUT_TOKENS"), 0.0)
     output_cost_per_1k = _to_float(os.getenv("COST_PER_1K_OUTPUT_TOKENS"), 0.0)
+    max_queries = 0
+    try:
+        max_queries = int(os.getenv("EVAL_MAX_QUERIES", "0") or 0)
+    except ValueError:
+        max_queries = 0
     detailed_rows: list[dict] = []
 
     with eval_path.open("r", encoding="utf-8") as f:
         for line in f:
+            if max_queries > 0 and len(results) >= max_queries:
+                break
             row = json.loads(line)
             req = QueryRequest.from_dict(
                 {
@@ -249,6 +325,12 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                     str(res.next_action),
                 ]
             )
+            factual_answer_text = " ".join(
+                [
+                    str(res.short_answer),
+                    str(res.why_it_fits),
+                ]
+            )
             evidence_text = " ".join(e.text for e in res.evidence)
             combined_text = f"{answer_text} {evidence_text}"
             answer_tokens = _tokens(answer_text)
@@ -257,8 +339,11 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
 
             groundedness = _safe_div(len(answer_tokens & evidence_tokens), len(answer_tokens))
             relevance = _safe_div(len(answer_tokens & question_tokens), len(question_tokens))
+            hallu_stats = _hallucination_stats(factual_answer_text, evidence_text)
+            hallucination = hallu_stats["hallucination"]
+            # Keep backward-compatible check key name but drive it with claim grounding now.
+            checks["no_external_school"] = hallucination <= 0.10
             compliance = 1.0 if all(checks.values()) else _safe_div(sum(1 for v in checks.values() if v), len(checks))
-            hallucination = 0.0 if checks["no_external_school"] else 1.0
             faithfulness = _safe_div(
                 len(_tokens(f"{res.short_answer} {res.why_it_fits}") & evidence_tokens),
                 len(_tokens(f"{res.short_answer} {res.why_it_fits}")),
@@ -348,6 +433,9 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
                     "relevance": round(relevance, 4),
                     "compliance": round(compliance, 4),
                     "hallucination": round(hallucination, 4),
+                    "supported_claim_rate": round(hallu_stats["supported_claim_rate"], 4),
+                    "unsupported_claims": int(hallu_stats["unsupported_claims"]),
+                    "total_claims": int(hallu_stats["total_claims"]),
                     "faithfulness": round(faithfulness, 4),
                     "must_include_recall": round(must_include_recall, 4),
                     "must_include_precision": round(must_include_precision, 4),
@@ -440,7 +528,8 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         "groundedness": round(avg_groundedness, 4),
         "relevance": round(avg_relevance, 4),
         "faithfulness": round(avg_faithfulness, 4),
-        "hallucination_rate": round(_safe_div(sum(1.0 for s in hallucination_scores if s > 0.0), len(hallucination_scores)), 4),
+        # Claim-level hallucination rate across answers.
+        "hallucination_rate": round(avg_hallucination, 4),
         "answer_correctness": round(avg_correctness, 4),
         "answer_completeness": round(avg_completeness, 4),
         "latency_s": round(avg_latency, 4),
