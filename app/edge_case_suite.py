@@ -33,6 +33,7 @@ def run_edge_case_suite() -> tuple[int, int]:
     cases = [
         EdgeCase("empty_question", "", base, expect_evidence=False),
         EdgeCase("whitespace_question", "   ", base, expect_evidence=False),
+        EdgeCase("greeting_only", "hey", base, expect_evidence=False),
         EdgeCase(
             "unknown_program",
             "I want quantum bioinformatics law robotics in Oujda under 2000 MAD",

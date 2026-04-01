@@ -165,6 +165,33 @@
       line-height: 1.5;
     }
 
+    .bubble.user {
+      background: rgba(214, 90, 49, 0.08);
+      border-color: rgba(214, 90, 49, 0.35);
+    }
+
+    .bubble.assistant {
+      background: rgba(17, 122, 101, 0.08);
+      border-color: rgba(17, 122, 101, 0.3);
+    }
+
+    .chat-text {
+      white-space: pre-wrap;
+      line-height: 1.55;
+    }
+
+    details.evidence-block {
+      margin-top: 10px;
+      border-top: 1px dashed var(--border);
+      padding-top: 8px;
+    }
+
+    details.evidence-block summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
     @keyframes bubble-in {
       to { opacity: 1; transform: translateY(0); }
     }
@@ -243,6 +270,7 @@
       <div class="actions">
         <button class="primary" id="askBtn">Ask Chatbot</button>
         <button class="secondary" id="evalBtn">Run Evaluation</button>
+        <button class="secondary" id="clearBtn">Clear Chat</button>
       </div>
 
       <div class="status" id="status"></div>
@@ -259,6 +287,28 @@
   <script>
     const statusEl = document.getElementById("status");
     const panelEl = document.getElementById("responsePanel");
+    let turnCounter = 0;
+
+    const READY_HTML = `
+      <div class="bubble">
+        <h3>Ready</h3>
+        <p>Submit a question to see short answer, why it fits, confidence, and evidence.</p>
+      </div>
+    `;
+
+    function resetChatPanel() {
+      turnCounter = 0;
+      panelEl.dataset.started = "0";
+      panelEl.innerHTML = READY_HTML;
+    }
+
+    function ensureChatStarted() {
+      if (panelEl.dataset.started === "1") {
+        return;
+      }
+      panelEl.dataset.started = "1";
+      panelEl.innerHTML = "";
+    }
 
     function setStatus(text) {
       statusEl.textContent = text || "";
@@ -273,29 +323,80 @@
         .replaceAll("'", "&#039;");
     }
 
-    function renderChatResult(data) {
+    function buildAssistantMessage(data) {
+      const clean = (text) => {
+        const raw = String(text || "").trim();
+        if (!raw) {
+          return "";
+        }
+        return raw
+          .replace(/^Best match:\s*/i, "")
+          .replace(/^Evidence snippet:\s*/i, "")
+          .replace(/^Alternative\s+/i, "")
+          .replace(/^Evidence focus:\s*/i, "")
+          .trim();
+      };
+
+      const parts = [];
+      if (data.short_answer) {
+        parts.push(clean(data.short_answer));
+      }
+      if (data.why_it_fits) {
+        parts.push(clean(data.why_it_fits));
+      }
+      if (data.alternative) {
+        parts.push(clean(data.alternative));
+      }
+      if (data.next_action) {
+        parts.push(clean(data.next_action));
+      }
+      return parts.filter(Boolean).join(" ");
+    }
+
+    function renderChatResult(data, question) {
+      ensureChatStarted();
+      turnCounter += 1;
       const evidenceItems = Array.isArray(data.evidence)
         ? data.evidence.map((e) => `<li><strong>${escapeHtml(e.school_name || "N/A")}</strong> (${escapeHtml(e.program || "N/A")})<br/><span class="mono">score=${escapeHtml(e.score)} chunk=${escapeHtml(e.chunk_id)}</span><br/>${escapeHtml(e.text || "")}</li>`).join("")
         : "";
 
-      panelEl.innerHTML = `
-        <div class="bubble"><h3>Short Answer</h3><p>${escapeHtml(data.short_answer || "")}</p></div>
-        <div class="bubble"><h3>Why It Fits</h3><p>${escapeHtml(data.why_it_fits || "")}</p></div>
-        <div class="bubble"><h3>Alternative</h3><p>${escapeHtml(data.alternative || "")}</p></div>
-        <div class="bubble"><h3>Next Action</h3><p>${escapeHtml(data.next_action || "")}</p></div>
-        <div class="bubble"><h3>Confidence</h3><p class="mono">${escapeHtml(data.confidence ?? "N/A")}</p></div>
-        <div class="bubble"><h3>Evidence</h3><ul class="evidence">${evidenceItems || "<li>No evidence returned.</li>"}</ul></div>
+      const userBubble = document.createElement("div");
+      userBubble.className = "bubble user";
+      userBubble.innerHTML = `
+        <h3>You</h3>
+        <p>${escapeHtml(question || "")}</p>
       `;
+      panelEl.appendChild(userBubble);
+
+      const assistantBubble = document.createElement("div");
+      assistantBubble.className = "bubble assistant";
+      assistantBubble.innerHTML = `
+        <h3>Assistant</h3>
+        <p class="chat-text">${escapeHtml(buildAssistantMessage(data) || "I can help more if you share more details.")}</p>
+        <p class="mono">confidence=${escapeHtml(data.confidence ?? "N/A")}</p>
+        <details class="evidence-block">
+          <summary>Show evidence</summary>
+          <ul class="evidence">${evidenceItems || "<li>No evidence returned.</li>"}</ul>
+        </details>
+      `;
+      panelEl.appendChild(assistantBubble);
+      assistantBubble.scrollIntoView({ behavior: "smooth", block: "end" });
     }
 
     function renderEvalResult(data) {
+      ensureChatStarted();
       const m = data.metrics || {};
-      panelEl.innerHTML = `
-        <div class="bubble"><h3>Eval Summary</h3><p class="mono">passed=${escapeHtml(data.passed)} / total=${escapeHtml(data.total)} | failed=${escapeHtml(data.failed)}</p></div>
-        <div class="bubble"><h3>Model Quality Score</h3><p class="mono">final_score_100=${escapeHtml(m.final_score_100 ?? "N/A")} | final_score=${escapeHtml(m.final_score ?? "N/A")}</p></div>
-        <div class="bubble"><h3>Metrics</h3><p class="mono">groundedness=${escapeHtml(m.avg_groundedness ?? "N/A")}, relevance=${escapeHtml(m.avg_relevance ?? "N/A")}, compliance=${escapeHtml(m.avg_compliance ?? "N/A")}, hallucination=${escapeHtml(m.avg_hallucination ?? "N/A")}, latency_s=${escapeHtml(m.avg_latency_s ?? "N/A")}</p></div>
-        <div class="bubble"><h3>Log Path</h3><p class="mono">${escapeHtml(data.log_path || "")}</p></div>
+      const bubble = document.createElement("div");
+      bubble.className = "bubble";
+      bubble.innerHTML = `
+        <h3>Evaluation</h3>
+        <p class="mono">passed=${escapeHtml(data.passed)} / total=${escapeHtml(data.total)} | failed=${escapeHtml(data.failed)}</p>
+        <p class="mono">final_score_100=${escapeHtml(m.final_score_100 ?? "N/A")} | final_score=${escapeHtml(m.final_score ?? "N/A")}</p>
+        <p class="mono">groundedness=${escapeHtml(m.avg_groundedness ?? "N/A")}, relevance=${escapeHtml(m.avg_relevance ?? "N/A")}, compliance=${escapeHtml(m.avg_compliance ?? "N/A")}, hallucination=${escapeHtml(m.avg_hallucination ?? "N/A")}, latency_s=${escapeHtml(m.avg_latency_s ?? "N/A")}</p>
+        <p class="mono">log_path=${escapeHtml(data.log_path || "")}</p>
       `;
+      panelEl.appendChild(bubble);
+      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
     }
 
     async function askChatbot() {
@@ -328,7 +429,7 @@
           throw new Error(`Request failed with status ${res.status}`);
         }
         const data = await res.json();
-        renderChatResult(data);
+        renderChatResult(data, payload.question);
         setStatus("Done.");
       } catch (err) {
         setStatus(`Error: ${err.message}`);
@@ -352,6 +453,10 @@
 
     document.getElementById("askBtn").addEventListener("click", askChatbot);
     document.getElementById("evalBtn").addEventListener("click", runEval);
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      resetChatPanel();
+      setStatus("Chat cleared.");
+    });
   </script>
 </body>
 </html>
