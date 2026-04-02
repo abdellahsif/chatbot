@@ -711,8 +711,9 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         },
     }
 
+    run_at = datetime.now(timezone.utc).isoformat()
     log_payload = {
-        "run_at": datetime.now(timezone.utc).isoformat(),
+        "run_at": run_at,
         "total": len(results),
         "passed": passed,
         "failed": len(results) - passed,
@@ -756,7 +757,7 @@ def run_eval(root_dir: Path, schools: dict[str, dict], transcripts: list[dict]) 
         },
     }
     generation_payload = {
-        "run_at": datetime.now(timezone.utc).isoformat(),
+        "run_at": run_at,
         "total_queries": len(results),
         "metrics": generation_metrics,
     }

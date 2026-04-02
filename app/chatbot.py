@@ -35,6 +35,41 @@ def _match_city(city_a: str, city_b: str) -> bool:
     return a == b or a in b or b in a
 
 
+def _school_status_text(school: dict[str, Any]) -> str:
+    status = str(school.get("legal_status", "")).strip()
+    if status:
+        return status
+    typ = str(school.get("type", "")).strip().lower()
+    return "public" if "public" in typ else ("private" if typ else "")
+
+
+def _school_tuition_range(school: dict[str, Any]) -> tuple[int, int]:
+    mn = _to_int(school.get("pricing_min"), default=-1)
+    mx = _to_int(school.get("pricing_max"), default=-1)
+    if mn < 0:
+        mn = _to_int(school.get("tuition_min_mad"), default=0)
+    if mx < 0:
+        mx = _to_int(school.get("tuition_max_mad"), default=mn)
+    if mx < mn:
+        mx = mn
+    return mn, mx
+
+
+def _school_program_labels(school: dict[str, Any]) -> str:
+    raw = " | ".join(
+        [
+            str(school.get("programs_tags", "")).strip(),
+            str(school.get("filieres", "")).strip(),
+        ]
+    ).strip(" |")
+    if raw:
+        return raw
+    programs = school.get("programs", [])
+    if isinstance(programs, list):
+        return " | ".join(str(p) for p in programs if str(p).strip())
+    return ""
+
+
 def _select_alternative_hit(
     *,
     hits: list[dict],
@@ -95,11 +130,14 @@ def _select_alternative_hit(
         chunk = hit.get("chunk", {})
         name = str(school.get("name", ""))
         school_type = str(school.get("type", "")).lower()
+        school_status = _school_status_text(school).lower()
         school_city = str(school.get("city", ""))
-        programs = " ".join(school.get("programs", []))
+        programs = _school_program_labels(school)
         chunk_text = str(chunk.get("text", ""))
-        school_tokens = _norm_tokens(f"{name} {school_type} {programs} {chunk.get('program', '')} {chunk_text}")
-        tuition_max = _to_int(school.get("tuition_max_mad"), default=10**9)
+        school_tokens = _norm_tokens(f"{name} {school_type} {school_status} {programs} {chunk.get('program', '')} {chunk_text}")
+        _, tuition_max = _school_tuition_range(school)
+        if tuition_max <= 0:
+            tuition_max = 10**9
         selectivity = str(school.get("admission_selectivity", "")).strip().lower()
 
         score = float(hit.get("score", 0.0))
@@ -125,7 +163,7 @@ def _select_alternative_hit(
             if selectivity == "high":
                 score -= 0.08
 
-        if top_is_public and "public" in school_type:
+        if top_is_public and ("public" in school_type or "public" in school_status):
             score += 0.04
         if top_is_vocational_like and school_tokens & {"ofppt", "formation", "professionnelle", "technicien", "est", "ista"}:
             score += 0.06
@@ -403,6 +441,12 @@ def answer_question(
                 "programs": school.get("programs", []),
                 "tuition_min_mad": school.get("tuition_min_mad"),
                 "tuition_max_mad": school.get("tuition_max_mad"),
+                "pricing_min": school.get("pricing_min"),
+                "pricing_max": school.get("pricing_max"),
+                "legal_status": school.get("legal_status"),
+                "website_url": school.get("website_url"),
+                "programs_tags": school.get("programs_tags"),
+                "filieres": school.get("filieres"),
                 "admission_selectivity": school.get("admission_selectivity"),
                 "score": round(float(hit.get("score", 0.0)), 4),
                 "score_components": {
@@ -418,12 +462,22 @@ def answer_question(
 
     generation_evidence = _select_generation_evidence(evidence, max_items=3)
     top_ev = generation_evidence[0]
-    short_answer = f"{top_ev.school_name} looks like the strongest match for what you asked."
+    top_hit = hits[0]
+    top_school = top_hit.get("school", {})
+    top_status = _school_status_text(top_school)
+    top_min, top_max = _school_tuition_range(top_school)
+    tuition_text = f" with tuition around {top_min}-{top_max} MAD" if top_max > 0 else ""
+    short_answer = f"{top_ev.school_name} looks like the strongest match for what you asked"
+    if top_status:
+        short_answer += f" ({top_status})"
+    short_answer += f"{tuition_text}."
 
     ev_text = " ".join(str(top_ev.text).split())
     ev_excerpt = " ".join(ev_text.split()[:28])
     city_hint = f" in {effective_profile.city}" if effective_profile.city else ""
-    why_it_fits = f"It aligns with your request{city_hint}, based on this evidence: {ev_excerpt}."
+    top_programs = _school_program_labels(top_school)
+    program_hint = f" Programs: {top_programs}." if top_programs else ""
+    why_it_fits = f"It aligns with your request{city_hint}, based on this evidence: {ev_excerpt}.{program_hint}"
 
     alt_hit = _select_alternative_hit(
         hits=hits,
@@ -443,7 +497,10 @@ def answer_question(
         alt_excerpt = ev_excerpt
 
     alternative = f"A solid alternative is {alt_school}, with supporting details: {alt_excerpt}."
+    top_website = str(top_school.get("website_url", "")).strip()
     next_action = "If you share your target program, budget range, and preferred study duration, I can narrow this to a sharper shortlist."
+    if top_website:
+        next_action = f"You can verify official details on {top_website}. Then share your target program and budget so I can narrow the shortlist."
 
     if _is_city_only_school_request(question, effective_profile):
         options: list[str] = []

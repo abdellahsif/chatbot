@@ -6,3 +6,4 @@ accelerate>=1.13.0
 faiss-cpu>=1.8.0
 beir>=2.0.0
 scikit-learn>=1.5.0
+python-dotenv>=1.0.1

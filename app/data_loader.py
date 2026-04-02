@@ -2,17 +2,21 @@ from __future__ import annotations
 
 import csv
 import json
+import os
 import re
 from pathlib import Path
 from statistics import mean
 from typing import Any
 
+from app.supabase_store import fetch_schools
+
 
 class DataBundle:
-    def __init__(self, schools: dict[str, dict], transcripts: list[dict], policy: dict):
+    def __init__(self, schools: dict[str, dict], transcripts: list[dict], policy: dict, source: str = "unknown"):
         self.schools = schools
         self.transcripts = transcripts
         self.policy = policy
+        self.source = source
 
 
 def _safe_str(value: Any) -> str:
@@ -59,6 +63,126 @@ def _normalize_token(value: Any) -> str:
     text = re.sub(r"[^a-z0-9]+", "_", text)
     text = re.sub(r"_+", "_", text).strip("_")
     return text or "general"
+
+
+def _split_program_values(value: Any) -> list[str]:
+    text = _safe_str(value)
+    if not text:
+        return []
+    parts = re.split(r"[|,;/]+", text)
+    out: list[str] = []
+    for part in parts:
+        token = _normalize_token(part)
+        if token and token not in out:
+            out.append(token)
+    return out
+
+
+def _legal_status_to_type(legal_status: str) -> str:
+    s = _safe_str(legal_status).lower()
+    return "public" if any(k in s for k in ["public", "publique", "etat", "state"]) else "private"
+
+
+def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[dict]]:
+    response = fetch_schools(limit=limit)
+    rows = response.get("items", []) if isinstance(response, dict) else []
+    if not isinstance(rows, list) or not rows:
+        return {}, []
+
+    schools: dict[str, dict] = {}
+    transcripts: list[dict] = []
+
+    for idx, row in enumerate(rows, start=1):
+        if not isinstance(row, dict):
+            continue
+
+        raw_id = _safe_str(row.get("id"))
+        if not raw_id:
+            continue
+
+        name = _safe_str(row.get("name")) or f"school_{idx}"
+        city = _safe_str(row.get("city"))
+        school_id = f"sb_{_normalize_token(raw_id)}"
+        school_type = _legal_status_to_type(_safe_str(row.get("legal_status")))
+
+        pricing_min = _parse_int(row.get("pricing_min"), default=-1)
+        pricing_max = _parse_int(row.get("pricing_max"), default=-1)
+        if pricing_min < 0 and pricing_max < 0:
+            pricing_min = 0 if school_type == "public" else 15000
+            pricing_max = 12000 if school_type == "public" else 50000
+        elif pricing_min < 0:
+            pricing_min = max(0, pricing_max)
+        elif pricing_max < 0:
+            pricing_max = max(0, pricing_min)
+
+        programs = _split_program_values(row.get("programs_tags"))
+        filieres = _split_program_values(row.get("filieres"))
+        all_programs = sorted(set(programs + filieres)) or ["general"]
+        legal_status = _safe_str(row.get("legal_status"))
+
+        schools[school_id] = {
+            "school_id": school_id,
+            "name": name,
+            "country": "MA",
+            "city": city,
+            "type": school_type,
+            "legal_status": legal_status,
+            "tuition_min_mad": pricing_min,
+            "tuition_max_mad": pricing_max,
+            "pricing_min": pricing_min,
+            "pricing_max": pricing_max,
+            "pricing_details": row.get("pricing_details"),
+            "programs": all_programs,
+            "programs_tags": _safe_str(row.get("programs_tags")),
+            "filieres": _safe_str(row.get("filieres")),
+            "admission_selectivity": "medium",
+            "employability_score": 3.8,
+            "salary_entry_min_mad": 6000,
+            "salary_entry_max_mad": 12000,
+            "international_double_degree": False,
+            "website_url": _safe_str(row.get("website_url")),
+            "logo_url": _safe_str(row.get("logo_url")),
+            "acronym": _safe_str(row.get("acronym")),
+            "source": "supabase_schools",
+            "source_row_id": raw_id,
+        }
+
+        pricing_details = row.get("pricing_details")
+        pricing_text = ""
+        if isinstance(pricing_details, dict):
+            pricing_text = json.dumps(pricing_details, ensure_ascii=True)
+        elif pricing_details is not None:
+            pricing_text = _safe_str(pricing_details)
+
+        overview_text = (
+            f"{name} ({_safe_str(row.get('acronym'))}) in {city}. "
+            f"Status {_safe_str(row.get('legal_status'))}. "
+            f"Programs {' | '.join(all_programs)}. "
+            f"Tuition range {pricing_min} to {pricing_max} MAD."
+        )
+        if pricing_text:
+            overview_text += f" Pricing details: {pricing_text}."
+
+        transcripts.append(
+            {
+                "chunk_id": f"sb_{_normalize_token(raw_id)}_overview",
+                "video_id": "supabase_schools",
+                "school_id": school_id,
+                "program": all_programs[0] if all_programs else "general",
+                "level": "bac_plus_1",
+                "language": "fr",
+                "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                "text": overview_text,
+                "sentiment": "positive",
+                "tags": [
+                    _normalize_token(city),
+                    _normalize_token(school_type),
+                    _normalize_token(_safe_str(row.get("acronym"))),
+                ],
+            }
+        )
+
+    return schools, transcripts
 
 
 def _sheet_rows_by_headers(xlsx_path: Path) -> dict[str, list[dict[str, Any]]]:
@@ -411,6 +535,23 @@ def load_policy(policy_path: Path) -> dict:
 
 
 def load_bundle(root_dir: Path) -> DataBundle:
+    strict_supabase = os.getenv("SUPABASE_STRICT_MODE", "1").strip().lower() in {"1", "true", "yes", "on"}
+    try:
+        supabase_limit = _parse_int(os.getenv("SUPABASE_SCHOOLS_LIMIT", "500"), default=500)
+        sb_schools, sb_transcripts = load_from_supabase_schools(limit=max(1, min(5000, supabase_limit)))
+        if sb_schools:
+            policy = load_policy(root_dir / "config" / "policy_rules.yaml")
+            return DataBundle(schools=sb_schools, transcripts=sb_transcripts, policy=policy, source="supabase_schools")
+    except Exception as exc:
+        if strict_supabase:
+            raise RuntimeError(f"Supabase schools load failed in strict mode: {exc}") from exc
+
+    if strict_supabase:
+        raise RuntimeError(
+            "Supabase strict mode is enabled, but no schools were loaded from DB. "
+            "Set SUPABASE_URL and SUPABASE_ANON_KEY, or disable strict mode with SUPABASE_STRICT_MODE=0."
+        )
+
     json_catalog_path = root_dir / "etablissements_maroc_complet.json"
     xlsx_candidates = [
         root_dir / "BDD_MCD_Universites.xlsx",
@@ -427,4 +568,4 @@ def load_bundle(root_dir: Path) -> DataBundle:
         schools = {}
         transcripts = []
     policy = load_policy(root_dir / "config" / "policy_rules.yaml")
-    return DataBundle(schools=schools, transcripts=transcripts, policy=policy)
+    return DataBundle(schools=schools, transcripts=transcripts, policy=policy, source="local_fallback")
