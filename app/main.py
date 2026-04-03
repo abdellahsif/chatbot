@@ -163,6 +163,7 @@ class ChatbotHandler(BaseHTTPRequestHandler):
                     schools=data.schools,
                     transcripts=data.transcripts,
                     top_k=req.top_k,
+                    chat_history=req.chat_history,
                 )
                 self._send_json(200, result.to_dict())
                 return

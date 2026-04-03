@@ -442,6 +442,7 @@ class _CrossEncoderReranker:
 
 
 CROSS_ENCODER_RERANKER = _CrossEncoderReranker()
+MIN_SCORE_THRESHOLD = max(0.0, min(1.0, _env_float("MIN_SCORE_THRESHOLD", 0.60)))
 
 
 def budget_allows(profile_budget: str, tuition_max_mad: int) -> bool:
@@ -459,6 +460,216 @@ def school_matches_profile(school: dict, profile: UserProfile) -> bool:
     if str(school.get("country", "")).upper() != profile.country:
         return False
     return True
+
+
+def _normalize_bac_series(text: str) -> str:
+    value = _normalize_city_text(text)
+    if not value:
+        return ""
+
+    mapping = {
+        "science mathematiques": "sm",
+        "sciences mathematiques": "sm",
+        "science math": "sm",
+        "sciences math": "sm",
+        "sm": "sm",
+        "pc": "spc",
+        "spc": "spc",
+        "sciences physiques": "spc",
+        "physique": "spc",
+        "svt": "svt",
+        "sciences de la vie": "svt",
+        "sciences de la vie et de la terre": "svt",
+        "science de la vie": "svt",
+        "sciences de la vie et terre": "svt",
+        "eco": "eco",
+        "economique": "eco",
+        "economie": "eco",
+        "sciences economiques": "eco",
+        "sciences de gestion": "eco",
+        "lettres": "lettres",
+        "litterature": "lettres",
+        "sciences humaines": "lettres",
+        "sciences humaines et sociales": "lettres",
+        "sciences sociales": "lettres",
+        "humanities": "lettres",
+        "arts": "arts",
+        "art": "arts",
+        "design": "arts",
+    }
+    return mapping.get(value, value)
+
+
+_BAC_SERIES_ALLOWED_DOMAINS: dict[str, set[str]] = {
+    "sm": {"engineering", "computer", "science", "health", "business"},
+    "spc": {"engineering", "computer", "science", "business"},
+    "svt": {"health", "science"},
+    "eco": {"business", "law", "public_admin"},
+    "lettres": {"law", "arts", "humanities", "business"},
+    "arts": {"arts", "humanities"},
+}
+
+_SCHOOL_DOMAIN_KEYWORDS: dict[str, set[str]] = {
+    "military": {"military", "army", "defense", "defence", "gendarmerie", "royale", "parachut", "infanterie", "blind", "transport"},
+    "business": {"business", "commerce", "management", "gestion", "finance", "marketing", "entreprise", "accounting", "audit", "bank"},
+    "engineering": {"engineering", "ingenieur", "ingenierie", "tech", "technologie", "science", "appliquee", "appliquees", "telecommunication", "telecommunications", "tic", "numerique", "digital"},
+    "computer": {"informatique", "software", "computer", "cs", "data", "cyber", "programming", "code", "developpement", "telecom", "telecommunication", "telecommunications", "tic", "numerique", "digital"},
+    "health": {"health", "sante", "medical", "medecine", "pharmacie", "paramedical", "nursing", "biologie"},
+    "arts": {"art", "arts", "design", "beaux", "creative", "cinema", "architecture", "portfolio"},
+    "law": {"law", "droit", "legal", "juridique"},
+    "humanities": {"lettres", "litterature", "humanities", "communication", "education", "sharia", "philosophie"},
+    "public_admin": {"administration", "public", "gouvernance", "policy", "police", "diplomatie"},
+    "science": {"science", "sciences", "research", "recherche"},
+}
+
+
+def _categories_from_tokens(tokens: set[str]) -> set[str]:
+    categories: set[str] = set()
+    if not tokens:
+        return categories
+
+    for category, keywords in _SCHOOL_DOMAIN_KEYWORDS.items():
+        if tokens & keywords:
+            categories.add(category)
+
+    technical_domains = {"engineering", "computer", "science", "health", "military"}
+    if categories & technical_domains:
+        categories.discard("humanities")
+        categories.discard("public_admin")
+    return categories
+
+
+def _school_domain_categories(school: dict[str, Any], chunks: list[dict[str, Any]]) -> set[str]:
+    # Strict rule: determine academic domain from schools.filieres first.
+    text = " ".join(
+        [
+            str(school.get("filieres", "")),
+            str(school.get("programs_tags", "")),
+        ]
+    )
+    tokens = _tokenize(text)
+    if not tokens:
+        # Fallback for sparse sources: infer categories from programs and snippets.
+        fallback_text = " ".join(
+            [
+                str(school.get("name", "")),
+                str(school.get("type", "")),
+                " ".join(str(p) for p in school.get("programs", [])),
+                " ".join(str(c.get("program", "")) for c in chunks[:6]),
+                " ".join(str(c.get("text", "")) for c in chunks[:2]),
+            ]
+        )
+        tokens = _tokenize(fallback_text)
+    if not tokens:
+        return set()
+
+    return _categories_from_tokens(tokens)
+
+
+def _school_bac_compatible(profile_bac_stream: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> bool:
+    bac = _normalize_bac_series(profile_bac_stream)
+    if not bac:
+        return True
+
+    allowed_domains = _BAC_SERIES_ALLOWED_DOMAINS.get(bac)
+    if not allowed_domains:
+        return True
+
+    school_domains = _school_domain_categories(school, chunks)
+    if not school_domains:
+        return False
+
+    # Require a real semantic overlap with the school's academic domain.
+    return bool(school_domains & allowed_domains)
+
+
+def _has_semantic_domain_incompatibility(profile_bac_stream: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> bool:
+    """Hard reject schools whose filiere domain is fundamentally incompatible with bac stream."""
+    bac = _normalize_bac_series(profile_bac_stream)
+    if not bac:
+        return False
+
+    school_domains = _school_domain_categories(school, chunks)
+    if not school_domains:
+        return True
+
+    # Explicit strict rejects from product rules.
+    if bac == "eco" and "military" in school_domains:
+        return True
+    if bac == "svt" and ({"engineering", "computer", "military"} & school_domains):
+        return True
+    if bac == "spc" and ({"law", "military"} & school_domains):
+        return True
+    if bac == "lettres" and ({"engineering", "computer", "health", "military", "science"} & school_domains):
+        return True
+
+    allowed_domains = _BAC_SERIES_ALLOWED_DOMAINS.get(bac)
+    if not allowed_domains:
+        return False
+    return not bool(school_domains & allowed_domains)
+
+
+def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> float:
+    bac = _normalize_bac_series(profile_bac_stream)
+    if not bac:
+        return 1.0
+
+    school_tokens = _tokenize(
+        " ".join(
+            [
+                str(school.get("filieres", "")),
+                str(school.get("programs_tags", "")),
+            ]
+        )
+    )
+    if not school_tokens:
+        return 0.0
+
+    keyword_groups: dict[str, list[set[str]]] = {
+        "eco": [
+            {"business", "commerce", "management", "gestion", "finance", "accounting", "audit"},
+            {"law", "droit", "juridique", "legal"},
+            {"economics", "economie", "economique", "public", "administration"},
+        ],
+        "sm": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
+            {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
+            {"science", "sciences", "math", "mathematiques"},
+        ],
+        "spc": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
+            {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
+            {"science", "sciences", "physique", "physiques"},
+        ],
+        "svt": [
+            {"health", "sante", "medical", "medecine", "pharmacie", "paramedical", "nursing"},
+            {"biology", "biologie", "bio", "life", "vie", "terre"},
+            {"science", "sciences", "environment", "ecologie"},
+        ],
+        "lettres": [
+            {"arts", "art", "design", "creative", "cinema"},
+            {"humanities", "lettres", "litterature", "communication", "education"},
+        ],
+        "arts": [
+            {"arts", "art", "design", "creative", "cinema", "portfolio"},
+            {"architecture", "urbanisme", "beaux", "graphique"},
+        ],
+    }
+
+    groups = keyword_groups.get(bac)
+    if not groups:
+        return 0.7 if _school_bac_compatible(profile_bac_stream, school, chunks) else 0.0
+
+    hits: list[float] = []
+    for group in groups:
+        overlap = len(school_tokens & group)
+        if overlap:
+            hits.append(min(1.0, overlap / float(len(group))))
+
+    if not hits:
+        return 0.0
+
+    return min(1.0, max(hits) * 0.65 + sum(hits) / len(hits) * 0.35)
 
 
 def _tokenize(text: str) -> set[str]:
@@ -484,9 +695,22 @@ DOMAIN_TERMS: dict[str, set[str]] = {
     "law": {"law", "droit", "juridique", "legal", "jurisprudence"},
     "medicine": {"medicine", "medical", "medecine", "pharmacie"},
     "healthcare": {"health", "healthcare", "sante", "paramedical", "nursing", "care", "sanitaire"},
+    "computer": {"computer", "informatique", "software", "developpement", "programmation", "data", "cyber", "ai", "ia"},
     "engineering": {"engineering", "ingenieur", "ingenierie", "technologie", "tech"},
     "business": {"business", "commerce", "gestion", "finance", "management", "economie"},
     "arts": {"art", "arts", "design", "beaux", "cinema"},
+    "military": {"military", "armee", "defense", "gendarmerie", "royale", "infanterie", "blindes", "artillerie", "marines", "parachutistes"},
+}
+
+EXPLICIT_DOMAIN_TO_CATEGORIES: dict[str, set[str]] = {
+    "law": {"law"},
+    "medicine": {"health"},
+    "healthcare": {"health"},
+    "computer": {"computer"},
+    "engineering": {"engineering", "computer"},
+    "business": {"business", "public_admin"},
+    "arts": {"arts", "humanities"},
+    "military": {"military"},
 }
 
 LANGUAGE_TERMS: dict[str, set[str]] = {
@@ -562,6 +786,8 @@ def _extract_query_constraints(question: str) -> dict[str, Any]:
 def _school_domain_tokens(school: dict[str, Any], chunks: list[dict[str, Any]]) -> set[str]:
     text = " ".join(
         [
+            str(school.get("filieres", "")),
+            str(school.get("programs_tags", "")),
             str(school.get("name", "")),
             str(school.get("type", "")),
             " ".join(school.get("programs", [])),
@@ -653,6 +879,56 @@ def _school_matches_query_constraints(
             return False
 
     return True
+
+
+def _school_matches_explicit_domains(
+    school: dict[str, Any],
+    chunks: list[dict[str, Any]],
+    domains: set[str],
+) -> bool:
+    if not domains:
+        return True
+
+    required_categories: set[str] = set()
+    for domain in domains:
+        required_categories |= EXPLICIT_DOMAIN_TO_CATEGORIES.get(domain, set())
+
+    primary_tokens = _tokenize(
+        " ".join(
+            [
+                str(school.get("filieres", "")),
+                str(school.get("programs_tags", "")),
+            ]
+        )
+    )
+    primary_categories = _categories_from_tokens(primary_tokens)
+
+    fallback_tokens = _tokenize(
+        " ".join(
+            [
+                str(school.get("name", "")),
+                str(school.get("type", "")),
+                " ".join(str(p) for p in school.get("programs", [])),
+            ]
+        )
+    )
+    fallback_categories = _categories_from_tokens(fallback_tokens)
+
+    school_categories = primary_categories or fallback_categories
+    if required_categories:
+        # Hard gate: for mapped explicit domains, require category overlap from filieres/programs_tags.
+        if not school_categories:
+            return False
+        return bool(school_categories & required_categories)
+
+    domain_tokens = _school_domain_tokens(school, chunks)
+    if not domain_tokens:
+        return False
+    for domain in domains:
+        terms = DOMAIN_TERMS.get(domain, set())
+        if terms and (domain_tokens & terms):
+            return True
+    return False
 
 
 def _normalize_city_text(text: str) -> str:
@@ -1031,29 +1307,11 @@ def _selectivity_to_required_level(selectivity: str) -> float:
 
 
 def _bac_stream_compatible(profile_bac_stream: str, chunks: list[dict[str, Any]], school: dict[str, Any]) -> bool:
-    bac = (profile_bac_stream or "").strip().lower()
-    if not bac:
-        return True
-    known = {
-        "sm": ["sm", "science_math", "science math"],
-        "science_math": ["sm", "science_math", "science math"],
-        "spc": ["spc", "pc", "physique"],
-        "svt": ["svt", "bio"],
-        "eco": ["eco", "econom"],
-        "lettres": ["lettres", "literature"],
-    }
-    aliases = known.get(bac, [bac])
-    searchable = " ".join(str(c.get("text", "")).lower() for c in chunks[:5])
-    searchable += " " + " ".join(str(p).lower() for p in school.get("programs", []))
-
-    # If dataset does not specify required series, keep candidate.
-    if "serie bac" not in searchable and "bac" not in searchable:
-        return True
-    return any(alias in searchable for alias in aliases)
+    return _school_bac_compatible(profile_bac_stream, school, chunks)
 
 
 def _bac_stream_match_score(profile_bac_stream: str, chunks: list[dict[str, Any]], school: dict[str, Any]) -> float:
-    return 1.0 if _bac_stream_compatible(profile_bac_stream, chunks, school) else 0.4
+    return 1.0 if _bac_stream_compatible(profile_bac_stream, chunks, school) else 0.0
 
 
 def _intent_group_match_score(question: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> float:
@@ -1235,25 +1493,24 @@ def _score_candidate(
     program_match = _program_match_score(question, school, chunks)
     intent_match = _intent_group_match_score(question, school, chunks)
     bac_match = _bac_stream_match_score(profile.bac_stream, chunks, school)
+    bac_semantic = _bac_semantic_score(profile.bac_stream, school, chunks)
     budget_match = _budget_match_score(profile, school)
     grade_match = _grade_match_score(profile, school)
     location_match = _location_match_score(profile, school, city_intent=city_intent)
     motivation_match = _motivation_match_score(profile, school)
 
     weighted = (
-        0.4 * program_match
-        + 0.3 * intent_match
-        + 0.06 * bac_match
-        + 0.04 * budget_match
-        + 0.03 * grade_match
-        + 0.1 * location_match
-        + 0.07 * motivation_match
+        0.5 * bac_semantic
+        + 0.2 * location_match
+        + 0.15 * budget_match
+        + 0.15 * motivation_match
     )
-    final_score = 0.45 * weighted + 0.55 * max(0.0, semantic)
+    final_score = 0.7 * weighted + 0.3 * max(0.0, semantic)
     return {
         "program_match": program_match,
         "intent_match": intent_match,
         "bac_match": bac_match,
+        "bac_semantic": bac_semantic,
         "budget_match": budget_match,
         "grade_match": grade_match,
         "location_match": location_match,
@@ -1434,6 +1691,8 @@ def retrieve(
     for item in candidates:
         school = item["school"]
         chunks = item.get("chunks", [])
+        if _has_semantic_domain_incompatibility(profile.bac_stream, school, chunks):
+            continue
         if not school_matches_profile(school, profile):
             continue
         filtered.append(item)
@@ -1448,18 +1707,20 @@ def retrieve(
             filtered = city_filtered
 
     if not filtered:
-        # Recall-safe fallback: keep country-matching candidates if stream constraints are too strict.
-        filtered = [item for item in candidates if school_matches_profile(item["school"], profile)]
-        if city_intent and (location_only_query or explicit_city_constraint):
-            city_filtered = [
-                item
-                for item in filtered
-                if _city_matches_intent(str(item.get("school", {}).get("city", "")), city_intent)
-            ]
-            if city_filtered:
-                filtered = city_filtered
-    if not filtered:
         return []
+
+    explicit_domains: set[str] = query_constraints.get("domains", set())
+    strict_intent = _has_explicit_program_intent(query_text) or bool(explicit_domains)
+
+    if explicit_domains:
+        domain_filtered = [
+            item
+            for item in filtered
+            if _school_matches_explicit_domains(item.get("school", {}), item.get("chunks", []), explicit_domains)
+        ]
+        if not domain_filtered:
+            return []
+        filtered = domain_filtered
 
     constraint_hits = {
         str(item.get("school", {}).get("school_id", "")): _school_matches_query_constraints(
@@ -1471,7 +1732,6 @@ def retrieve(
     }
 
     rescored: list[dict] = []
-    strict_intent = _has_explicit_program_intent(query_text)
     for item in filtered:
         school = item["school"]
         chunks = item.get("chunks", [])
@@ -1500,9 +1760,14 @@ def retrieve(
         components["name_query_match"] = name_query_match
         components["sparse_score"] = sparse
         components["hybrid_semantic"] = hybrid_semantic
+        school_id = str(school.get("school_id", ""))
+        is_mentioned = school_id in mentioned_school_ids
         sid = str(school.get("school_id", ""))
         matches_constraints = constraint_hits.get(sid, True)
         matches_city_intent = _city_matches_intent(str(school.get("city", "")), city_intent) if city_intent else True
+        if strict_intent and query_constraints.get("has_constraints", False) and not matches_constraints and not is_mentioned:
+            # Hard filter for explicit domain intent: if user asks a domain, do not substitute unrelated schools.
+            continue
         if query_constraints.get("has_constraints", False):
             # Favor constraint-aligned schools without hard-pruning recall.
             components["final"] += 0.08 if matches_constraints else -0.03
@@ -1520,8 +1785,6 @@ def retrieve(
         affordable_bonus = _affordable_public_tech_bonus(query_text, profile, school, chunks)
         components["final"] += affordable_bonus
         components["affordable_public_tech_bonus"] = affordable_bonus
-        school_id = str(school.get("school_id", ""))
-        is_mentioned = school_id in mentioned_school_ids
 
         # If user clearly asks for a domain, keep only reasonably aligned programs.
         if strict_intent and not is_mentioned:
@@ -1564,47 +1827,15 @@ def retrieve(
     rescored.sort(key=lambda x: x["score"], reverse=True)
     rescored = CROSS_ENCODER_RERANKER.rerank(query_text, rescored)
     if not rescored:
-        # Recall-safe fallback: rank by hybrid retrieval signals only.
-        for item in filtered:
-            school = item["school"]
-            chunks = item.get("chunks", [])
-            semantic = float(item.get("semantic_score", 0.0))
-            sparse = float(item.get("sparse_score", 0.0))
-            lexical = _lexical_match_score(query_text, school, chunks)
-            name_query_match = _name_query_match_score(query_text, str(school.get("name", "")))
-
-            sparse_weight = min(0.7, max(0.1, _env_float("HYBRID_SPARSE_WEIGHT", 0.35)))
-            dense_weight = 1.0 - sparse_weight
-            hybrid_semantic = dense_weight * semantic + sparse_weight * sparse
-
-            fallback_score = 0.75 * hybrid_semantic + 0.15 * lexical + 0.10 * name_query_match
-            chosen_chunk = (chunks or [
-                {
-                    "chunk_id": f"school_{school.get('school_id', school.get('name', 'unknown'))}",
-                    "school_id": school.get("school_id", ""),
-                    "program": (school.get("programs", ["general"]) or ["general"])[0],
-                    "recorded_at": "2026-01-01",
-                    "text": item.get("text", ""),
-                }
-            ])[0]
-
-            rescored.append(
-                {
-                    "score": float(fallback_score),
-                    "chunk": chosen_chunk,
-                    "school": school,
-                    "score_components": {
-                        "fallback": 1.0,
-                        "lexical_match": lexical,
-                        "name_query_match": name_query_match,
-                        "hybrid_semantic": hybrid_semantic,
-                    },
-                }
-            )
-
-        rescored.sort(key=lambda x: x["score"], reverse=True)
-    if not rescored:
         return []
-    # Return up to requested top_k (capped) for stronger recall during evaluation.
-    select_n = min(max(3, top_k), 20)
-    return rescored[:select_n]
+
+    threshold_filtered = [
+        item
+        for item in rescored
+        if float(item.get("score", 0.0)) >= MIN_SCORE_THRESHOLD
+    ]
+    if not threshold_filtered:
+        return []
+
+    select_n = min(max(1, top_k), 20)
+    return threshold_filtered[:select_n]

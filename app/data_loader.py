@@ -78,6 +78,19 @@ def _split_program_values(value: Any) -> list[str]:
     return out
 
 
+def _split_program_labels(value: Any) -> list[str]:
+    text = _safe_str(value)
+    if not text:
+        return []
+    parts = re.split(r"[|,;/]+", text)
+    labels: list[str] = []
+    for part in parts:
+        clean = " ".join(_safe_str(part).split())
+        if clean and clean not in labels:
+            labels.append(clean)
+    return labels
+
+
 def _legal_status_to_type(legal_status: str) -> str:
     s = _safe_str(legal_status).lower()
     return "public" if any(k in s for k in ["public", "publique", "etat", "state"]) else "private"
@@ -120,6 +133,10 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         all_programs = sorted(set(programs + filieres)) or ["general"]
         legal_status = _safe_str(row.get("legal_status"))
 
+        pretty_programs = _split_program_labels(row.get("programs_tags"))
+        pretty_filieres = _split_program_labels(row.get("filieres"))
+        pretty_program_labels = pretty_programs + [x for x in pretty_filieres if x not in pretty_programs]
+
         schools[school_id] = {
             "school_id": school_id,
             "name": name,
@@ -154,12 +171,26 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         elif pricing_details is not None:
             pricing_text = _safe_str(pricing_details)
 
-        overview_text = (
-            f"{name} ({_safe_str(row.get('acronym'))}) in {city}. "
-            f"Status {_safe_str(row.get('legal_status'))}. "
-            f"Programs {' | '.join(all_programs)}. "
-            f"Tuition range {pricing_min} to {pricing_max} MAD."
-        )
+        intro = name
+        acronym = _safe_str(row.get("acronym"))
+        if acronym:
+            intro += f" ({acronym})"
+        if city:
+            intro += f" in {city}"
+
+        overview_parts = [intro + "."]
+        if legal_status:
+            overview_parts.append(f"Status {legal_status}.")
+
+        if pretty_program_labels:
+            overview_parts.append(f"Programs: {' | '.join(pretty_program_labels[:14])}.")
+        else:
+            overview_parts.append(f"Programs: {' | '.join(all_programs[:14])}.")
+
+        if pricing_min > 0 or pricing_max > 0:
+            overview_parts.append(f"Tuition range {pricing_min} to {pricing_max} MAD.")
+
+        overview_text = " ".join(overview_parts)
         if pricing_text:
             overview_text += f" Pricing details: {pricing_text}."
 
@@ -273,6 +304,20 @@ def load_from_excel_mcd(xlsx_path: Path) -> tuple[dict[str, dict], list[dict]]:
                 if _safe_str(f.get("domaine") or f.get("nom_filiere"))
             }
         )
+        domain_labels = sorted(
+            {
+                _safe_str(f.get("domaine"))
+                for f in filieres
+                if _safe_str(f.get("domaine"))
+            }
+        )
+        filiere_labels = sorted(
+            {
+                _safe_str(f.get("nom_filiere"))
+                for f in filieres
+                if _safe_str(f.get("nom_filiere"))
+            }
+        )
 
         tuition_values: list[int] = []
         salary_values: list[int] = []
@@ -317,6 +362,8 @@ def load_from_excel_mcd(xlsx_path: Path) -> tuple[dict[str, dict], list[dict]]:
             "tuition_min_mad": tuition_min,
             "tuition_max_mad": tuition_max,
             "programs": programs or ["general"],
+            "programs_tags": " | ".join(domain_labels),
+            "filieres": " | ".join(filiere_labels),
             "admission_selectivity": "high" if has_concours else "medium",
             "employability_score": round(mean(employability_values), 2) if employability_values else 3.8,
             "salary_entry_min_mad": min(salary_values) if salary_values else 6000,
@@ -395,8 +442,11 @@ def load_schools(csv_path: Path) -> dict[str, dict]:
         reader = csv.DictReader(f)
         for row in reader:
             school_id = row["school_id"].strip()
-            programs = [p.strip().lower() for p in row["programs"].split("|") if p.strip()]
+            raw_programs = _safe_str(row.get("programs"))
+            programs = [p.strip().lower() for p in raw_programs.split("|") if p.strip()]
             row["programs"] = programs
+            row["programs_tags"] = raw_programs
+            row["filieres"] = raw_programs
             row["tuition_min_mad"] = int(row["tuition_min_mad"])
             row["tuition_max_mad"] = int(row["tuition_max_mad"])
             row["salary_entry_min_mad"] = int(row["salary_entry_min_mad"])
@@ -440,11 +490,22 @@ def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]
 
         school_id = f"uni_{_normalize_token(name)}_{_normalize_token(city)}"
         filieres = row.get("filieres", [])
+        filieres_list = [
+            _safe_str(v)
+            for v in (filieres if isinstance(filieres, list) else [])
+            if _safe_str(v)
+        ]
         if isinstance(filieres, list):
             programs = [_normalize_token(v) for v in filieres if _safe_str(v)]
         else:
             programs = [_normalize_token(row.get("domaine"))] if _safe_str(row.get("domaine")) else []
         programs = sorted(set(programs)) or ["general"]
+        domain_label = _safe_str(row.get("domaine"))
+        program_labels = ([domain_label] if domain_label else []) + filieres_list
+        unique_labels: list[str] = []
+        for label in program_labels:
+            if label and label not in unique_labels:
+                unique_labels.append(label)
 
         statut = _safe_str(row.get("statut")).lower()
         school_type = "public" if "public" in statut else "private"
@@ -466,18 +527,14 @@ def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]
             "tuition_min_mad": tuition_min,
             "tuition_max_mad": tuition_max,
             "programs": programs,
+            "programs_tags": " | ".join(unique_labels),
+            "filieres": " | ".join(filieres_list),
             "admission_selectivity": "medium",
             "employability_score": 3.8,
             "salary_entry_min_mad": 6000,
             "salary_entry_max_mad": 12000,
             "international_double_degree": False,
         }
-
-        filieres_list = [
-            _safe_str(v)
-            for v in (filieres if isinstance(filieres, list) else [])
-            if _safe_str(v)
-        ]
 
         base_info = (
             f"{name} a {city}. Categorie {_safe_str(row.get('categorie'))}. Domaine {_safe_str(row.get('domaine'))}. "
@@ -536,6 +593,28 @@ def load_policy(policy_path: Path) -> dict:
 
 def load_bundle(root_dir: Path) -> DataBundle:
     strict_supabase = os.getenv("SUPABASE_STRICT_MODE", "1").strip().lower() in {"1", "true", "yes", "on"}
+    # Explicit switch behavior:
+    # - strict_supabase=True  -> DB-only mode (must load from Supabase)
+    # - strict_supabase=False -> local documents/data mode
+    if not strict_supabase:
+        json_catalog_path = root_dir / "etablissements_maroc_complet.json"
+        xlsx_candidates = [
+            root_dir / "BDD_MCD_Universites.xlsx",
+            root_dir / "etablissements_maroc_complet.xlsx",
+        ]
+        xlsx_path = next((p for p in xlsx_candidates if p.exists()), None)
+
+        if json_catalog_path.exists():
+            schools, transcripts = load_from_json_catalog(json_catalog_path)
+        elif xlsx_path is not None:
+            schools, transcripts = load_from_excel_mcd(xlsx_path)
+        else:
+            schools = {}
+            transcripts = []
+
+        policy = load_policy(root_dir / "config" / "policy_rules.yaml")
+        return DataBundle(schools=schools, transcripts=transcripts, policy=policy, source="local_fallback")
+
     try:
         supabase_limit = _parse_int(os.getenv("SUPABASE_SCHOOLS_LIMIT", "500"), default=500)
         sb_schools, sb_transcripts = load_from_supabase_schools(limit=max(1, min(5000, supabase_limit)))
@@ -546,26 +625,7 @@ def load_bundle(root_dir: Path) -> DataBundle:
         if strict_supabase:
             raise RuntimeError(f"Supabase schools load failed in strict mode: {exc}") from exc
 
-    if strict_supabase:
-        raise RuntimeError(
-            "Supabase strict mode is enabled, but no schools were loaded from DB. "
-            "Set SUPABASE_URL and SUPABASE_ANON_KEY, or disable strict mode with SUPABASE_STRICT_MODE=0."
-        )
-
-    json_catalog_path = root_dir / "etablissements_maroc_complet.json"
-    xlsx_candidates = [
-        root_dir / "BDD_MCD_Universites.xlsx",
-        root_dir / "etablissements_maroc_complet.xlsx",
-    ]
-    xlsx_path = next((p for p in xlsx_candidates if p.exists()), None)
-
-    if json_catalog_path.exists():
-        schools, transcripts = load_from_json_catalog(json_catalog_path)
-    elif xlsx_path is not None:
-        schools, transcripts = load_from_excel_mcd(xlsx_path)
-    else:
-        # Clean start mode: no mock fallback.
-        schools = {}
-        transcripts = []
-    policy = load_policy(root_dir / "config" / "policy_rules.yaml")
-    return DataBundle(schools=schools, transcripts=transcripts, policy=policy, source="local_fallback")
+    raise RuntimeError(
+        "Supabase strict mode is enabled, but no schools were loaded from DB. "
+        "Set SUPABASE_URL and SUPABASE_ANON_KEY, or switch to local mode with SUPABASE_STRICT_MODE=0."
+    )

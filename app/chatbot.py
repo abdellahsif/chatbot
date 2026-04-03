@@ -4,6 +4,7 @@ import re
 from statistics import mean
 from typing import Any
 
+from app.generator import QWEN_GENERATOR
 from app.models import EvidenceItem, QueryResponse, UserProfile
 from app.retriever import resolve_effective_profile, retrieve
 
@@ -68,6 +69,19 @@ def _school_program_labels(school: dict[str, Any]) -> str:
     if isinstance(programs, list):
         return " | ".join(str(p) for p in programs if str(p).strip())
     return ""
+
+
+def _humanize_programs(text: str, max_items: int = 4) -> str:
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    parts = [p.strip() for p in raw.split("|") if p.strip()]
+    labels: list[str] = []
+    for p in parts:
+        human = " ".join(p.replace("_", " ").split())
+        if human and human not in labels:
+            labels.append(human)
+    return ", ".join(labels[:max_items])
 
 
 def _select_alternative_hit(
@@ -217,6 +231,30 @@ def _is_greeting_or_low_intent(question: str) -> bool:
     return False
 
 
+def _looks_french(question: str) -> bool:
+    q = " ".join((question or "").strip().lower().split())
+    if not q:
+        return False
+    if re.search(r"[\u00e0\u00e2\u00e7\u00e8\u00e9\u00ea\u00eb\u00ee\u00ef\u00f4\u00f9\u00fb\u00fc\u0153]", q):
+        return True
+    tokens = _norm_tokens(q)
+    french_markers = {
+        "je",
+        "cherche",
+        "ecole",
+        "ecoles",
+        "universite",
+        "filiere",
+        "bac",
+        "droit",
+        "medecine",
+        "ingenierie",
+        "bonjour",
+        "salut",
+    }
+    return len(tokens & french_markers) >= 2
+
+
 def _has_program_intent(question: str) -> bool:
     tokens = _norm_tokens(question)
     if not tokens:
@@ -361,6 +399,93 @@ def _enforce_grounded_response(
     return short_answer, why_it_fits, alternative, next_action
 
 
+def _build_message_paragraph(
+    *,
+    short_answer: str,
+    why_it_fits: str,
+    alternative: str,
+    next_action: str,
+) -> str:
+    def _clean(text: str) -> str:
+        return " ".join(str(text or "").strip().split())
+
+    def _limit_words(text: str, max_words: int) -> str:
+        words = _clean(text).split()
+        if len(words) <= max_words:
+            return " ".join(words)
+        return " ".join(words[:max_words]).rstrip(".,;: ") + "..."
+
+    def _as_sentence(text: str) -> str:
+        t = _clean(text)
+        if not t:
+            return ""
+        if t[-1] not in ".!?":
+            t += "."
+        return t
+
+    rec = _clean(short_answer)
+    fit = _clean(why_it_fits)
+    alt = _clean(alternative)
+    nxt = _clean(next_action)
+
+    parts: list[str] = []
+    if rec:
+        parts.append(_as_sentence(_limit_words(rec, 24)))
+    if fit:
+        parts.append(_as_sentence(_limit_words(fit, 34)))
+    if alt:
+        parts.append(_as_sentence(_limit_words(alt, 22)))
+    if nxt:
+        nxt_sentence = _as_sentence(_limit_words(nxt, 18))
+        if nxt_sentence:
+            if nxt_sentence[0].isupper():
+                nxt_sentence = "If you want, " + nxt_sentence[0].lower() + nxt_sentence[1:]
+            parts.append(nxt_sentence)
+
+    sentences: list[str] = []
+    seen: set[str] = set()
+    for s in parts:
+        key = _clean(s).lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        sentences.append(s)
+
+    return " ".join(sentences)
+
+
+def _match_grade(score_0_100: float) -> str:
+    if score_0_100 >= 90:
+        return "A+"
+    if score_0_100 >= 80:
+        return "A"
+    if score_0_100 >= 70:
+        return "B+"
+    if score_0_100 >= 60:
+        return "B"
+    return "C"
+
+
+def _augment_question_with_history(question: str, chat_history: list[dict[str, str]] | None) -> str:
+    if not chat_history:
+        return question
+
+    recent_user_msgs: list[str] = []
+    for item in chat_history[-8:]:
+        if not isinstance(item, dict):
+            continue
+        role = str(item.get("role", "")).strip().lower()
+        content = " ".join(str(item.get("content", "")).split())
+        if role == "user" and content:
+            recent_user_msgs.append(content)
+
+    if not recent_user_msgs:
+        return question
+
+    history_text = " | ".join(recent_user_msgs[-4:])
+    return f"{question}\nConversation context: {history_text}"
+
+
 def answer_question(
     *,
     question: str,
@@ -368,35 +493,68 @@ def answer_question(
     schools: dict[str, dict],
     transcripts: list[dict],
     top_k: int,
+    chat_history: list[dict[str, str]] | None = None,
 ) -> QueryResponse:
+    city_only_mode = False
+    is_fr = _looks_french(question)
     if not (question or "").strip():
         return QueryResponse(
-            short_answer="Please provide your question.",
-            why_it_fits="I need your target program, city, and budget to recommend a school.",
+            short_answer="Merci de preciser ta question." if is_fr else "Please provide your question.",
+            why_it_fits=(
+                "J ai besoin de ta filiere cible, ta ville, et ton budget pour recommander une ecole."
+                if is_fr
+                else "I need your target program, city, and budget to recommend a school."
+            ),
             evidence=[],
-            alternative="Example: 'Computer science in Rabat with medium budget'.",
-            next_action="Tell me your exact study goal and constraints.",
+            alternative=(
+                "Exemple: 'Ecole d informatique a Rabat avec budget moyen'."
+                if is_fr
+                else "Example: 'Computer science in Rabat with medium budget'."
+            ),
+            next_action=(
+                "Donne moi ton objectif d etudes exact et tes contraintes."
+                if is_fr
+                else "Tell me your exact study goal and constraints."
+            ),
             confidence=0.0,
         )
 
     if _is_greeting_or_low_intent(question):
         return QueryResponse(
-            short_answer="Hi! I can help you choose a school in Morocco.",
-            why_it_fits="Your message looks like a greeting, so I need more details before recommending schools.",
+            short_answer=(
+                "Bonjour, je peux t aider a choisir une ecole au Maroc."
+                if is_fr
+                else "Hi! I can help you choose a school in Morocco."
+            ),
+            why_it_fits=(
+                "Ton message ressemble a un salut, donc il me faut plus de details avant de recommander des ecoles."
+                if is_fr
+                else "Your message looks like a greeting, so I need more details before recommending schools."
+            ),
             evidence=[],
-            alternative="Example 1: 'Computer science school in Rabat with medium budget'.",
-            next_action="Tell me program, city, and budget band to start.",
+            alternative=(
+                "Exemple: 'Ecole d informatique a Rabat avec budget moyen'."
+                if is_fr
+                else "Example 1: 'Computer science school in Rabat with medium budget'."
+            ),
+            next_action=(
+                "Donne moi la filiere, la ville, et le budget pour commencer."
+                if is_fr
+                else "Tell me program, city, and budget band to start."
+            ),
             confidence=0.0,
         )
 
+    query_for_context = _augment_question_with_history(question, chat_history)
+
     effective_profile = resolve_effective_profile(
-        question=question,
+        question=query_for_context,
         profile=profile,
         schools=schools,
     )
 
     hits = retrieve(
-        question=question,
+        question=query_for_context,
         profile=effective_profile,
         schools=schools,
         transcripts=transcripts,
@@ -405,11 +563,27 @@ def answer_question(
 
     if not hits:
         return QueryResponse(
-            short_answer="No suitable school found for your constraints.",
-            why_it_fits="No candidate passed budget/bac/country filtering. Try widening budget or changing city.",
+            short_answer=(
+                "Je n ai pas trouve d ecole qui respecte exactement tous tes criteres."
+                if is_fr
+                else "I couldn’t find a school that fits everything you asked."
+            ),
+            why_it_fits=(
+                "Les options actuelles ne correspondent pas assez a ton budget, ton profil, ou tes contraintes de pays."
+                if is_fr
+                else "The current options do not match your budget, background, or country constraints well enough."
+            ),
             evidence=[],
-            alternative="Try public schools or a nearby city with lower tuition.",
-            next_action="Tell me your exact target program and acceptable budget range.",
+            alternative=(
+                "Si tu veux, je peux essayer des ecoles publiques ou une ville proche avec des frais plus bas."
+                if is_fr
+                else "If you want, I can try public schools or a nearby city with lower tuition."
+            ),
+            next_action=(
+                "Donne moi ta filiere cible exacte et ta fourchette de budget, et je vais affiner."
+                if is_fr
+                else "Tell me your exact target program and budget range, and I’ll narrow it down."
+            ),
             confidence=0.1,
         )
 
@@ -430,9 +604,21 @@ def answer_question(
         )
 
     top_schools: list[dict] = []
+    ranked_schools: list[dict[str, Any]] = []
     for hit in hits[:5]:
         school = hit["school"]
         components = hit.get("score_components", {})
+        match_score = round(
+            100.0
+            * (
+                0.5 * float(components.get("bac_semantic", 0.0))
+                + 0.2 * float(components.get("location_match", 0.0))
+                + 0.15 * float(components.get("budget_match", 0.0))
+                + 0.15 * float(components.get("motivation_match", 0.0))
+            ),
+            1,
+        )
+        match_grade = _match_grade(match_score)
         top_schools.append(
             {
                 "school_id": school.get("school_id"),
@@ -449,35 +635,72 @@ def answer_question(
                 "filieres": school.get("filieres"),
                 "admission_selectivity": school.get("admission_selectivity"),
                 "score": round(float(hit.get("score", 0.0)), 4),
+                "match_score": match_score,
+                "match_grade": match_grade,
                 "score_components": {
                     "program_match": round(float(components.get("program_match", 0.0)), 4),
                     "budget_match": round(float(components.get("budget_match", 0.0)), 4),
                     "grade_match": round(float(components.get("grade_match", 0.0)), 4),
                     "location_match": round(float(components.get("location_match", 0.0)), 4),
                     "motivation_match": round(float(components.get("motivation_match", 0.0)), 4),
+                    "bac_semantic": round(float(components.get("bac_semantic", 0.0)), 4),
                     "weighted": round(float(components.get("weighted", 0.0)), 4),
                 },
             }
         )
+        ranked_schools.append(
+            {
+                "school_id": school.get("school_id"),
+                "name": school.get("name"),
+                "city": school.get("city"),
+                "match_score": match_score,
+                "match_grade": match_grade,
+                "criteria": {
+                    "semantic_fit": round(100.0 * float(components.get("bac_semantic", 0.0)), 1),
+                    "geo_fit": round(100.0 * float(components.get("location_match", 0.0)), 1),
+                    "budget_fit": round(100.0 * float(components.get("budget_match", 0.0)), 1),
+                    "motivation_fit": round(100.0 * float(components.get("motivation_match", 0.0)), 1),
+                },
+            }
+        )
+
+    top_schools.sort(key=lambda item: float(item.get("match_score", 0.0)), reverse=True)
+    ranked_schools.sort(key=lambda item: float(item.get("match_score", 0.0)), reverse=True)
+    if ranked_schools:
+        rank_by_school_id = {
+            str(item.get("school_id", "")): idx
+            for idx, item in enumerate(ranked_schools)
+        }
+        hits = sorted(
+            hits,
+            key=lambda hit: rank_by_school_id.get(
+                str(hit.get("school", {}).get("school_id", "")),
+                10**6,
+            ),
+        )
+        evidence.sort(
+            key=lambda ev: rank_by_school_id.get(str(ev.school_id), 10**6),
+        )
 
     generation_evidence = _select_generation_evidence(evidence, max_items=3)
     top_ev = generation_evidence[0]
-    top_hit = hits[0]
-    top_school = top_hit.get("school", {})
+    top_school = top_schools[0] if top_schools else hits[0].get("school", {})
     top_status = _school_status_text(top_school)
     top_min, top_max = _school_tuition_range(top_school)
     tuition_text = f" with tuition around {top_min}-{top_max} MAD" if top_max > 0 else ""
-    short_answer = f"{top_ev.school_name} looks like the strongest match for what you asked"
+    short_answer = f"I’d start with {top_ev.school_name} for what you asked"
     if top_status:
-        short_answer += f" ({top_status})"
+        short_answer += f", especially since it is {top_status.lower()}"
     short_answer += f"{tuition_text}."
 
     ev_text = " ".join(str(top_ev.text).split())
-    ev_excerpt = " ".join(ev_text.split()[:28])
+    ev_excerpt = " ".join(ev_text.split()[:24])
     city_hint = f" in {effective_profile.city}" if effective_profile.city else ""
     top_programs = _school_program_labels(top_school)
-    program_hint = f" Programs: {top_programs}." if top_programs else ""
-    why_it_fits = f"It aligns with your request{city_hint}, based on this evidence: {ev_excerpt}.{program_hint}"
+    top_programs_human = _humanize_programs(top_programs)
+    program_hint = f" Key program areas include {top_programs_human}." if top_programs_human else ""
+    evidence_hint = f" Retrieved evidence highlights: {ev_excerpt}." if ev_excerpt else ""
+    why_it_fits = f"It fits your request{city_hint} in a practical way.{program_hint}{evidence_hint}".strip()
 
     alt_hit = _select_alternative_hit(
         hits=hits,
@@ -485,61 +708,136 @@ def answer_question(
         profile=effective_profile,
     )
     if alt_hit is not None:
-        alt_school = str(alt_hit.get("school", {}).get("name", top_ev.school_name))
-        alt_text = " ".join(str(alt_hit.get("chunk", {}).get("text", "")).split())
-        alt_excerpt = " ".join(alt_text.split()[:20]) if alt_text else ev_excerpt
+        alt_school_obj = alt_hit.get("school", {})
+        alt_school = str(alt_school_obj.get("name", top_ev.school_name))
+        alt_min, alt_max = _school_tuition_range(alt_school_obj)
+        alt_programs = _humanize_programs(_school_program_labels(alt_school_obj))
+        alt_bits: list[str] = []
+        if alt_programs:
+            alt_bits.append(f"program focus: {alt_programs}")
+        if alt_max > 0:
+            alt_bits.append(f"tuition around {alt_min}-{alt_max} MAD")
+        alt_excerpt = ", ".join(alt_bits) if alt_bits else "a profile close to your criteria"
     elif len(generation_evidence) > 1:
         alt_school = generation_evidence[1].school_name
         alt_text = " ".join(str(generation_evidence[1].text).split())
-        alt_excerpt = " ".join(alt_text.split()[:20])
+        alt_excerpt = " ".join(alt_text.split()[:16]) if alt_text else "a profile close to your criteria"
     else:
         alt_school = top_ev.school_name
-        alt_excerpt = ev_excerpt
+        alt_excerpt = "a profile close to your criteria"
 
-    alternative = f"A solid alternative is {alt_school}, with supporting details: {alt_excerpt}."
+    alternative = f"Another option worth checking is {alt_school}, especially for {alt_excerpt}."
     top_website = str(top_school.get("website_url", "")).strip()
-    next_action = "If you share your target program, budget range, and preferred study duration, I can narrow this to a sharper shortlist."
+    next_action = "If you share your target program, budget range, and preferred study duration, I can make it more precise."
     if top_website:
-        next_action = f"You can verify official details on {top_website}. Then share your target program and budget so I can narrow the shortlist."
+        next_action = f"You can verify official details on {top_website}. Then tell me your target program and budget so I can narrow the shortlist."
+
+    try:
+        generated = QWEN_GENERATOR.generate(
+            question=query_for_context,
+            profile=effective_profile,
+            top_schools=top_schools,
+            generation_evidence=generation_evidence,
+        )
+    except Exception:
+        generated = {}
+
+    if generated:
+        short_answer = str(generated.get("short_answer", short_answer)).strip() or short_answer
+        why_it_fits = str(generated.get("why_it_fits", why_it_fits)).strip() or why_it_fits
+        alternative = str(generated.get("alternative", alternative)).strip() or alternative
+        next_action = str(generated.get("next_action", next_action)).strip() or next_action
 
     if _is_city_only_school_request(question, effective_profile):
+        city_only_mode = True
         options: list[str] = []
         seen: set[str] = set()
-        for item in evidence:
-            name = item.school_name.strip()
+        for hit in hits:
+            school = hit.get("school", {})
+            school_city = str(school.get("city", "")).strip()
+            if effective_profile.city and not _match_city(school_city, effective_profile.city):
+                # For broad city intent, only surface schools clearly tied to requested city.
+                continue
+            name = str(school.get("name", "")).strip()
             if name and name not in seen:
                 seen.add(name)
                 options.append(name)
             if len(options) >= 3:
                 break
 
+        if not options:
+            for item in evidence:
+                name = item.school_name.strip()
+                if name and name not in seen:
+                    seen.add(name)
+                    options.append(name)
+                if len(options) >= 3:
+                    break
+
         city = effective_profile.city or "that city"
         if options:
             joined = ", ".join(options[:-1]) + (f", and {options[-1]}" if len(options) > 1 else options[0])
-            short_answer = f"Good choice. In {city}, you can start with options like {joined}."
+            if is_fr:
+                short_answer = f"Bon choix. A {city}, je te propose de commencer par {joined}."
+            else:
+                short_answer = f"Good choice. In {city}, I’d start with options like {joined}."
         else:
-            short_answer = f"Good choice. There are multiple school options in {city}."
+            if is_fr:
+                short_answer = f"Bon choix. Il existe quelques options solides a {city}."
+            else:
+                short_answer = f"Good choice. There are a few solid school options in {city}."
 
-        why_it_fits = "The best option depends on your field, budget, and grade level, so a broad city-only request works better as an initial shortlist."
-        alternative = "If you want practical and lower-cost outcomes, vocational or public tracks are usually the safest first filter."
-        next_action = "Tell me your intended field (for example IT, business, or health), your budget band, and your expected grade so I can give one precise recommendation."
+        if is_fr:
+            why_it_fits = (
+                f"Comme ta demande est centree sur la ville, voici une shortlist simple pour {city}. "
+                "Le meilleur choix dependra de la filiere, du budget, et du niveau attendu."
+            )
+            alternative = (
+                "Une alternative pratique est de commencer par des parcours publics ou professionnalisants si le cout est prioritaire, puis comparer une option plus selective."
+            )
+            next_action = "Donne moi la filiere visee, le budget, et la note attendue pour une recommandation precise."
+        else:
+            why_it_fits = (
+                f"Because your request is city-only, this is a simple shortlist for {city}. "
+                "The best fit will depend on your field, budget, and expected grade."
+            )
+            alternative = (
+                "A practical alternative is to begin with public or vocational tracks if affordability matters most, then compare one selective option too."
+            )
+            next_action = "Tell me your intended field, your budget band, and your expected grade so I can give one precise recommendation."
 
     if _has_conflicting_constraints(question, effective_profile):
-        alternative = (
-            "Your request mixes a tight budget with high-prestige goals, so the safest path is to shortlist affordable public options first, "
-            "then compare one higher-selectivity option as a stretch choice."
+        if is_fr:
+            alternative = (
+                "Ta demande combine un budget serre avec un objectif de prestige eleve. Le plus prudent est de commencer par des options publiques abordables, "
+                "puis de comparer une option plus selective en choix ambitieux."
+            )
+        else:
+            alternative = (
+                "Your request mixes a tight budget with high-prestige goals, so the safest path is to shortlist affordable public options first, "
+                "then compare one higher-selectivity option as a stretch choice."
+            )
+
+    if not city_only_mode:
+        short_answer, why_it_fits, alternative, next_action = _enforce_grounded_response(
+            short_answer=short_answer,
+            why_it_fits=why_it_fits,
+            alternative=alternative,
+            next_action=next_action,
+            generation_evidence=generation_evidence,
+            profile=effective_profile,
         )
 
-    short_answer, why_it_fits, alternative, next_action = _enforce_grounded_response(
+    confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
+    if city_only_mode:
+        # City-only requests are broad by nature; avoid overconfident scores.
+        confidence = min(confidence, 0.55)
+    message_paragraph = _build_message_paragraph(
         short_answer=short_answer,
         why_it_fits=why_it_fits,
         alternative=alternative,
         next_action=next_action,
-        generation_evidence=generation_evidence,
-        profile=effective_profile,
     )
-
-    confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
 
     return QueryResponse(
         short_answer=short_answer,
@@ -548,4 +846,6 @@ def answer_question(
         alternative=alternative,
         next_action=next_action,
         confidence=round(confidence, 3),
+        message_paragraph=message_paragraph,
+        ranked_schools=ranked_schools,
     )

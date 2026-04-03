@@ -287,7 +287,11 @@
   <script>
     const statusEl = document.getElementById("status");
     const panelEl = document.getElementById("responsePanel");
+    const CHAT_STORAGE_KEY = "chatbot_history_v1";
     let turnCounter = 0;
+    let chatState = {
+      turns: [],
+    };
 
     const READY_HTML = `
       <div class="bubble">
@@ -300,6 +304,50 @@
       turnCounter = 0;
       panelEl.dataset.started = "0";
       panelEl.innerHTML = READY_HTML;
+    }
+
+    function loadChatState() {
+      try {
+        const raw = localStorage.getItem(CHAT_STORAGE_KEY);
+        if (!raw) {
+          return { turns: [] };
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || !Array.isArray(parsed.turns)) {
+          return { turns: [] };
+        }
+        return {
+          turns: parsed.turns.filter((t) => t && typeof t === "object"),
+        };
+      } catch {
+        return { turns: [] };
+      }
+    }
+
+    function saveChatState() {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatState));
+    }
+
+    function clearChatState() {
+      chatState = { turns: [] };
+      localStorage.removeItem(CHAT_STORAGE_KEY);
+    }
+
+    function buildBackendChatHistory() {
+      const turns = Array.isArray(chatState.turns) ? chatState.turns : [];
+      const recentTurns = turns.slice(-8);
+      const messages = [];
+      for (const turn of recentTurns) {
+        const q = String(turn.question || "").trim();
+        const a = String((turn.response && (turn.response.message_paragraph || buildAssistantMessage(turn.response))) || "").trim();
+        if (q) {
+          messages.push({ role: "user", content: q });
+        }
+        if (a) {
+          messages.push({ role: "assistant", content: a });
+        }
+      }
+      return messages;
     }
 
     function ensureChatStarted() {
@@ -337,6 +385,13 @@
           .trim();
       };
 
+      if (data.message_paragraph) {
+        const paragraph = clean(data.message_paragraph);
+        if (paragraph) {
+          return paragraph;
+        }
+      }
+
       const parts = [];
       if (data.short_answer) {
         parts.push(clean(data.short_answer));
@@ -373,7 +428,6 @@
       assistantBubble.innerHTML = `
         <h3>Assistant</h3>
         <p class="chat-text">${escapeHtml(buildAssistantMessage(data) || "I can help more if you share more details.")}</p>
-        <p class="mono">confidence=${escapeHtml(data.confidence ?? "N/A")}</p>
         <details class="evidence-block">
           <summary>Show evidence</summary>
           <ul class="evidence">${evidenceItems || "<li>No evidence returned.</li>"}</ul>
@@ -381,6 +435,19 @@
       `;
       panelEl.appendChild(assistantBubble);
       assistantBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+
+    function restoreSavedChat() {
+      chatState = loadChatState();
+      if (!chatState.turns.length) {
+        resetChatPanel();
+        return;
+      }
+      resetChatPanel();
+      for (const turn of chatState.turns) {
+        renderChatResult(turn.response || {}, turn.question || "");
+      }
+      setStatus("Loaded previous chat history.");
     }
 
     function renderEvalResult(data) {
@@ -403,6 +470,7 @@
       const payload = {
         question: document.getElementById("question").value.trim(),
         top_k: Number(document.getElementById("topk").value || "3"),
+        chat_history: buildBackendChatHistory(),
         profile: {
           bac_stream: document.getElementById("bac").value.trim(),
           expected_grade_band: document.getElementById("grade").value.trim(),
@@ -430,6 +498,14 @@
         }
         const data = await res.json();
         renderChatResult(data, payload.question);
+        chatState.turns.push({
+          question: payload.question,
+          response: data,
+        });
+        if (chatState.turns.length > 30) {
+          chatState.turns = chatState.turns.slice(-30);
+        }
+        saveChatState();
         setStatus("Done.");
       } catch (err) {
         setStatus(`Error: ${err.message}`);
@@ -454,9 +530,12 @@
     document.getElementById("askBtn").addEventListener("click", askChatbot);
     document.getElementById("evalBtn").addEventListener("click", runEval);
     document.getElementById("clearBtn").addEventListener("click", () => {
+      clearChatState();
       resetChatPanel();
-      setStatus("Chat cleared.");
+      setStatus("Chat cleared and stored context removed.");
     });
+
+    restoreSavedChat();
   </script>
 </body>
 </html>

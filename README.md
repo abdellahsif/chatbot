@@ -60,9 +60,8 @@ Quick setup with `.env`:
 3. Start the API normally; `.env` is loaded automatically at startup.
 
 Runtime behavior:
-- Chatbot startup uses Supabase `schools` as the source of truth for `schools` and retrieval chunks.
-- Strict mode is enabled by default (`SUPABASE_STRICT_MODE=1`).
-- Optional dev fallback exists only when explicitly setting `SUPABASE_STRICT_MODE=0`.
+- `SUPABASE_STRICT_MODE=1`: DB-only mode (must load from Supabase `schools`, otherwise startup fails).
+- `SUPABASE_STRICT_MODE=0`: local documents/data mode (uses local JSON/XLSX files instead of Supabase).
 
 Environment variables:
 - `SUPABASE_URL=https://<project-ref>.supabase.co`
