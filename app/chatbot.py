@@ -255,6 +255,37 @@ def _looks_french(question: str) -> bool:
     return len(tokens & french_markers) >= 2
 
 
+def _question_mentions_city(question: str, city: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    c = " ".join(str(city or "").strip().lower().split())
+    return bool(q and c and c in q)
+
+
+def _question_mentions_bac(question: str, bac_stream: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    bac = str(bac_stream or "").strip().lower()
+    patterns = {
+        "sm": r"\b(sciences?\s+math|\bsm\b)\b",
+        "spc": r"\b(spc|\bpc\b|sciences?\s+physiques?)\b",
+        "svt": r"\b(svt|sciences?\s+de\s+la\s+vie)\b",
+        "eco": r"\b(eco|economique|economie|sciences?\s+economiques?)\b",
+        "lettres": r"\b(lettres|litterature|humanities)\b",
+        "arts": r"\b(arts?|design)\b",
+    }
+    pat = patterns.get(bac)
+    return bool(pat and re.search(pat, q))
+
+
+def _question_mentions_budget(question: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    return bool(re.search(r"\b(budget|cheap|affordable|pas\s*cher|25k|50k|70k|gratuit|free|illimite|no\s*limit)\b", q))
+
+
+def _question_mentions_motivation(question: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    return bool(re.search(r"\b(employability|emploi|career|prestige|expat|international|abroad|roi|salary|safe|safety|passion)\b", q))
+
+
 def _has_program_intent(question: str) -> bool:
     tokens = _norm_tokens(question)
     if not tokens:
@@ -486,6 +517,67 @@ def _augment_question_with_history(question: str, chat_history: list[dict[str, s
     return f"{question}\nConversation context: {history_text}"
 
 
+def _merge_query_understanding_into_request(
+    *,
+    question: str,
+    profile: UserProfile,
+    query_understanding: dict[str, Any],
+) -> tuple[str, UserProfile]:
+    if not query_understanding:
+        return question, profile
+
+    merged_question = str(question or "").strip()
+    reformulated = " ".join(str(query_understanding.get("reformulated_question", "")).split())
+    domains = [str(v).strip().lower() for v in (query_understanding.get("domains") or []) if str(v).strip()]
+    excluded_domains = [str(v).strip().lower() for v in (query_understanding.get("excluded_domains") or []) if str(v).strip()]
+    city = " ".join(str(query_understanding.get("city", "")).split())
+
+    hints: list[str] = []
+    if domains:
+        hints.append("domain " + " ".join(domains))
+    if excluded_domains:
+        hints.append("exclude " + " ".join(excluded_domains))
+    if city:
+        hints.append(f"city {city}")
+    if bool(query_understanding.get("strict_constraints", False)):
+        hints.append("strict domain filtering")
+
+    if reformulated and reformulated.lower() not in merged_question.lower():
+        merged_question += f"\nReformulated intent: {reformulated}"
+    if hints:
+        merged_question += "\nStructured constraints: " + "; ".join(hints) + "."
+
+    try:
+        confidence = float(query_understanding.get("confidence", 0.0) or 0.0)
+    except (TypeError, ValueError):
+        confidence = 0.0
+    use_overrides = confidence >= 0.45
+
+    if not use_overrides:
+        return merged_question, profile
+
+    bac_stream = str(query_understanding.get("bac_stream", "")).strip().lower()
+    budget_band = str(query_understanding.get("budget_band", "")).strip().lower()
+    motivation = str(query_understanding.get("motivation", "")).strip().lower()
+
+    bac_override = bac_stream if bac_stream and (_question_mentions_bac(question, bac_stream) or not profile.bac_stream) else ""
+    city_override = city if city and (_question_mentions_city(question, city) or not profile.city) else ""
+    budget_override = budget_band if budget_band and (_question_mentions_budget(question) or not profile.budget_band) else ""
+    motivation_override = motivation if motivation and (_question_mentions_motivation(question) or not profile.motivation) else ""
+
+    merged_profile = UserProfile(
+        bac_stream=bac_override or profile.bac_stream,
+        expected_grade_band=profile.expected_grade_band,
+        motivation=motivation_override or profile.motivation,
+        budget_band=budget_override or profile.budget_band,
+        city=city_override or profile.city,
+        country=profile.country,
+        classe=profile.classe,
+        note_esperee=profile.note_esperee,
+    )
+    return merged_question, merged_profile
+
+
 def answer_question(
     *,
     question: str,
@@ -547,14 +639,29 @@ def answer_question(
 
     query_for_context = _augment_question_with_history(question, chat_history)
 
-    effective_profile = resolve_effective_profile(
+    try:
+        query_understanding = QWEN_GENERATOR.understand_query(
+            question=query_for_context,
+            profile=profile,
+            chat_history=chat_history,
+        )
+    except Exception:
+        query_understanding = {}
+
+    retrieval_question, retrieval_profile = _merge_query_understanding_into_request(
         question=query_for_context,
         profile=profile,
+        query_understanding=query_understanding,
+    )
+
+    effective_profile = resolve_effective_profile(
+        question=retrieval_question,
+        profile=retrieval_profile,
         schools=schools,
     )
 
     hits = retrieve(
-        question=query_for_context,
+        question=retrieval_question,
         profile=effective_profile,
         schools=schools,
         transcripts=transcripts,

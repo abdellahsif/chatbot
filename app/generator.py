@@ -12,6 +12,124 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from app.models import EvidenceItem, UserProfile
 
 
+_ALLOWED_QUERY_DOMAINS = {
+    "computer",
+    "engineering",
+    "medicine",
+    "healthcare",
+    "business",
+    "law",
+    "arts",
+    "military",
+}
+
+_ALLOWED_BAC_STREAMS = {"sm", "spc", "svt", "eco", "lettres", "arts", ""}
+_ALLOWED_BUDGET_BANDS = {"zero_public", "tight_25k", "comfort_50k", "no_limit_70k_plus", ""}
+_ALLOWED_MOTIVATIONS = {"employability", "prestige", "expat", "cash", "safety", "passion", ""}
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _normalize_domain(value: str) -> str:
+    token = re.sub(r"\s+", " ", str(value or "").strip().lower())
+    if not token:
+        return ""
+    mapping = {
+        "it": "computer",
+        "informatique": "computer",
+        "software": "computer",
+        "cyber": "computer",
+        "cybersecurity": "computer",
+        "cybersecurite": "computer",
+        "engineer": "engineering",
+        "ingenierie": "engineering",
+        "genie": "engineering",
+        "medecine": "medicine",
+        "medical": "medicine",
+        "sante": "healthcare",
+        "health": "healthcare",
+        "economie": "business",
+        "finance": "business",
+        "management": "business",
+        "droit": "law",
+        "legal": "law",
+        "art": "arts",
+        "architecture": "arts",
+        "militaire": "military",
+        "defense": "military",
+    }
+    if token in _ALLOWED_QUERY_DOMAINS:
+        return token
+    return mapping.get(token, "")
+
+
+def _extract_city_hint(text: str) -> str:
+    q = re.sub(r"\s+", " ", str(text or "").strip())
+    if not q:
+        return ""
+    m = re.search(r"\b(?:a|à|au|aux|en|in|at)\s+([A-Za-z][A-Za-z\- ]{1,30})\b", q, flags=re.IGNORECASE)
+    if not m:
+        return ""
+    city = " ".join(m.group(1).split())
+    # Avoid swallowing long tails.
+    return " ".join(city.split()[:3])
+
+
+def _normalize_bac_stream(value: str) -> str:
+    token = re.sub(r"\s+", " ", str(value or "").strip().lower())
+    mapping = {
+        "sciences mathematiques": "sm",
+        "science mathematiques": "sm",
+        "sm": "sm",
+        "spc": "spc",
+        "pc": "spc",
+        "svt": "svt",
+        "sciences economiques": "eco",
+        "eco": "eco",
+        "lettres": "lettres",
+        "arts": "arts",
+    }
+    out = mapping.get(token, token)
+    return out if out in _ALLOWED_BAC_STREAMS else ""
+
+
+def _normalize_budget_band(value: str) -> str:
+    token = re.sub(r"\s+", " ", str(value or "").strip().lower())
+    mapping = {
+        "zero": "zero_public",
+        "zero_public": "zero_public",
+        "tight": "tight_25k",
+        "tight_25k": "tight_25k",
+        "comfort": "comfort_50k",
+        "comfort_50k": "comfort_50k",
+        "nolimit": "no_limit_70k_plus",
+        "no_limit_70k_plus": "no_limit_70k_plus",
+    }
+    out = mapping.get(token, token)
+    return out if out in _ALLOWED_BUDGET_BANDS else ""
+
+
+def _normalize_motivation(value: str) -> str:
+    token = re.sub(r"\s+", " ", str(value or "").strip().lower())
+    mapping = {
+        "job": "employability",
+        "emploi": "employability",
+        "employability": "employability",
+        "prestige": "prestige",
+        "expat": "expat",
+        "cash": "cash",
+        "safety": "safety",
+        "passion": "passion",
+    }
+    out = mapping.get(token, token)
+    return out if out in _ALLOWED_MOTIVATIONS else ""
+
+
 def _detect_language(text: str) -> str:
     """Detect if text is primarily Arabic, French, or English."""
     if not text:
@@ -225,6 +343,291 @@ class QwenGenerator:
         p["alternative"] = _humanize_text(_trim_words(" ".join(p.get("alternative", "").split()), 20))
         p["next_action"] = _humanize_text(_trim_words(" ".join(p.get("next_action", "").split()), 16))
         return p
+
+    @staticmethod
+    def _heuristic_query_understanding(
+        *,
+        question: str,
+        profile: UserProfile,
+        chat_history: list[dict[str, str]] | None = None,
+    ) -> dict[str, Any]:
+        q = " ".join(str(question or "").split())
+        q_lower = q.lower()
+
+        domain_keywords: list[tuple[str, set[str]]] = [
+            ("computer", {"informatique", "computer", "software", "cyber", "ia", "ai", "data"}),
+            ("engineering", {"ingenierie", "ingenieur", "genie", "engineering", "mecanique", "civil", "electrique"}),
+            ("medicine", {"medecine", "medical", "pharmacie", "dentaire"}),
+            ("healthcare", {"sante", "soins", "infirmier", "paramedical", "sanitaire"}),
+            ("business", {"finance", "management", "gestion", "marketing", "commerce", "economie"}),
+            ("law", {"droit", "juridique", "legal"}),
+            ("arts", {"art", "design", "architecture", "cinema"}),
+            ("military", {"militaire", "armee", "defense", "gendarmerie"}),
+        ]
+
+        domains: list[str] = []
+        for domain, words in domain_keywords:
+            if any(w in q_lower for w in words):
+                domains.append(domain)
+
+        # Keep first-seen order and deduplicate.
+        dedup_domains: list[str] = []
+        for d in domains:
+            if d not in dedup_domains:
+                dedup_domains.append(d)
+
+        city = _extract_city_hint(q)
+
+        bac_stream = ""
+        if re.search(r"\b(sciences?\s+math|\bsm\b)\b", q_lower):
+            bac_stream = "sm"
+        elif re.search(r"\b(spc|\bpc\b|sciences?\s+physiques?)\b", q_lower):
+            bac_stream = "spc"
+        elif re.search(r"\b(svt|sciences?\s+de\s+la\s+vie)\b", q_lower):
+            bac_stream = "svt"
+        elif re.search(r"\b(eco|economie|economique|sciences?\s+economiques?)\b", q_lower):
+            bac_stream = "eco"
+        elif re.search(r"\b(lettres|litterature|humanities)\b", q_lower):
+            bac_stream = "lettres"
+        elif re.search(r"\b(arts?|design)\b", q_lower):
+            bac_stream = "arts"
+
+        budget_band = ""
+        if re.search(r"\b(0|zero|gratuit|public\s*only|free)\b", q_lower):
+            budget_band = "zero_public"
+        elif re.search(r"\b(25k|25000|25\s*000|pas\s*cher|cheap|affordable)\b", q_lower):
+            budget_band = "tight_25k"
+        elif re.search(r"\b(50k|50000|50\s*000|moyen|comfort)\b", q_lower):
+            budget_band = "comfort_50k"
+        elif re.search(r"\b(no\s*limit|illimite|unlimited|70k|70000)\b", q_lower):
+            budget_band = "no_limit_70k_plus"
+
+        motivation = ""
+        if re.search(r"\b(job|emploi|employability|carriere|career)\b", q_lower):
+            motivation = "employability"
+        elif re.search(r"\b(prestige|elite|ranking|top)\b", q_lower):
+            motivation = "prestige"
+        elif re.search(r"\b(expat|international|abroad|etranger)\b", q_lower):
+            motivation = "expat"
+        elif re.search(r"\b(roi|cash|salaire|salary|income)\b", q_lower):
+            motivation = "cash"
+        elif re.search(r"\b(safe|safety|sur|stable)\b", q_lower):
+            motivation = "safety"
+        elif re.search(r"\b(passion|interet|interest)\b", q_lower):
+            motivation = "passion"
+
+        strict_constraints = bool(dedup_domains)
+        confidence = 0.45
+        confidence += min(0.25, 0.08 * len(dedup_domains))
+        if city:
+            confidence += 0.08
+        if bac_stream:
+            confidence += 0.07
+        if budget_band:
+            confidence += 0.05
+        confidence = max(0.0, min(0.9, confidence))
+
+        reformulated = q
+        if dedup_domains:
+            reformulated = f"{q}. Target domain: {' '.join(dedup_domains)}."
+            if city:
+                reformulated += f" Target city: {city}."
+
+        return {
+            "reformulated_question": reformulated,
+            "domains": dedup_domains,
+            "excluded_domains": [],
+            "city": city,
+            "bac_stream": bac_stream,
+            "budget_band": budget_band,
+            "motivation": motivation,
+            "strict_constraints": strict_constraints,
+            "confidence": round(confidence, 3),
+        }
+
+    @staticmethod
+    def _validate_query_understanding(raw: dict[str, Any]) -> dict[str, Any]:
+        def _as_list(value: Any) -> list[str]:
+            if isinstance(value, list):
+                return [str(v) for v in value]
+            if isinstance(value, str):
+                return [value]
+            return []
+
+        reformulated = " ".join(str(raw.get("reformulated_question", "")).split())
+
+        domains: list[str] = []
+        for item in _as_list(raw.get("domains", [])):
+            d = _normalize_domain(item)
+            if d and d not in domains:
+                domains.append(d)
+
+        excluded_domains: list[str] = []
+        for item in _as_list(raw.get("excluded_domains", [])):
+            d = _normalize_domain(item)
+            if d and d not in excluded_domains:
+                excluded_domains.append(d)
+
+        city = " ".join(str(raw.get("city", "")).split())[:40]
+        bac_stream = _normalize_bac_stream(str(raw.get("bac_stream", "")))
+        budget_band = _normalize_budget_band(str(raw.get("budget_band", "")))
+        motivation = _normalize_motivation(str(raw.get("motivation", "")))
+        strict_constraints = bool(raw.get("strict_constraints", False))
+
+        try:
+            confidence = float(raw.get("confidence", 0.0))
+        except (TypeError, ValueError):
+            confidence = 0.0
+        confidence = max(0.0, min(1.0, confidence))
+
+        return {
+            "reformulated_question": reformulated,
+            "domains": domains,
+            "excluded_domains": excluded_domains,
+            "city": city,
+            "bac_stream": bac_stream,
+            "budget_band": budget_band,
+            "motivation": motivation,
+            "strict_constraints": strict_constraints,
+            "confidence": round(confidence, 3),
+        }
+
+    @staticmethod
+    def _apply_question_side_rules(*, question: str, understanding: dict[str, Any]) -> dict[str, Any]:
+        q = " ".join(str(question or "").strip().lower().split())
+        domains = [d for d in understanding.get("domains", []) if d in _ALLOWED_QUERY_DOMAINS]
+        excluded = [d for d in understanding.get("excluded_domains", []) if d in _ALLOWED_QUERY_DOMAINS]
+
+        neg_patterns = {
+            "military": r"\b(pas|sans|not|without)\b.{0,24}\b(militaire|armee|defense|military)\b",
+            "law": r"\b(pas|sans|not|without)\b.{0,24}\b(droit|juridique|law|legal)\b",
+            "medicine": r"\b(pas|sans|not|without)\b.{0,24}\b(medecine|medical|pharmacie|medicine)\b",
+            "business": r"\b(pas|sans|not|without)\b.{0,24}\b(finance|management|commerce|business|economie)\b",
+        }
+        for domain, pat in neg_patterns.items():
+            if re.search(pat, q):
+                domains = [d for d in domains if d != domain]
+                if domain not in excluded:
+                    excluded.append(domain)
+
+        # Enforce clear positive cues from question.
+        if re.search(r"\b(finance|management|commerce|economie|marketing)\b", q) and "business" not in domains:
+            domains.append("business")
+        if re.search(r"\b(droit|juridique|law|legal)\b", q) and "law" not in domains:
+            domains.append("law")
+        if re.search(r"\b(medecine|medical|pharmacie|medicine)\b", q) and "medicine" not in domains:
+            domains.append("medicine")
+        if re.search(r"\b(informatique|computer|software|cyber|data|ia|ai)\b", q) and "computer" not in domains:
+            domains.append("computer")
+        if re.search(r"\b(ingenierie|ingenieur|engineering|genie|mecanique|civil|electrique)\b", q) and "engineering" not in domains:
+            domains.append("engineering")
+
+        # If question is clearly medical and has no computer cue, drop accidental computer tagging.
+        if "medicine" in domains and "computer" in domains and not re.search(r"\b(informatique|computer|software|cyber|data|ia|ai)\b", q):
+            domains = [d for d in domains if d != "computer"]
+
+        # Keep deterministic ordering and remove excluded overlaps.
+        dedup_domains: list[str] = []
+        for d in domains:
+            if d not in dedup_domains and d not in excluded:
+                dedup_domains.append(d)
+        dedup_excluded: list[str] = []
+        for d in excluded:
+            if d not in dedup_excluded:
+                dedup_excluded.append(d)
+
+        out = dict(understanding)
+        out["domains"] = dedup_domains
+        out["excluded_domains"] = dedup_excluded
+        out["strict_constraints"] = bool(out.get("strict_constraints", False) or dedup_domains or dedup_excluded)
+        return out
+
+    def understand_query(
+        self,
+        *,
+        question: str,
+        profile: UserProfile,
+        chat_history: list[dict[str, str]] | None = None,
+    ) -> dict[str, Any]:
+        fallback = self._heuristic_query_understanding(
+            question=question,
+            profile=profile,
+            chat_history=chat_history,
+        )
+
+        if not _env_bool("USE_QUERY_UNDERSTANDING_MODEL", True):
+            return fallback
+
+        if not self._ensure_loaded() or self._tokenizer is None or self._model is None:
+            return fallback
+
+        history_text = ""
+        if chat_history:
+            parts: list[str] = []
+            for msg in chat_history[-6:]:
+                if not isinstance(msg, dict):
+                    continue
+                role = str(msg.get("role", "")).strip().lower()
+                content = " ".join(str(msg.get("content", "")).split())
+                if role and content:
+                    parts.append(f"{role}: {content}")
+            if parts:
+                history_text = "\nRecent chat context:\n" + "\n".join(parts)
+
+        prompt = (
+            "You are a query understanding module for school search.\n"
+            "Task: reformulate the user question and extract structured constraints.\n"
+            "Return ONLY valid JSON with keys:\n"
+            "reformulated_question, domains, excluded_domains, city, bac_stream, budget_band, motivation, strict_constraints, confidence.\n"
+            "Allowed domains: computer, engineering, medicine, healthcare, business, law, arts, military.\n"
+            "Allowed bac_stream: sm, spc, svt, eco, lettres, arts or ''.\n"
+            "Allowed budget_band: zero_public, tight_25k, comfort_50k, no_limit_70k_plus or ''.\n"
+            "Allowed motivation: employability, prestige, expat, cash, safety, passion or ''.\n"
+            "confidence must be a float between 0 and 1.\n"
+            "If a field is unknown, use empty string or empty array.\n\n"
+            "Important: extract fields only if explicitly mentioned or strongly implied in the user question.\n"
+            "Do NOT copy profile hints into output unless question text supports them.\n\n"
+            f"Question: {question}\n"
+            f"Profile hints: bac_stream={profile.bac_stream}, budget_band={profile.budget_band}, motivation={profile.motivation}, city={profile.city}, country={profile.country}"
+            f"{history_text}"
+        )
+
+        try:
+            inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1800)
+            device = self._model.device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            with torch.no_grad():
+                out = self._model.generate(
+                    **inputs,
+                    max_new_tokens=160,
+                    do_sample=False,
+                    pad_token_id=self._tokenizer.pad_token_id,
+                )
+            raw_text = self._tokenizer.decode(out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
+            parsed = self._extract_json_block(raw_text)
+            validated = self._validate_query_understanding(parsed)
+        except Exception:
+            return fallback
+
+        validated = self._apply_question_side_rules(question=question, understanding=validated)
+
+        # Fill missing fields from heuristic fallback to stay robust.
+        for key in ["reformulated_question", "city", "bac_stream", "budget_band", "motivation"]:
+            if not validated.get(key):
+                validated[key] = fallback.get(key)
+        if not validated.get("domains"):
+            validated["domains"] = fallback.get("domains", [])
+        if not validated.get("excluded_domains"):
+            validated["excluded_domains"] = fallback.get("excluded_domains", [])
+
+        if not validated.get("strict_constraints") and validated.get("domains"):
+            validated["strict_constraints"] = bool(fallback.get("strict_constraints", False))
+
+        validated["confidence"] = round(
+            max(float(validated.get("confidence", 0.0)), 0.8 * float(fallback.get("confidence", 0.0))),
+            3,
+        )
+        return validated
 
     def generate(
         self,
