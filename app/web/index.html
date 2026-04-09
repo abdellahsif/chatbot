@@ -216,12 +216,12 @@
 <body>
   <main class="wrap">
     <section class="panel">
-      <h1>University Chatbot</h1>
-      <p class="note">Ask a question and get an evidence-based recommendation.</p>
+      <h1>University Matcher</h1>
+      <p class="note">Fill your profile to get evidence-based school matches.</p>
 
       <div class="group">
-        <label for="question">Question</label>
-        <textarea id="question" placeholder="Example: I want a computer science school in Rabat with medium budget."></textarea>
+        <label for="question">Optional Details</label>
+        <textarea id="question" placeholder="Optional: add extra preferences (program type, schedule, language, etc.)."></textarea>
       </div>
 
       <div class="row">
@@ -238,18 +238,37 @@
       <div class="row">
         <div class="group">
           <label for="bac">Bac Stream</label>
-          <input id="bac" value="science_math" />
+          <select id="bac">
+            <option value="sm">Sciences Math (sm)</option>
+            <option value="spc" selected>Sciences Physiques (spc)</option>
+            <option value="svt">SVT (svt)</option>
+            <option value="eco">Eco (eco)</option>
+            <option value="lettres">Lettres (lettres)</option>
+            <option value="arts">Arts (arts)</option>
+          </select>
         </div>
         <div class="group">
           <label for="grade">Grade Band</label>
-          <input id="grade" value="12_14" />
+          <select id="grade">
+            <option value="passable">Passable</option>
+            <option value="bien" selected>Bien</option>
+            <option value="tres_bien">Tres bien</option>
+            <option value="elite">Elite</option>
+          </select>
         </div>
       </div>
 
       <div class="row">
         <div class="group">
           <label for="motivation">Motivation</label>
-          <input id="motivation" value="career" />
+          <select id="motivation">
+            <option value="cash">Cash (ROI)</option>
+            <option value="prestige">Prestige</option>
+            <option value="passion">Passion</option>
+            <option value="safety">Safety</option>
+            <option value="expat">Expat</option>
+            <option value="employability" selected>Employability (career)</option>
+          </select>
         </div>
         <div class="group">
           <label for="budget">Budget Band</label>
@@ -268,7 +287,7 @@
       </div>
 
       <div class="actions">
-        <button class="primary" id="askBtn">Ask Chatbot</button>
+        <button class="primary" id="askBtn">Find Best Matches</button>
         <button class="secondary" id="evalBtn">Run Evaluation</button>
         <button class="secondary" id="clearBtn">Clear Chat</button>
       </div>
@@ -279,7 +298,7 @@
     <section class="panel response" id="responsePanel">
       <div class="bubble">
         <h3>Ready</h3>
-        <p>Submit a question to see short answer, why it fits, confidence, and evidence.</p>
+        <p>Submit your profile to see best matches, why they fit, confidence, and evidence.</p>
       </div>
     </section>
   </main>
@@ -296,7 +315,7 @@
     const READY_HTML = `
       <div class="bubble">
         <h3>Ready</h3>
-        <p>Submit a question to see short answer, why it fits, confidence, and evidence.</p>
+        <p>Submit your profile to see best matches, why they fit, confidence, and evidence.</p>
       </div>
     `;
 
@@ -371,6 +390,53 @@
         .replaceAll("'", "&#039;");
     }
 
+    function hasProfileSignal(profile) {
+      return Boolean(
+        profile &&
+          [
+            profile.bac_stream,
+            profile.expected_grade_band,
+            profile.motivation,
+            profile.budget_band,
+            profile.city,
+            profile.country,
+          ].some((value) => String(value || "").trim())
+      );
+    }
+
+    function buildProfileRequestSummary(profile) {
+      const bacLabel = {
+        sm: "sciences_math",
+        spc: "sciences_physiques",
+        svt: "svt",
+        eco: "eco",
+        lettres: "lettres",
+        arts: "arts",
+      };
+      const gradeLabel = {
+        passable: "passable",
+        bien: "bien",
+        tres_bien: "tres_bien",
+        elite: "elite",
+      };
+      const motivationLabel = {
+        cash: "cash",
+        prestige: "prestige",
+        passion: "passion",
+        safety: "safety",
+        expat: "expat",
+        employability: "career",
+      };
+      const parts = [];
+      if (profile.bac_stream) parts.push(`bac=${bacLabel[profile.bac_stream] || profile.bac_stream}`);
+      if (profile.expected_grade_band) parts.push(`grade=${gradeLabel[profile.expected_grade_band] || profile.expected_grade_band}`);
+      if (profile.motivation) parts.push(`motivation=${motivationLabel[profile.motivation] || profile.motivation}`);
+      if (profile.budget_band) parts.push(`budget=${profile.budget_band}`);
+      if (profile.city) parts.push(`city=${profile.city}`);
+      if (profile.country) parts.push(`country=${profile.country}`);
+      return parts.length ? `Profile request (${parts.join(", ")})` : "Profile request";
+    }
+
     function buildAssistantMessage(data) {
       const clean = (text) => {
         const raw = String(text || "").trim();
@@ -411,6 +477,7 @@
     function renderChatResult(data, question) {
       ensureChatStarted();
       turnCounter += 1;
+      const userRequestText = String(question || "").trim() || "Profile-based recommendation request";
       const evidenceItems = Array.isArray(data.evidence)
         ? data.evidence.map((e) => `<li><strong>${escapeHtml(e.school_name || "N/A")}</strong> (${escapeHtml(e.program || "N/A")})<br/><span class="mono">score=${escapeHtml(e.score)} chunk=${escapeHtml(e.chunk_id)}</span><br/>${escapeHtml(e.text || "")}</li>`).join("")
         : "";
@@ -419,7 +486,7 @@
       userBubble.className = "bubble user";
       userBubble.innerHTML = `
         <h3>You</h3>
-        <p>${escapeHtml(question || "")}</p>
+        <p>${escapeHtml(userRequestText)}</p>
       `;
       panelEl.appendChild(userBubble);
 
@@ -481,10 +548,12 @@
         },
       };
 
-      if (!payload.question) {
-        setStatus("Please enter a question.");
+      if (!hasProfileSignal(payload.profile)) {
+        setStatus("Please provide at least one profile field.");
         return;
       }
+
+      const displayQuestion = payload.question || buildProfileRequestSummary(payload.profile);
 
       setStatus("Asking chatbot...");
       try {
@@ -497,9 +566,9 @@
           throw new Error(`Request failed with status ${res.status}`);
         }
         const data = await res.json();
-        renderChatResult(data, payload.question);
+        renderChatResult(data, displayQuestion);
         chatState.turns.push({
-          question: payload.question,
+          question: displayQuestion,
           response: data,
         });
         if (chatState.turns.length > 30) {

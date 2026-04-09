@@ -153,9 +153,6 @@ class ChatbotHandler(BaseHTTPRequestHandler):
             try:
                 payload = self._read_json_body()
                 req = QueryRequest.from_dict(payload)
-                if not req.question:
-                    self._send_json(400, {"error": "question is required"})
-                    return
 
                 result = answer_question(
                     question=req.question,

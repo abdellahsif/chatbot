@@ -16,12 +16,75 @@ _BUDGET_MAX = {
     "no_limit_70k_plus": 10**9,
 }
 
+_BAC_LABEL = {
+    "sm": "sciences math",
+    "spc": "sciences physiques",
+    "svt": "sciences de la vie",
+    "eco": "sciences economiques",
+    "lettres": "lettres",
+    "arts": "arts",
+}
+
+_BUDGET_LABEL = {
+    "zero_public": "public low-cost",
+    "tight_25k": "up to 25k MAD",
+    "comfort_50k": "up to 50k MAD",
+    "no_limit_70k_plus": "70k+ MAD",
+}
+
+_MOTIVATION_LABEL = {
+    "cash": "return on investment",
+    "prestige": "prestige",
+    "expat": "international exposure",
+    "employability": "employability",
+    "safety": "safe realistic path",
+    "passion": "interest fit",
+}
+
 
 def _to_int(value: Any, default: int = 0) -> int:
     try:
         return int(value)
     except (TypeError, ValueError):
         return default
+
+
+def _profile_has_signal(profile: UserProfile) -> bool:
+    return any(
+        [
+            bool((profile.bac_stream or "").strip()),
+            bool((profile.expected_grade_band or "").strip()),
+            bool((profile.motivation or "").strip()),
+            bool((profile.budget_band or "").strip()),
+            bool((profile.city or "").strip()),
+        ]
+    )
+
+
+def _profile_to_query(profile: UserProfile) -> str:
+    parts: list[str] = ["best matching schools"]
+
+    if (profile.country or "").strip():
+        parts.append(f"country {profile.country.strip()}")
+    if (profile.city or "").strip():
+        parts.append(f"city {profile.city.strip()}")
+
+    bac_key = (profile.bac_stream or "").strip().lower()
+    if bac_key:
+        parts.append(f"bac {_BAC_LABEL.get(bac_key, bac_key)}")
+
+    budget_key = (profile.budget_band or "").strip().lower()
+    if budget_key:
+        parts.append(f"budget {_BUDGET_LABEL.get(budget_key, budget_key)}")
+
+    motivation_key = (profile.motivation or "").strip().lower()
+    if motivation_key:
+        parts.append(f"goal {_MOTIVATION_LABEL.get(motivation_key, motivation_key)}")
+
+    if (profile.expected_grade_band or "").strip():
+        parts.append(f"grade {profile.expected_grade_band.strip()}")
+
+    return ". ".join(parts)
 
 
 def _norm_tokens(text: str) -> set[str]:
@@ -588,71 +651,28 @@ def answer_question(
     chat_history: list[dict[str, str]] | None = None,
 ) -> QueryResponse:
     city_only_mode = False
-    is_fr = _looks_french(question)
-    if not (question or "").strip():
+    is_fr = True
+
+    if not _profile_has_signal(profile):
         return QueryResponse(
-            short_answer="Merci de preciser ta question." if is_fr else "Please provide your question.",
+            short_answer="Donne moi ton profil pour que je recommande les meilleures ecoles.",
             why_it_fits=(
-                "J ai besoin de ta filiere cible, ta ville, et ton budget pour recommander une ecole."
-                if is_fr
-                else "I need your target program, city, and budget to recommend a school."
+                "Je base les recommandations uniquement sur ton profil: filiere bac, budget, motivation, ville et niveau attendu."
             ),
             evidence=[],
             alternative=(
-                "Exemple: 'Ecole d informatique a Rabat avec budget moyen'."
-                if is_fr
-                else "Example: 'Computer science in Rabat with medium budget'."
+                "Exemple de profil utile: bac=spc, budget=tight_25k, motivation=employability, city=Rabat."
             ),
             next_action=(
-                "Donne moi ton objectif d etudes exact et tes contraintes."
-                if is_fr
-                else "Tell me your exact study goal and constraints."
+                "Envoie ton profil et je te renvoie directement un classement des ecoles les plus compatibles."
             ),
             confidence=0.0,
         )
 
-    if _is_greeting_or_low_intent(question):
-        return QueryResponse(
-            short_answer=(
-                "Bonjour, je peux t aider a choisir une ecole au Maroc."
-                if is_fr
-                else "Hi! I can help you choose a school in Morocco."
-            ),
-            why_it_fits=(
-                "Ton message ressemble a un salut, donc il me faut plus de details avant de recommander des ecoles."
-                if is_fr
-                else "Your message looks like a greeting, so I need more details before recommending schools."
-            ),
-            evidence=[],
-            alternative=(
-                "Exemple: 'Ecole d informatique a Rabat avec budget moyen'."
-                if is_fr
-                else "Example 1: 'Computer science school in Rabat with medium budget'."
-            ),
-            next_action=(
-                "Donne moi la filiere, la ville, et le budget pour commencer."
-                if is_fr
-                else "Tell me program, city, and budget band to start."
-            ),
-            confidence=0.0,
-        )
-
-    query_for_context = _augment_question_with_history(question, chat_history)
-
-    try:
-        query_understanding = QWEN_GENERATOR.understand_query(
-            question=query_for_context,
-            profile=profile,
-            chat_history=chat_history,
-        )
-    except Exception:
-        query_understanding = {}
-
-    retrieval_question, retrieval_profile = _merge_query_understanding_into_request(
-        question=query_for_context,
-        profile=profile,
-        query_understanding=query_understanding,
-    )
+    query_for_context = _profile_to_query(profile)
+    retrieval_question = query_for_context
+    retrieval_profile = profile
+    question = retrieval_question
 
     effective_profile = resolve_effective_profile(
         question=retrieval_question,
@@ -671,25 +691,17 @@ def answer_question(
     if not hits:
         return QueryResponse(
             short_answer=(
-                "Je n ai pas trouve d ecole qui respecte exactement tous tes criteres."
-                if is_fr
-                else "I couldn’t find a school that fits everything you asked."
+                "Je n ai pas trouve d ecole qui respecte exactement ton profil."
             ),
             why_it_fits=(
-                "Les options actuelles ne correspondent pas assez a ton budget, ton profil, ou tes contraintes de pays."
-                if is_fr
-                else "The current options do not match your budget, background, or country constraints well enough."
+                "Les options disponibles ne correspondent pas assez a tes contraintes de budget, niveau, ville, ou orientation."
             ),
             evidence=[],
             alternative=(
-                "Si tu veux, je peux essayer des ecoles publiques ou une ville proche avec des frais plus bas."
-                if is_fr
-                else "If you want, I can try public schools or a nearby city with lower tuition."
+                "Tu peux elargir la ville cible ou assouplir la contrainte budget pour obtenir plus de matchs."
             ),
             next_action=(
-                "Donne moi ta filiere cible exacte et ta fourchette de budget, et je vais affiner."
-                if is_fr
-                else "Tell me your exact target program and budget range, and I’ll narrow it down."
+                "Mets a jour ton profil et je recalculerai le top ecoles uniquement sur ces informations."
             ),
             confidence=0.1,
         )

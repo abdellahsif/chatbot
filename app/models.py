@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import re
 from typing import Any
 
 
@@ -16,7 +17,8 @@ def _pick_first(data: dict[str, Any], *keys: str, default: str = "") -> str:
 
 
 def _normalize_bac_stream(value: str) -> str:
-    text = " ".join(str(value or "").strip().lower().split())
+    raw = str(value or "").strip().lower().replace("_", " ").replace("-", " ")
+    text = " ".join(raw.split())
     if not text:
         return ""
 
@@ -50,12 +52,38 @@ def _normalize_bac_stream(value: str) -> str:
 
 
 def _normalize_grade_band(value: str) -> str:
-    text = " ".join(str(value or "").strip().lower().split())
+    raw = str(value or "").strip().lower().replace("_", " ").replace("-", " ")
+    text = " ".join(raw.split())
     if not text:
         return ""
 
     if text in {"non renseignee", "non renseignée", "n/a", "na", "none", ""}:
         return ""
+
+    direct_map = {
+        "passable": "passable",
+        "bien": "bien",
+        "bein": "bien",
+        "tres bien": "tres_bien",
+        "très bien": "tres_bien",
+        "elite": "elite",
+        "excellent": "elite",
+    }
+    mapped = direct_map.get(text)
+    if mapped:
+        return mapped
+
+    nums = [int(n) for n in re.findall(r"\d+", text)]
+    if nums:
+        top = max(nums)
+        if top >= 18:
+            return "elite"
+        if top >= 16:
+            return "tres_bien"
+        if top >= 14:
+            return "bien"
+        if top >= 10:
+            return "passable"
 
     if any(token in text for token in ["elite", "excellent", "18", "19", "20"]):
         return "elite"
@@ -75,6 +103,62 @@ def _normalize_country(value: str) -> str:
     if text in {"ma", "morocco", "maroc", "marocain", "المغرب"}:
         return "MA"
     return text.upper()
+
+
+def _normalize_motivation(value: str) -> str:
+    text = " ".join(str(value or "").strip().lower().replace("_", " ").replace("-", " ").split())
+    if not text:
+        return ""
+
+    mapping = {
+        "cash": "cash",
+        "roi": "cash",
+        "salary": "cash",
+        "income": "cash",
+        "prestige": "prestige",
+        "passion": "passion",
+        "interest": "passion",
+        "interet": "passion",
+        "safety": "safety",
+        "safe": "safety",
+        "stability": "safety",
+        "stable": "safety",
+        "expat": "expat",
+        "international": "expat",
+        "abroad": "expat",
+        "global": "expat",
+        "employability": "employability",
+        "career": "employability",
+        "emploi": "employability",
+        "job": "employability",
+        "work": "employability",
+        "carriere": "employability",
+    }
+    return mapping.get(text, text)
+
+
+def _normalize_budget_band(value: str) -> str:
+    text = " ".join(str(value or "").strip().lower().replace("_", " ").replace("-", " ").split())
+    if not text:
+        return ""
+
+    if text in {"zero public", "zero_public", "0dh", "0", "free", "gratuit", "public"}:
+        return "zero_public"
+    if text in {"tight 25k", "tight_25k", "serre", "serré", "low budget", "budget serre"}:
+        return "tight_25k"
+    if text in {"comfort 50k", "comfort_50k", "confort", "50k", "medium budget"}:
+        return "comfort_50k"
+    if text in {"no limit 70k plus", "no_limit_70k_plus", "illimite", "illimité", "no limit", "unlimited", "70k plus"}:
+        return "no_limit_70k_plus"
+
+    if "25k" in text:
+        return "tight_25k"
+    if "50k" in text:
+        return "comfort_50k"
+    if "70k" in text or "no limit" in text or "illim" in text:
+        return "no_limit_70k_plus"
+
+    return text
 
 
 @dataclass
@@ -100,8 +184,8 @@ class UserProfile:
         return UserProfile(
             bac_stream=bac_stream,
             expected_grade_band=expected_grade_band,
-            motivation=_pick_first(data, "motivation").lower(),
-            budget_band=_pick_first(data, "budget_band", "budget").lower(),
+            motivation=_normalize_motivation(_pick_first(data, "motivation")),
+            budget_band=_normalize_budget_band(_pick_first(data, "budget_band", "budget")),
             city=city,
             country=country,
             classe=_pick_first(data, "classe", "class", "niveau"),

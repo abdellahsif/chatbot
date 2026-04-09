@@ -1,0 +1,126 @@
+﻿{
+    "generated_at":  "2026-04-08 14:38:29",
+    "total_profiles":  100,
+    "total_requests":  100,
+    "ok":  100,
+    "failed":  0,
+    "avg_confidence":  0.5958,
+    "with_ranked":  100,
+    "without_ranked":  0,
+    "top1_distribution":  [
+                              {
+                                  "school":  "CPGE — Classes Préparatoires aux Grandes Écoles (Réseau national)",
+                                  "Count":  27
+                              },
+                              {
+                                  "school":  "École Supérieure de Technologie — EST (Réseau national, rattachées aux universités)",
+                                  "Count":  17
+                              },
+                              {
+                                  "school":  "École Supérieure des Beaux-Arts — Casablanca",
+                                  "Count":  10
+                              },
+                              {
+                                  "school":  "Faculté des Lettres et des Sciences Humaines — Rabat",
+                                  "Count":  8
+                              },
+                              {
+                                  "school":  "École Nationale des Beaux-Arts — Tétouan",
+                                  "Count":  7
+                              },
+                              {
+                                  "school":  "ENSA — Réseau des Écoles Nationales des Sciences Appliquées",
+                                  "Count":  3
+                              },
+                              {
+                                  "school":  "École Nationale Supérieure d\u0027Arts et Métiers — Meknès",
+                                  "Count":  3
+                              },
+                              {
+                                  "school":  "École des Beaux-Arts de Marrakech",
+                                  "Count":  3
+                              },
+                              {
+                                  "school":  "Faculté de Médecine et de Pharmacie — Casablanca",
+                                  "Count":  3
+                              },
+                              {
+                                  "school":  "Faculté des Lettres et Sciences Humaines Ben M\u0027Sick — Casablanca",
+                                  "Count":  3
+                              }
+                          ],
+    "budget_breakdown":  [
+                             {
+                                 "budget_band":  "comfort_50k",
+                                 "count":  25,
+                                 "avg_confidence":  0.55,
+                                 "with_ranked":  25
+                             },
+                             {
+                                 "budget_band":  "no_limit_70k_plus",
+                                 "count":  25,
+                                 "avg_confidence":  0.6447,
+                                 "with_ranked":  25
+                             },
+                             {
+                                 "budget_band":  "tight_25k",
+                                 "count":  25,
+                                 "avg_confidence":  0.6383,
+                                 "with_ranked":  25
+                             },
+                             {
+                                 "budget_band":  "zero_public",
+                                 "count":  25,
+                                 "avg_confidence":  0.55,
+                                 "with_ranked":  25
+                             }
+                         ],
+    "city_breakdown_top10":  [
+                                 {
+                                     "city":  "Meknes",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Agadir",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Oujda",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Tetouan",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Kenitra",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Rabat",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Casablanca",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Marrakech",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Tanger",
+                                     "Count":  10
+                                 },
+                                 {
+                                     "city":  "Fes",
+                                     "Count":  10
+                                 }
+                             ],
+    "files":  {
+                  "profiles_csv":  "data\\mock\\profiles_100_db_like.csv",
+                  "requests_jsonl":  "data\\mock\\profiles_100_requests.jsonl",
+                  "results_jsonl":  "data\\mock\\profiles_100_results.jsonl",
+                  "summary_json":  "data\\mock\\profiles_100_summary.json"
+              }
+}
