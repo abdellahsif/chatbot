@@ -473,7 +473,12 @@ def load_transcripts(jsonl_path: Path) -> list[dict]:
 
 def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]]:
     payload = json.loads(json_path.read_text(encoding="utf-8"))
-    rows = payload.get("etablissements", []) if isinstance(payload, dict) else []
+    if isinstance(payload, dict):
+        rows = payload.get("etablissements", [])
+    elif isinstance(payload, list):
+        rows = payload
+    else:
+        rows = []
 
     schools: dict[str, dict] = {}
     transcripts: list[dict] = []
@@ -483,34 +488,45 @@ def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]
         if not isinstance(row, dict):
             continue
 
-        name = _safe_str(row.get("nom"))
-        city = _safe_str(row.get("ville"))
+        name = _safe_str(row.get("nom") or row.get("nom_complet") or row.get("name"))
+        city = _safe_str(row.get("ville") or row.get("city"))
         if not name:
             continue
 
         school_id = f"uni_{_normalize_token(name)}_{_normalize_token(city)}"
         filieres = row.get("filieres", [])
-        filieres_list = [
-            _safe_str(v)
-            for v in (filieres if isinstance(filieres, list) else [])
-            if _safe_str(v)
-        ]
         if isinstance(filieres, list):
-            programs = [_normalize_token(v) for v in filieres if _safe_str(v)]
+            filieres_list = [_safe_str(v) for v in filieres if _safe_str(v)]
         else:
-            programs = [_normalize_token(row.get("domaine"))] if _safe_str(row.get("domaine")) else []
-        programs = sorted(set(programs)) or ["general"]
+            filieres_list = _split_program_labels(filieres)
+
+        formations_list = _split_program_labels(row.get("formations"))
         domain_label = _safe_str(row.get("domaine"))
-        program_labels = ([domain_label] if domain_label else []) + filieres_list
+
+        program_labels = []
+        if domain_label:
+            program_labels.append(domain_label)
+        program_labels.extend(filieres_list)
+        for label in formations_list:
+            if label not in program_labels:
+                program_labels.append(label)
+
+        programs = [_normalize_token(v) for v in program_labels if _safe_str(v)]
+        programs = sorted(set(programs)) or ["general"]
         unique_labels: list[str] = []
         for label in program_labels:
             if label and label not in unique_labels:
                 unique_labels.append(label)
 
-        statut = _safe_str(row.get("statut")).lower()
-        school_type = "public" if "public" in statut else "private"
-        annuels = _parse_int(row.get("frais_annuels_mad"), default=-1)
-        inscription = _parse_int(row.get("frais_inscription_mad"), default=-1)
+        status_text = _safe_str(row.get("statut") or row.get("type") or row.get("legal_status")).lower()
+        school_type = "public" if "public" in status_text else "private"
+
+        frais = row.get("frais") if isinstance(row.get("frais"), dict) else {}
+        frais_min = _parse_int(frais.get("min_MAD_an"), default=-1)
+        frais_max = _parse_int(frais.get("max_MAD_an"), default=-1)
+
+        annuels = _parse_int(row.get("frais_annuels_mad"), default=frais_max)
+        inscription = _parse_int(row.get("frais_inscription_mad"), default=frais_min)
         if annuels < 0:
             annuels = 0 if school_type == "public" else 25000
         if inscription < 0:
@@ -537,17 +553,19 @@ def load_from_json_catalog(json_path: Path) -> tuple[dict[str, dict], list[dict]
         }
 
         base_info = (
-            f"{name} a {city}. Categorie {_safe_str(row.get('categorie'))}. Domaine {_safe_str(row.get('domaine'))}. "
-            f"Cycle {_safe_str(row.get('cycle'))}. Langue {_safe_str(row.get('langue_enseignement'))}."
+            f"{name} a {city}. Categorie {_safe_str(row.get('categorie') or row.get('sous_type') or row.get('type'))}. "
+            f"Domaine {_safe_str(row.get('domaine'))}. Cycle {_safe_str(row.get('cycle') or row.get('diplomes'))}. "
+            f"Langue {_safe_str(row.get('langue_enseignement') or 'fr')}."
         )
         admissions_info = (
-            f"Admission: {_safe_str(row.get('conditions_acces'))}. "
-            f"Type {_safe_str(row.get('type_etab'))}. Statut {_safe_str(row.get('statut'))}."
+            f"Admission: {_safe_str(row.get('conditions_acces') or row.get('acces'))}. "
+            f"Type {_safe_str(row.get('type_etab') or row.get('sous_type') or row.get('type'))}. "
+            f"Statut {_safe_str(row.get('statut') or row.get('type'))}."
         )
         cost_info = (
             f"Frais inscription {inscription} MAD, frais annuels {annuels} MAD. "
             f"Bourse: {_safe_str(row.get('bourse_disponible')) or 'non precisee'}. "
-            f"Note frais: {_safe_str(row.get('frais_note'))}."
+            f"Note frais: {_safe_str(row.get('frais_note') or frais.get('note'))}."
         )
 
         chunk_texts: list[tuple[str, str]] = [

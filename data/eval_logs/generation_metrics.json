@@ -1,37 +1,37 @@
 {
-  "run_at": "2026-04-08T13:14:40.678707+00:00",
+  "run_at": "2026-04-09T11:16:33.032022+00:00",
   "total_queries": 200,
   "metrics": {
-    "groundedness": 0.368,
-    "relevance": 0.108,
-    "faithfulness": 0.4915,
-    "context_precision": 0.167,
-    "hallucination_rate": 0.3517,
-    "answer_correctness": 0.4942,
-    "answer_completeness": 0.073,
-    "success_rate": 0.625,
-    "latency_s": 7.8859,
+    "groundedness": 0.0,
+    "relevance": 0.0413,
+    "faithfulness": 0.0,
+    "context_precision": 0.0,
+    "hallucination_rate": 1.0,
+    "answer_correctness": 0.0,
+    "answer_completeness": 0.031,
+    "success_rate": 0.0,
+    "latency_s": 0.0006,
     "retrieval_metrics": {
-      "recall_at_5": 0.3308,
-      "recall_at_10": 0.5125,
-      "precision_at_5": 0.163,
-      "mrr": 0.2745,
-      "ndcg_at_10": 0.3669,
-      "hit_rate_at_10": 0.725
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0,
+      "mrr": 0.0,
+      "ndcg_at_10": 0.0,
+      "hit_rate_at_10": 0.0
     },
     "robustness": {
-      "multilingual_pass_rate": 0.8933,
-      "noisy_query_pass_rate": 0.8806,
-      "conflicting_constraints_pass_rate": 0.4286
+      "multilingual_pass_rate": 0.0,
+      "noisy_query_pass_rate": 0.0,
+      "conflicting_constraints_pass_rate": 0.0
     },
     "cost_per_query": 0.0,
     "token_usage": {
-      "total_input_tokens": 6131,
-      "total_output_tokens": 21009,
-      "total_tokens": 27140,
-      "avg_input_tokens_per_query": 30.66,
-      "avg_output_tokens_per_query": 105.05,
-      "avg_total_tokens_per_query": 135.7
+      "total_input_tokens": 6162,
+      "total_output_tokens": 11800,
+      "total_tokens": 17962,
+      "avg_input_tokens_per_query": 30.81,
+      "avg_output_tokens_per_query": 59.0,
+      "avg_total_tokens_per_query": 89.81
     }
   }
 }
