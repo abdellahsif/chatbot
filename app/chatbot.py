@@ -532,8 +532,6 @@ def _build_message_paragraph(
     if nxt:
         nxt_sentence = _as_sentence(_limit_words(nxt, 18))
         if nxt_sentence:
-            if nxt_sentence[0].isupper():
-                nxt_sentence = "If you want, " + nxt_sentence[0].lower() + nxt_sentence[1:]
             parts.append(nxt_sentence)
 
     sentences: list[str] = []
@@ -727,6 +725,13 @@ def answer_question(
     for hit in hits[:5]:
         school = hit["school"]
         components = hit.get("score_components", {})
+        distance_km_raw = components.get("distance_km")
+        distance_km = None
+        if distance_km_raw is not None:
+            try:
+                distance_km = round(float(distance_km_raw), 1)
+            except (TypeError, ValueError):
+                distance_km = None
         match_score = round(
             100.0
             * (
@@ -756,6 +761,7 @@ def answer_question(
                 "score": round(float(hit.get("score", 0.0)), 4),
                 "match_score": match_score,
                 "match_grade": match_grade,
+                "distance_km": distance_km,
                 "score_components": {
                     "program_match": round(float(components.get("program_match", 0.0)), 4),
                     "budget_match": round(float(components.get("budget_match", 0.0)), 4),
@@ -774,6 +780,7 @@ def answer_question(
                 "city": school.get("city"),
                 "match_score": match_score,
                 "match_grade": match_grade,
+                "distance_km": distance_km,
                 "criteria": {
                     "semantic_fit": round(100.0 * float(components.get("bac_semantic", 0.0)), 1),
                     "geo_fit": round(100.0 * float(components.get("location_match", 0.0)), 1),
@@ -783,8 +790,18 @@ def answer_question(
             }
         )
 
-    top_schools.sort(key=lambda item: float(item.get("match_score", 0.0)), reverse=True)
-    ranked_schools.sort(key=lambda item: float(item.get("match_score", 0.0)), reverse=True)
+    top_schools.sort(
+        key=lambda item: (
+            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
+            -float(item.get("match_score", 0.0)),
+        )
+    )
+    ranked_schools.sort(
+        key=lambda item: (
+            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
+            -float(item.get("match_score", 0.0)),
+        )
+    )
     if ranked_schools:
         rank_by_school_id = {
             str(item.get("school_id", "")): idx
@@ -895,10 +912,11 @@ def answer_question(
 
         city = effective_profile.city or "that city"
         if options:
-            joined = ", ".join(options[:-1]) + (f", and {options[-1]}" if len(options) > 1 else options[0])
             if is_fr:
+                joined = ", ".join(options[:-1]) + (f", et {options[-1]}" if len(options) > 1 else options[0])
                 short_answer = f"Bon choix. A {city}, je te propose de commencer par {joined}."
             else:
+                joined = ", ".join(options[:-1]) + (f", and {options[-1]}" if len(options) > 1 else options[0])
                 short_answer = f"Good choice. In {city}, I’d start with options like {joined}."
         else:
             if is_fr:
@@ -948,9 +966,6 @@ def answer_question(
         )
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
-    if city_only_mode:
-        # City-only requests are broad by nature; avoid overconfident scores.
-        confidence = min(confidence, 0.55)
     message_paragraph = _build_message_paragraph(
         short_answer=short_answer,
         why_it_fits=why_it_fits,

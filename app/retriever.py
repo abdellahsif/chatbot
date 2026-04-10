@@ -33,6 +33,65 @@ BUDGET_MAX = {
     "no_limit_70k_plus": 10**9,
 }
 
+_CITY_COORDINATES: dict[str, tuple[float, float]] = {
+    "agadir": (30.4278, -9.5981),
+    "al hoceima": (35.2470, -3.9320),
+    "azrou": (33.4342, -5.2213),
+    "beni mellal": (32.3373, -6.3498),
+    "berrechid": (33.2655, -7.5875),
+    "casablanca": (33.5731, -7.5898),
+    "dakhla": (23.6848, -15.9570),
+    "el jadida": (33.2316, -8.5007),
+    "errachidia": (31.9314, -4.4244),
+    "essaouira": (31.5085, -9.7595),
+    "fes": (34.0181, -5.0078),
+    "fkih ben salah": (32.5000, -6.6900),
+    "guelmim": (28.9870, -10.0574),
+    "ifrane": (33.5333, -5.1100),
+    "kenitra": (34.2610, -6.5802),
+    "khemisset": (33.8246, -6.0663),
+    "khenifra": (32.9349, -5.6617),
+    "khouribga": (32.8830, -6.9063),
+    "laayoune": (27.1536, -13.2033),
+    "larache": (35.1932, -6.1563),
+    "marrakech": (31.6295, -7.9811),
+    "martil": (35.6167, -5.2833),
+    "meknes": (33.8935, -5.5473),
+    "nador": (35.1681, -2.9335),
+    "ouarzazate": (30.9335, -6.9370),
+    "oujda": (34.6814, -1.9086),
+    "rabat": (34.0209, -6.8416),
+    "sale": (34.0372, -6.7985),
+    "safi": (32.2994, -9.2372),
+    "sefrou": (33.8315, -4.8353),
+    "settat": (33.0010, -7.6166),
+    "sidi bennour": (32.6493, -8.4250),
+    "tanger": (35.7595, -5.8340),
+    "temara": (33.9287, -6.9063),
+    "tetouan": (35.5889, -5.3626),
+}
+
+_CITY_ALIASES = {
+    "beni mellal khenifra": "beni mellal",
+    "beni mellal-khenifra": "beni mellal",
+    "beni mellal khenifra": "beni mellal",
+    "casa": "casablanca",
+    "casa blanca": "casablanca",
+    "el jadida": "el jadida",
+    "fes": "fes",
+    "fes meknes": "fes",
+    "fkih bensalah": "fkih ben salah",
+    "fkih ben saleh": "fkih ben salah",
+    "fkih ben salah": "fkih ben salah",
+    "laayoune": "laayoune",
+    "laayoun": "laayoune",
+    "oujda angad": "oujda",
+    "rabat sale kenitra": "rabat",
+    "rabat-sale-kenitra": "rabat",
+    "tangier": "tanger",
+    "tetuan": "tetouan",
+}
+
 
 def _env_int(name: str, default: int) -> int:
     raw = os.getenv(name)
@@ -938,21 +997,111 @@ def _normalize_city_text(text: str) -> str:
     return " ".join(folded.split())
 
 
+def extract_cities(ville_field: str) -> list[str]:
+    if not ville_field:
+        return []
+    cities = re.split(r"[/\-,]", str(ville_field))
+    return [city.strip() for city in cities if city and city.strip()]
+
+
+def _canonical_city_name(city: str) -> str:
+    base = _normalize_city_text(city)
+    return _CITY_ALIASES.get(base, base)
+
+
+def _iter_city_tokens(ville_field: str) -> list[str]:
+    normalized = _normalize_city_text(ville_field)
+    if not normalized:
+        return []
+
+    out: list[str] = []
+    for city in extract_cities(normalized):
+        canonical = _canonical_city_name(city)
+        if canonical and canonical not in out:
+            out.append(canonical)
+    if not out:
+        canonical = _canonical_city_name(normalized)
+        if canonical:
+            out.append(canonical)
+    return out
+
+
+def _haversine_distance_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371.0
+    phi1 = math.radians(lat1)
+    phi2 = math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlambda = math.radians(lon2 - lon1)
+
+    a = math.sin(dphi / 2.0) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2.0) ** 2
+    c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
+    return r * c
+
+
+def _distance_between_cities_km(city_a: str, city_b: str) -> float | None:
+    a = _CITY_COORDINATES.get(_canonical_city_name(city_a))
+    b = _CITY_COORDINATES.get(_canonical_city_name(city_b))
+    if not a or not b:
+        return None
+    return _haversine_distance_km(a[0], a[1], b[0], b[1])
+
+
+def _distance_to_school_city_km(target_city: str, school_city: str) -> float | None:
+    dists: list[float] = []
+    for candidate in _iter_city_tokens(school_city):
+        d = _distance_between_cities_km(target_city, candidate)
+        if d is not None:
+            dists.append(d)
+    if not dists:
+        return None
+    return min(dists)
+
+
+def _available_school_cities(schools: dict[str, dict]) -> set[str]:
+    out: set[str] = set()
+    for school in schools.values():
+        out.update(_iter_city_tokens(str(school.get("city", ""))))
+    return out
+
+
+def _nearest_cities_from_target(target_city: str, schools: dict[str, dict], limit: int = 5) -> list[tuple[str, float]]:
+    canonical_target = _canonical_city_name(target_city)
+    if not canonical_target:
+        return []
+
+    nearest: list[tuple[str, float]] = []
+    for city in _available_school_cities(schools):
+        if city == canonical_target:
+            continue
+        dist = _distance_between_cities_km(canonical_target, city)
+        if dist is not None:
+            nearest.append((city, dist))
+
+    nearest.sort(key=lambda x: x[1])
+    return nearest[: max(1, limit)]
+
+
+def _school_matches_any_city(school_city: str, candidate_cities: set[str]) -> bool:
+    if not candidate_cities:
+        return False
+
+    school_tokens = set(_iter_city_tokens(school_city))
+    if school_tokens & candidate_cities:
+        return True
+
+    for school_token in school_tokens:
+        for candidate in candidate_cities:
+            if difflib.SequenceMatcher(a=school_token, b=candidate).ratio() >= 0.88:
+                return True
+    return False
+
+
 def _extract_city_intent(question: str, schools: dict[str, dict]) -> str | None:
     q = _normalize_city_text(question)
     if not q:
         return None
 
-    known_cities: set[str] = set()
-    for school in schools.values():
-        city = _normalize_city_text(str(school.get("city", "")))
-        if not city:
-            continue
-        # Split multi-campus city fields like "Casablanca / Rabat / ...".
-        for part in re.split(r"[/,;-]+", city):
-            part = " ".join(part.split())
-            if part:
-                known_cities.add(part)
+    known_cities = _available_school_cities(schools)
 
     if not known_cities:
         return None
@@ -990,16 +1139,6 @@ def _extract_city_intent(question: str, schools: dict[str, dict]) -> str | None:
     if best_city is not None and best_score >= 0.72:
         return best_city
     return None
-
-
-    def _has_strict_city_phrase(question: str) -> bool:
-        q = _normalize_city_text(question)
-        if not q:
-            return False
-        # "near/proche" should be soft (nearby city allowance), while in/at/en/au is strict.
-        if re.search(r"\b(near|nearby|proche|around|autour)\b", q):
-            return False
-        return bool(re.search(r"\b(in|at|en|au|aux|dans)\b", q))
 
 
 def _extract_budget_override(question: str) -> str | None:
@@ -1113,20 +1252,17 @@ def resolve_effective_profile(
 def _city_matches_intent(school_city: str, city_intent: str | None) -> bool:
     if not city_intent:
         return True
-    city_text = _normalize_city_text(school_city)
-    if not city_text:
+    target = _canonical_city_name(city_intent)
+    candidates = set(_iter_city_tokens(school_city))
+    if not candidates:
         return False
 
-    # Handle multi-campus city fields like "Casablanca / Rabat / ...".
-    parts = [p.strip() for p in re.split(r"[/,;-]+", city_text) if p.strip()]
-    candidates = set(parts + [city_text])
-
     for candidate in candidates:
-        if candidate == city_intent:
+        if candidate == target:
             return True
-        if city_intent in candidate or candidate in city_intent:
+        if target in candidate or candidate in target:
             return True
-        if difflib.SequenceMatcher(a=candidate, b=city_intent).ratio() >= 0.84:
+        if difflib.SequenceMatcher(a=candidate, b=target).ratio() >= 0.84:
             return True
     return False
 
@@ -1411,10 +1547,38 @@ def _grade_match_score(profile: UserProfile, school: dict[str, Any]) -> float:
     return max(0.0, 1.0 - diff)
 
 
-def _location_match_score(profile: UserProfile, school: dict[str, Any], city_intent: str | None = None) -> float:
+def _location_match_score(
+    profile: UserProfile,
+    school: dict[str, Any],
+    city_intent: str | None = None,
+    fallback_cities: set[str] | None = None,
+) -> float:
     school_city = str(school.get("city", "")).strip()
     if city_intent:
         return 1.0 if _city_matches_intent(school_city, city_intent) else 0.0
+
+    if fallback_cities and _school_matches_any_city(school_city, fallback_cities):
+        return 0.85
+
+    profile_city = _canonical_city_name(profile.city)
+    if profile_city:
+        distance_km = _distance_to_school_city_km(profile_city, school_city)
+        if distance_km is not None:
+            if distance_km <= 20:
+                return 0.9
+            if distance_km <= 50:
+                return 0.8
+            if distance_km <= 100:
+                return 0.7
+            if distance_km <= 180:
+                return 0.58
+            if distance_km <= 300:
+                return 0.45
+            if distance_km <= 500:
+                return 0.35
+
+    if profile.city and _city_matches_intent(school_city, _canonical_city_name(profile.city)):
+        return 0.35
     if profile.city and school_city.lower() == profile.city.strip().lower():
         return 0.35
     if str(school.get("country", "")).upper() == profile.country:
@@ -1489,6 +1653,7 @@ def _score_candidate(
     chunks: list[dict[str, Any]],
     semantic: float,
     city_intent: str | None = None,
+    fallback_cities: set[str] | None = None,
 ) -> dict[str, float]:
     program_match = _program_match_score(question, school, chunks)
     intent_match = _intent_group_match_score(question, school, chunks)
@@ -1496,7 +1661,7 @@ def _score_candidate(
     bac_semantic = _bac_semantic_score(profile.bac_stream, school, chunks)
     budget_match = _budget_match_score(profile, school)
     grade_match = _grade_match_score(profile, school)
-    location_match = _location_match_score(profile, school, city_intent=city_intent)
+    location_match = _location_match_score(profile, school, city_intent=city_intent, fallback_cities=fallback_cities)
     motivation_match = _motivation_match_score(profile, school)
 
     weighted = (
@@ -1640,6 +1805,13 @@ def retrieve(
     SEMANTIC_INDEX.ensure(schools, transcripts)
     SPARSE_INDEX.ensure(schools, transcripts)
     city_intent = _extract_city_intent(query_text, schools)
+    profile_city = _canonical_city_name(profile.city)
+    fallback_city_distances: list[tuple[str, float]] = []
+    fallback_cities: set[str] = set()
+    if not city_intent and profile_city:
+        fallback_city_distances = _nearest_cities_from_target(profile_city, schools, limit=5)
+        fallback_cities = {city for city, _ in fallback_city_distances[:3]}
+
     q_norm = _normalize_city_text(query_text)
     near_city_query = bool(re.search(r"\b(near|around|proche)\b", q_norm))
     query_constraints = _extract_query_constraints(query_text)
@@ -1706,6 +1878,29 @@ def retrieve(
         if city_filtered:
             filtered = city_filtered
 
+    if not city_intent and profile_city and fallback_cities:
+        nearest_filtered = [
+            item
+            for item in filtered
+            if _school_matches_any_city(str(item.get("school", {}).get("city", "")), fallback_cities)
+        ]
+        if nearest_filtered:
+            target_n = min(max(1, top_k), 20)
+            if len(nearest_filtered) >= target_n:
+                filtered = nearest_filtered
+            else:
+                nearest_ids = {
+                    str(item.get("school", {}).get("school_id", ""))
+                    for item in nearest_filtered
+                    if str(item.get("school", {}).get("school_id", ""))
+                }
+                remainder = [
+                    item
+                    for item in filtered
+                    if str(item.get("school", {}).get("school_id", "")) not in nearest_ids
+                ]
+                filtered = nearest_filtered + remainder
+
     if not filtered:
         return []
 
@@ -1755,11 +1950,16 @@ def retrieve(
             chunks,
             hybrid_semantic,
             city_intent=city_intent,
+            fallback_cities=fallback_cities if not city_intent else None,
         )
         components["lexical_match"] = lexical
         components["name_query_match"] = name_query_match
         components["sparse_score"] = sparse
         components["hybrid_semantic"] = hybrid_semantic
+        distance_km = _distance_to_school_city_km(profile_city, str(school.get("city", ""))) if profile_city else None
+        if distance_km is not None:
+            components["distance_km"] = round(distance_km, 1)
+
         school_id = str(school.get("school_id", ""))
         is_mentioned = school_id in mentioned_school_ids
         sid = str(school.get("school_id", ""))
@@ -1778,6 +1978,24 @@ def retrieve(
                 components["final"] += 0.10 if matches_city_intent else 0.0
             else:
                 components["final"] += 0.16 if matches_city_intent else -0.05
+        elif distance_km is not None:
+            # If exact city is unavailable, softly prioritize nearest available cities.
+            if distance_km <= 50:
+                components["final"] += 0.08
+            elif distance_km <= 100:
+                components["final"] += 0.05
+            elif distance_km <= 180:
+                components["final"] += 0.03
+            elif distance_km <= 300:
+                components["final"] -= 0.03
+            else:
+                components["final"] -= 0.08
+
+        if fallback_city_distances:
+            components["nearest_city_fallback"] = [
+                {"city": city, "distance_km": round(dist, 1)}
+                for city, dist in fallback_city_distances[:3]
+            ]
         components["city_intent_match"] = 1.0 if matches_city_intent else 0.0
         tech_bonus = _tech_path_bonus(query_text, school, chunks)
         components["final"] += tech_bonus
@@ -1834,8 +2052,28 @@ def retrieve(
         for item in rescored
         if float(item.get("score", 0.0)) >= MIN_SCORE_THRESHOLD
     ]
-    if not threshold_filtered:
-        return []
-
     select_n = min(max(1, top_k), 20)
-    return threshold_filtered[:select_n]
+    if not threshold_filtered:
+        return rescored[:select_n]
+
+    if len(threshold_filtered) >= select_n:
+        return threshold_filtered[:select_n]
+
+    # Backfill with the strongest remaining candidates so API can honor top_k when data is sparse.
+    selected = list(threshold_filtered)
+    selected_ids = {
+        str(item.get("school", {}).get("school_id", ""))
+        for item in selected
+        if str(item.get("school", {}).get("school_id", ""))
+    }
+    for item in rescored:
+        sid = str(item.get("school", {}).get("school_id", ""))
+        if sid and sid in selected_ids:
+            continue
+        selected.append(item)
+        if sid:
+            selected_ids.add(sid)
+        if len(selected) >= select_n:
+            break
+
+    return selected[:select_n]

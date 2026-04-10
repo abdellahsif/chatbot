@@ -1,51 +1,51 @@
 ﻿{
-    "generated_at":  "2026-04-08 14:38:29",
+    "generated_at":  "2026-04-10 12:49:24",
     "total_profiles":  100,
     "total_requests":  100,
     "ok":  100,
     "failed":  0,
-    "avg_confidence":  0.5958,
+    "avg_confidence":  0.5804,
     "with_ranked":  100,
     "without_ranked":  0,
     "top1_distribution":  [
                               {
-                                  "school":  "CPGE — Classes Préparatoires aux Grandes Écoles (Réseau national)",
-                                  "Count":  27
+                                  "school":  "Faculté de Médecine et de Pharmacie de Rabat",
+                                  "Count":  5
                               },
                               {
-                                  "school":  "École Supérieure de Technologie — EST (Réseau national, rattachées aux universités)",
-                                  "Count":  17
+                                  "school":  "Faculté de Médecine et de Pharmacie de Casablanca",
+                                  "Count":  5
                               },
                               {
-                                  "school":  "École Supérieure des Beaux-Arts — Casablanca",
-                                  "Count":  10
+                                  "school":  "École Nationale d\u0027Architecture d\u0027Agadir",
+                                  "Count":  4
                               },
                               {
-                                  "school":  "Faculté des Lettres et des Sciences Humaines — Rabat",
-                                  "Count":  8
+                                  "school":  "École Nationale des Sciences Appliquées d\u0027Oujda",
+                                  "Count":  4
                               },
                               {
-                                  "school":  "École Nationale des Beaux-Arts — Tétouan",
-                                  "Count":  7
+                                  "school":  "Université Abdelmalek Essaâdi de Tétouan",
+                                  "Count":  4
                               },
                               {
-                                  "school":  "ENSA — Réseau des Écoles Nationales des Sciences Appliquées",
+                                  "school":  "École Nationale de Commerce et de Gestion de Fès",
+                                  "Count":  4
+                              },
+                              {
+                                  "school":  "Faculté de Médecine et de Pharmacie de Marrakech",
+                                  "Count":  4
+                              },
+                              {
+                                  "school":  "École Nationale de Commerce et de Gestion de Tanger",
+                                  "Count":  4
+                              },
+                              {
+                                  "school":  "Académie des Arts de Casablanca",
                                   "Count":  3
                               },
                               {
-                                  "school":  "École Nationale Supérieure d\u0027Arts et Métiers — Meknès",
-                                  "Count":  3
-                              },
-                              {
-                                  "school":  "École des Beaux-Arts de Marrakech",
-                                  "Count":  3
-                              },
-                              {
-                                  "school":  "Faculté de Médecine et de Pharmacie — Casablanca",
-                                  "Count":  3
-                              },
-                              {
-                                  "school":  "Faculté des Lettres et Sciences Humaines Ben M\u0027Sick — Casablanca",
+                                  "school":  "ESAV — École Supérieure des Arts Visuels de Marrakech",
                                   "Count":  3
                               }
                           ],
@@ -53,19 +53,19 @@
                              {
                                  "budget_band":  "comfort_50k",
                                  "count":  25,
-                                 "avg_confidence":  0.55,
+                                 "avg_confidence":  0.5493,
                                  "with_ranked":  25
                              },
                              {
                                  "budget_band":  "no_limit_70k_plus",
                                  "count":  25,
-                                 "avg_confidence":  0.6447,
+                                 "avg_confidence":  0.6112,
                                  "with_ranked":  25
                              },
                              {
                                  "budget_band":  "tight_25k",
                                  "count":  25,
-                                 "avg_confidence":  0.6383,
+                                 "avg_confidence":  0.6111,
                                  "with_ranked":  25
                              },
                              {
