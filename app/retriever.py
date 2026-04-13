@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import difflib
+import json
 import math
 import os
+from pathlib import Path
 import re
 from threading import Lock
 from typing import Any
@@ -33,7 +35,15 @@ BUDGET_MAX = {
     "no_limit_70k_plus": 10**9,
 }
 
-_CITY_COORDINATES: dict[str, tuple[float, float]] = {
+
+def _normalize_city_key(text: str) -> str:
+    lowered = (text or "").strip().lower()
+    folded = unicodedata.normalize("NFKD", lowered).encode("ascii", "ignore").decode("ascii")
+    folded = re.sub(r"[^a-z0-9\s/,-]+", " ", folded)
+    return " ".join(folded.split())
+
+
+_DEFAULT_CITY_COORDINATES: dict[str, tuple[float, float]] = {
     "agadir": (30.4278, -9.5981),
     "al hoceima": (35.2470, -3.9320),
     "azrou": (33.4342, -5.2213),
@@ -71,7 +81,7 @@ _CITY_COORDINATES: dict[str, tuple[float, float]] = {
     "tetouan": (35.5889, -5.3626),
 }
 
-_CITY_ALIASES = {
+_DEFAULT_CITY_ALIASES = {
     "beni mellal khenifra": "beni mellal",
     "beni mellal-khenifra": "beni mellal",
     "beni mellal khenifra": "beni mellal",
@@ -91,6 +101,119 @@ _CITY_ALIASES = {
     "tangier": "tanger",
     "tetuan": "tetouan",
 }
+
+
+def _parse_city_catalog(payload: Any) -> tuple[dict[str, tuple[float, float]], dict[str, str]]:
+    coordinates: dict[str, tuple[float, float]] = {}
+    aliases: dict[str, str] = {}
+
+    entries: list[dict[str, Any]] = []
+    if isinstance(payload, list):
+        entries = [item for item in payload if isinstance(item, dict)]
+    elif isinstance(payload, dict):
+        if isinstance(payload.get("cities"), list):
+            entries = [item for item in payload["cities"] if isinstance(item, dict)]
+        coord_map = payload.get("coordinates")
+        if isinstance(coord_map, dict):
+            for raw_name, raw_value in coord_map.items():
+                if not isinstance(raw_name, str):
+                    continue
+                canonical = _normalize_city_key(raw_name)
+                if not canonical:
+                    continue
+                if (
+                    isinstance(raw_value, (list, tuple))
+                    and len(raw_value) >= 2
+                ):
+                    try:
+                        coordinates[canonical] = (float(raw_value[0]), float(raw_value[1]))
+                    except (TypeError, ValueError):
+                        continue
+        alias_map = payload.get("aliases")
+        if isinstance(alias_map, dict):
+            for raw_alias, raw_target in alias_map.items():
+                if not isinstance(raw_alias, str) or not isinstance(raw_target, str):
+                    continue
+                alias_key = _normalize_city_key(raw_alias)
+                target_key = _normalize_city_key(raw_target)
+                if alias_key and target_key:
+                    aliases[alias_key] = target_key
+
+    for item in entries:
+        raw_name = (
+            item.get("name")
+            or item.get("city")
+            or item.get("nom")
+            or item.get("nom_ville")
+            or ""
+        )
+        canonical = _normalize_city_key(str(raw_name))
+        if not canonical:
+            continue
+
+        raw_lat = item.get("lat", item.get("latitude"))
+        raw_lon = item.get("lon", item.get("lng", item.get("longitude")))
+        if raw_lat is not None and raw_lon is not None:
+            try:
+                coordinates[canonical] = (float(raw_lat), float(raw_lon))
+            except (TypeError, ValueError):
+                pass
+
+        raw_aliases = item.get("aliases", [])
+        if isinstance(raw_aliases, str):
+            raw_aliases = [raw_aliases]
+        if isinstance(raw_aliases, list):
+            for raw_alias in raw_aliases:
+                if not isinstance(raw_alias, str):
+                    continue
+                alias_key = _normalize_city_key(raw_alias)
+                if alias_key:
+                    aliases[alias_key] = canonical
+
+    for canonical in coordinates:
+        aliases.setdefault(canonical, canonical)
+
+    return coordinates, aliases
+
+
+def _load_city_catalog() -> tuple[dict[str, tuple[float, float]], dict[str, str]]:
+    coordinates = dict(_DEFAULT_CITY_COORDINATES)
+    aliases = dict(_DEFAULT_CITY_ALIASES)
+
+    configured = os.getenv("MOROCCO_CITIES_JSON", "").strip()
+    project_root = Path(__file__).resolve().parents[1]
+    candidate_paths = [
+        Path(configured) if configured else None,
+        project_root / "ma.json",
+        project_root / "data" / "moroccan_cities.json",
+    ]
+
+    source_path = None
+    for candidate in candidate_paths:
+        if candidate is not None and candidate.exists():
+            source_path = candidate
+            break
+
+    if source_path is not None:
+        try:
+            with source_path.open("r", encoding="utf-8") as f:
+                payload = json.load(f)
+            parsed_coords, parsed_aliases = _parse_city_catalog(payload)
+            if parsed_coords:
+                coordinates = parsed_coords
+            if parsed_aliases:
+                for alias_key, alias_target in parsed_aliases.items():
+                    aliases.setdefault(alias_key, alias_target)
+        except Exception:
+            pass
+
+    for canonical in coordinates:
+        aliases.setdefault(canonical, canonical)
+
+    return coordinates, aliases
+
+
+_CITY_COORDINATES, _CITY_ALIASES = _load_city_catalog()
 
 
 def _env_int(name: str, default: int) -> int:
@@ -513,6 +636,20 @@ def budget_allows(profile_budget: str, tuition_max_mad: int) -> bool:
     if cap is None:
         return tuition_max_mad <= BUDGET_MAX["comfort_50k"]
     return tuition_max_mad <= cap
+
+
+def school_is_public(school: dict[str, Any]) -> bool:
+    school_type = str(school.get("type", "")).strip().lower()
+    legal_status = str(school.get("legal_status", "")).strip().lower()
+    if school_type == "public":
+        return True
+    if any(token in legal_status for token in ["public", "publique", "etat", "state"]):
+        return True
+    return False
+
+
+def profile_requires_public_only(profile: UserProfile) -> bool:
+    return profile.budget_band == "zero_public"
 
 
 def school_matches_profile(school: dict, profile: UserProfile) -> bool:
@@ -991,10 +1128,7 @@ def _school_matches_explicit_domains(
 
 
 def _normalize_city_text(text: str) -> str:
-    lowered = (text or "").strip().lower()
-    folded = unicodedata.normalize("NFKD", lowered).encode("ascii", "ignore").decode("ascii")
-    folded = re.sub(r"[^a-z0-9\s/,-]+", " ", folded)
-    return " ".join(folded.split())
+    return _normalize_city_key(text)
 
 
 def extract_cities(ville_field: str) -> list[str]:
@@ -1866,6 +2000,8 @@ def retrieve(
         if _has_semantic_domain_incompatibility(profile.bac_stream, school, chunks):
             continue
         if not school_matches_profile(school, profile):
+            continue
+        if profile_requires_public_only(profile) and not school_is_public(school):
             continue
         filtered.append(item)
 

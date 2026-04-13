@@ -11,12 +11,10 @@ try:
 except Exception:
     load_dotenv = None
 
-from app.beir_eval import run_beir_eval
 from app.chatbot import answer_question
 from app.data_loader import DataBundle, load_bundle
-from app.evaluator import run_eval
 from app.models import QueryRequest
-from app.supabase_store import fetch_recent_eval_runs, fetch_schools
+from app.supabase_store import fetch_schools
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -103,20 +101,6 @@ class ChatbotHandler(BaseHTTPRequestHandler):
             )
             return
 
-        if parsed.path == "/chat/eval_runs":
-            params = parse_qs(parsed.query)
-            try:
-                limit = int((params.get("limit") or ["20"])[0])
-            except ValueError:
-                self._send_json(400, {"error": "invalid_limit"})
-                return
-            try:
-                payload = fetch_recent_eval_runs(limit=limit)
-                self._send_json(200, payload)
-            except Exception as exc:
-                self._send_json(500, {"error": "supabase_fetch_failed", "message": str(exc)})
-            return
-
         if parsed.path == "/chat/schools":
             params = parse_qs(parsed.query)
             try:
@@ -167,22 +151,6 @@ class ChatbotHandler(BaseHTTPRequestHandler):
             except json.JSONDecodeError:
                 self._send_json(400, {"error": "invalid_json"})
                 return
-
-        if self.path == "/chat/evaluate":
-            try:
-                summary = run_eval(ROOT_DIR, data.schools, data.transcripts)
-                self._send_json(200, summary.to_dict())
-            except Exception as exc:
-                self._send_json(500, {"error": "eval_failed", "message": str(exc)})
-            return
-
-        if self.path == "/chat/evaluate_beir":
-            try:
-                summary = run_beir_eval(ROOT_DIR, data.schools, data.transcripts)
-                self._send_json(200, summary)
-            except Exception as exc:
-                self._send_json(500, {"error": "beir_eval_failed", "message": str(exc)})
-            return
 
         self._send_json(404, {"error": "not_found"})
 

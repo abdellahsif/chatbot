@@ -288,7 +288,6 @@
 
       <div class="actions">
         <button class="primary" id="askBtn">Find Best Matches</button>
-        <button class="secondary" id="evalBtn">Run Evaluation</button>
         <button class="secondary" id="clearBtn">Clear Chat</button>
       </div>
 
@@ -517,22 +516,6 @@
       setStatus("Loaded previous chat history.");
     }
 
-    function renderEvalResult(data) {
-      ensureChatStarted();
-      const m = data.metrics || {};
-      const bubble = document.createElement("div");
-      bubble.className = "bubble";
-      bubble.innerHTML = `
-        <h3>Evaluation</h3>
-        <p class="mono">passed=${escapeHtml(data.passed)} / total=${escapeHtml(data.total)} | failed=${escapeHtml(data.failed)}</p>
-        <p class="mono">final_score_100=${escapeHtml(m.final_score_100 ?? "N/A")} | final_score=${escapeHtml(m.final_score ?? "N/A")}</p>
-        <p class="mono">groundedness=${escapeHtml(m.avg_groundedness ?? "N/A")}, relevance=${escapeHtml(m.avg_relevance ?? "N/A")}, compliance=${escapeHtml(m.avg_compliance ?? "N/A")}, hallucination=${escapeHtml(m.avg_hallucination ?? "N/A")}, latency_s=${escapeHtml(m.avg_latency_s ?? "N/A")}</p>
-        <p class="mono">log_path=${escapeHtml(data.log_path || "")}</p>
-      `;
-      panelEl.appendChild(bubble);
-      bubble.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-
     async function askChatbot() {
       const payload = {
         question: document.getElementById("question").value.trim(),
@@ -581,23 +564,7 @@
       }
     }
 
-    async function runEval() {
-      setStatus("Running evaluation...");
-      try {
-        const res = await fetch("/chat/evaluate", { method: "POST" });
-        if (!res.ok) {
-          throw new Error(`Eval failed with status ${res.status}`);
-        }
-        const data = await res.json();
-        renderEvalResult(data);
-        setStatus("Evaluation completed and logged.");
-      } catch (err) {
-        setStatus(`Error: ${err.message}`);
-      }
-    }
-
     document.getElementById("askBtn").addEventListener("click", askChatbot);
-    document.getElementById("evalBtn").addEventListener("click", runEval);
     document.getElementById("clearBtn").addEventListener("click", () => {
       clearChatState();
       resetChatPanel();

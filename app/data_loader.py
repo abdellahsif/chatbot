@@ -96,6 +96,30 @@ def _legal_status_to_type(legal_status: str) -> str:
     return "public" if any(k in s for k in ["public", "publique", "etat", "state"]) else "private"
 
 
+def _infer_school_type(row: dict[str, Any]) -> str:
+    legal_status = _safe_str(row.get("legal_status"))
+    school_type = _legal_status_to_type(legal_status)
+    if school_type == "public":
+        return "public"
+    source_type = _safe_str(row.get("type") or row.get("school_type") or row.get("statut")).lower()
+    if any(token in source_type for token in ["public", "publique", "etat", "state"]):
+        return "public"
+    return "private"
+
+
+def _infer_tuition_bounds(row: dict[str, Any], school_type: str) -> tuple[int, int]:
+    pricing_min = _parse_int(row.get("pricing_min"), default=-1)
+    pricing_max = _parse_int(row.get("pricing_max"), default=-1)
+    if pricing_min < 0 and pricing_max < 0:
+        pricing_min = 0 if school_type == "public" else 15000
+        pricing_max = 12000 if school_type == "public" else 50000
+    elif pricing_min < 0:
+        pricing_min = max(0, pricing_max)
+    elif pricing_max < 0:
+        pricing_max = max(0, pricing_min)
+    return pricing_min, pricing_max
+
+
 def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[dict]]:
     response = fetch_schools(limit=limit)
     rows = response.get("items", []) if isinstance(response, dict) else []
@@ -116,22 +140,14 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         name = _safe_str(row.get("name")) or f"school_{idx}"
         city = _safe_str(row.get("city"))
         school_id = f"sb_{_normalize_token(raw_id)}"
-        school_type = _legal_status_to_type(_safe_str(row.get("legal_status")))
-
-        pricing_min = _parse_int(row.get("pricing_min"), default=-1)
-        pricing_max = _parse_int(row.get("pricing_max"), default=-1)
-        if pricing_min < 0 and pricing_max < 0:
-            pricing_min = 0 if school_type == "public" else 15000
-            pricing_max = 12000 if school_type == "public" else 50000
-        elif pricing_min < 0:
-            pricing_min = max(0, pricing_max)
-        elif pricing_max < 0:
-            pricing_max = max(0, pricing_min)
+        school_type = _infer_school_type(row)
+        pricing_min, pricing_max = _infer_tuition_bounds(row, school_type)
 
         programs = _split_program_values(row.get("programs_tags"))
         filieres = _split_program_values(row.get("filieres"))
         all_programs = sorted(set(programs + filieres)) or ["general"]
         legal_status = _safe_str(row.get("legal_status"))
+        conditions = _safe_str(row.get("conditions"))
 
         pretty_programs = _split_program_labels(row.get("programs_tags"))
         pretty_filieres = _split_program_labels(row.get("filieres"))
@@ -144,6 +160,7 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
             "city": city,
             "type": school_type,
             "legal_status": legal_status,
+            "conditions": conditions,
             "tuition_min_mad": pricing_min,
             "tuition_max_mad": pricing_max,
             "pricing_min": pricing_min,
@@ -193,6 +210,8 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         overview_text = " ".join(overview_parts)
         if pricing_text:
             overview_text += f" Pricing details: {pricing_text}."
+        if conditions:
+            overview_text += f" Conditions: {conditions}."
 
         transcripts.append(
             {

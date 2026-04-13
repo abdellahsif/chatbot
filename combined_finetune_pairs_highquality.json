@@ -1,0 +1,715 @@
+{
+  "generated_at": "2026-04-13T high-quality-filtered",
+  "stats": {
+    "positives": 78,
+    "negatives": 0,
+    "total": 78,
+    "description": "Top-quality pairs (score >= 7.0) for premium fine-tuning",
+    "quality_threshold": 7.0
+  },
+  "positives": [
+    {
+      "query": "Quels sont les débouchés après EST ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EST ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Comment intégrer EST ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Quels sont les critères d'admission à EST ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Quels sont les débouchés après EMI ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EMI ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Comment intégrer EMI ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "Quels sont les critères d'admission à EMI ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.826530612244898
+    },
+    {
+      "query": "C'est comment la vie à EST ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "témoignage",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Témoignage étudiant EST",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EST",
+      "theme": "témoignage",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "C'est comment la vie à EMI ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "témoignage",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Témoignage étudiant EMI",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "EMI",
+      "theme": "témoignage",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Comment choisir mon école au Maroc ?",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "général",
+      "theme": "général",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Meilleures écoles d'ingénieur au Maroc",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "général",
+      "theme": "général",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Études supérieures au Maroc après le bac",
+      "positive": "architecture ou l'ingénierie animale pour être architecte, il faut être fainéant ou pas fainéant non pas fainéant, ou... il faut que vous fassiez le concours de l'architecture il faut que vous sachiez que si vous n'êtes pas à l'école de l'architecture les concours sont complètement déchirés la première chose que vous devez faire au concours c'est les questions à amener les questions sur le multi-train les plus importantes qui sont les 4 domaines 1. culture et société dans cette partie, il faut avoir une culture publique ce que nous faisons aujourd'hui 2. la science 3. les cours d'entraînement",
+      "source_id": "213e44778ce1",
+      "ecole": "général",
+      "theme": "général",
+      "quality": 1.0,
+      "score": 7.326530612244898
+    },
+    {
+      "query": "Quels sont les débouchés après EST ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EST ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer EST ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les critères d'admission à EST ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les débouchés après licence ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "licence",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après licence ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "licence",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer licence ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "licence",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les critères d'admission à licence ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "licence",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les débouchés après master ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "master",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après master ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "master",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer master ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "master",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les critères d'admission à master ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "master",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les débouchés après Université ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après Université ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer Université ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les critères d'admission à Université ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les débouchés après EMI ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EMI ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer EMI ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Quels sont les critères d'admission à EMI ?",
+      "positive": "Beaucoup d'étudiants perdent leur entretien Campus France dès la première minute parce qu'ils ne savent pas se présenter de manière simple, synthétique et didactique. Alors comment faire ? Il faut déjà préparer votre présentation en deux, trois points. Premier point, information personnelle. Salutations, je m'appelle, je m'appelle, j'ai tel âge. Puis vos origines et votre situation actuelle. Je suis de Tizi Ouzour, actuellement en master 2, ta ta ti ta. Vos motivations. je me présente aujourd'hui devant vous pour vous présenter mon projet d'études en France qui correspond à mes aspirations pro",
+      "source_id": "e1ccb134099e",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.239130434782608
+    },
+    {
+      "query": "Comment intégrer EST ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Quels sont les critères d'admission à EST ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Comment intégrer EMI ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Quels sont les critères d'admission à EMI ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Comment intégrer Université ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Quels sont les critères d'admission à Université ?",
+      "positive": "On a découvert récemment qu'il n'existe pas d'université non sélective parce que chaque université a ses critères et c'est ce qu'on appelle par prérequis. Donc, ils se baillent sur leurs prérequis pour donner une suite favorable aux différentes candidatures qui leur sont envoyées. Mais sachez qu'il existe des filières sur Campus France qui sont un tout petit peu négligées et ce sont malheureusement ces filières qui donnent plus de satisfaction aux candidats. Il y a plus d'acceptation dans ces filières. Je vous invite donc à rester jusqu'à la fin parce que dans cette vidéo, je vais vous les fai",
+      "source_id": "b94645f11260",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.136363636363637
+    },
+    {
+      "query": "Quel est le marché de l'ingénierie électrique au Maroc ?",
+      "source_id": "43ad1cae23fc",
+      "ecole": "ENSAM",
+      "theme": "débouchés",
+      "quality": 0.9,
+      "positive": "Electrical engineering is always in demand (not only in Morocco) All my class was enployed within months of graduation (except one guy who had mental issues) IMO EI is safer than civil, computer science, mechanical or telecom just to site the main majors! Typical jobs: Industrial construction projects, bureau d'etudes and Operation and Maintenance...",
+      "score": 7.088888888888889
+    },
+    {
+      "query": "Quels sont les débouchés après UM6P ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "UM6P",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après UM6P ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "UM6P",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Quels sont les débouchés après EST ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EST ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Quels sont les débouchés après EMI ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EMI ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "EMI",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Quels sont les débouchés après Université ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après Université ?",
+      "positive": "Salam alaykoum, je suis Riyad Mouline, je fais partie de l'UM6P depuis mars 2023, la grande famille UM6P et aujourd'hui je travaille à l'UGF, l'unité de gestion des fonds. À l'UGF, nous finançons des projets de recherche et développement et de transfert technologique et nous travaillons pour tout l'écosystème national, donc les 12 universités publiques, les instituts de recherche ainsi que l'UM6P. Nous accompagnons un peu plus de 1500 chercheurs Ce qui me motive dans ce m l tous les jours on voit aujourd une am continue que ce soit l la mont en comp des collaborateurs mais aussi ce qu'on fait",
+      "source_id": "0c35ead21401",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.068627450980392
+    },
+    {
+      "query": "Comment intégrer EST ?",
+      "positive": "Tu veux étudier en Belgique en 2025? Regarde cette vidéo jusqu'à la fin, je te dis tout ce qu'il faut savoir. J'en ai déjà fait plusieurs vidéos, mais vous me demandez encore d'en parler. Alors, pour l'instant, je ne prends plus de dossiers de Belgique parce que je veux gérer les dossiers qui sont en cours et ça commence à être beaucoup. Maintenant, je vous dis les éléments qu'il faut avoir si vous comptez postuler en Belgique. La procédure de Belgique n'a rien à voir avec la procédure Campus France. J'en ai parlé plusieurs fois sur YouTube, mais également sur TikTok. Pour faire une demande d'",
+      "source_id": "576f4e565de4",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.009433962264151
+    },
+    {
+      "query": "Quels sont les critères d'admission à EST ?",
+      "positive": "Tu veux étudier en Belgique en 2025? Regarde cette vidéo jusqu'à la fin, je te dis tout ce qu'il faut savoir. J'en ai déjà fait plusieurs vidéos, mais vous me demandez encore d'en parler. Alors, pour l'instant, je ne prends plus de dossiers de Belgique parce que je veux gérer les dossiers qui sont en cours et ça commence à être beaucoup. Maintenant, je vous dis les éléments qu'il faut avoir si vous comptez postuler en Belgique. La procédure de Belgique n'a rien à voir avec la procédure Campus France. J'en ai parlé plusieurs fois sur YouTube, mais également sur TikTok. Pour faire une demande d'",
+      "source_id": "576f4e565de4",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.009433962264151
+    },
+    {
+      "query": "Comment intégrer EMI ?",
+      "positive": "Tu veux étudier en Belgique en 2025? Regarde cette vidéo jusqu'à la fin, je te dis tout ce qu'il faut savoir. J'en ai déjà fait plusieurs vidéos, mais vous me demandez encore d'en parler. Alors, pour l'instant, je ne prends plus de dossiers de Belgique parce que je veux gérer les dossiers qui sont en cours et ça commence à être beaucoup. Maintenant, je vous dis les éléments qu'il faut avoir si vous comptez postuler en Belgique. La procédure de Belgique n'a rien à voir avec la procédure Campus France. J'en ai parlé plusieurs fois sur YouTube, mais également sur TikTok. Pour faire une demande d'",
+      "source_id": "576f4e565de4",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.009433962264151
+    },
+    {
+      "query": "Quels sont les critères d'admission à EMI ?",
+      "positive": "Tu veux étudier en Belgique en 2025? Regarde cette vidéo jusqu'à la fin, je te dis tout ce qu'il faut savoir. J'en ai déjà fait plusieurs vidéos, mais vous me demandez encore d'en parler. Alors, pour l'instant, je ne prends plus de dossiers de Belgique parce que je veux gérer les dossiers qui sont en cours et ça commence à être beaucoup. Maintenant, je vous dis les éléments qu'il faut avoir si vous comptez postuler en Belgique. La procédure de Belgique n'a rien à voir avec la procédure Campus France. J'en ai parlé plusieurs fois sur YouTube, mais également sur TikTok. Pour faire une demande d'",
+      "source_id": "576f4e565de4",
+      "ecole": "EMI",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.009433962264151
+    },
+    {
+      "query": "Quels sont les débouchés après EST ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après EST ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "EST",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer EST ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à EST ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "EST",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les débouchés après licence ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "licence",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après licence ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "licence",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer licence ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "licence",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à licence ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "licence",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les débouchés après master ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "master",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après master ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "master",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer master ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "master",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à master ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "master",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les débouchés après BTS ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "BTS",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après BTS ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "BTS",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer BTS ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "BTS",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à BTS ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "BTS",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les débouchés après Université ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après Université ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "Université",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer Université ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à Université ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "Université",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les débouchés après doctorat ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "doctorat",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Qu'est-ce qu'on peut faire après doctorat ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "doctorat",
+      "theme": "débouchés",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Comment intégrer doctorat ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "doctorat",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    },
+    {
+      "query": "Quels sont les critères d'admission à doctorat ?",
+      "positive": "La formation au management et au commerce est l'une des grandes forces de l'enseignement supérieur français. Les masters en management et les MBA des grandes écoles françaises figurent parmi les tout meilleurs au monde. Et près d'une centaine d'établissements français et de formations sont accrédités de labels internationaux d'excellence. Le monde de l'entreprise vous intéresse et vous souhaitez développer vos compétences managériales ? La France vous offre de nombreuses possibilités. Vous aurez le choix entre de nombreuses formations et différents types d'établissements. Les étudiants étrange",
+      "source_id": "32834d499247",
+      "ecole": "doctorat",
+      "theme": "admission",
+      "quality": 1.0,
+      "score": 7.0058823529411764
+    }
+  ],
+  "negatives": []
+}
