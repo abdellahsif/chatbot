@@ -257,8 +257,114 @@ def _sheet_rows_by_headers(xlsx_path: Path) -> dict[str, list[dict[str, Any]]]:
     return tables
 
 
+def _load_from_excel_catalog_tables(tables: dict[str, list[dict[str, Any]]]) -> tuple[dict[str, dict], list[dict]]:
+    # Newer workbook format has human-readable headers like:
+    # Nom, Statut, Ville, Domaine, Filières, Frais annuels (MAD), ...
+    primary_rows: list[dict[str, Any]] = []
+    for rows in tables.values():
+        if not rows:
+            continue
+        sample = rows[0]
+        if "Nom" in sample and "Ville" in sample and ("Statut" in sample or "Type" in sample):
+            primary_rows = rows
+            break
+
+    schools: dict[str, dict] = {}
+    transcripts: list[dict] = []
+    if not primary_rows:
+        return schools, transcripts
+
+    for i, row in enumerate(primary_rows, start=1):
+        name = _safe_str(row.get("Nom"))
+        if not name:
+            continue
+
+        city = _safe_str(row.get("Ville"))
+        status = _safe_str(row.get("Statut"))
+        school_type = "public" if "public" in status.lower() else "private"
+        domain = _safe_str(row.get("Domaine"))
+        filieres_text = _safe_str(row.get("Filières"))
+        programs = _split_program_values(filieres_text or domain)
+        if not programs:
+            programs = ["general"]
+
+        tuition_min = _parse_int(row.get("Frais inscription (MAD)"), default=0)
+        tuition_max = _parse_int(row.get("Frais annuels (MAD)"), default=0)
+        if tuition_max <= 0 and school_type == "public":
+            tuition_max = max(tuition_min, 1200)
+
+        conditions = _safe_str(row.get("Conditions d'accès"))
+        selectivity = "high" if any(k in conditions.lower() for k in ["concours", "sélectif", "selectif"]) else "medium"
+
+        school_id = f"xl_{_normalize_token(name)}_{_normalize_token(city)}_{i}"
+        schools[school_id] = {
+            "school_id": school_id,
+            "name": name,
+            "country": "MA",
+            "city": city,
+            "type": school_type,
+            "legal_status": status,
+            "conditions": conditions,
+            "tuition_min_mad": tuition_min,
+            "tuition_max_mad": tuition_max,
+            "pricing_min": tuition_min,
+            "pricing_max": tuition_max,
+            "pricing_details": _safe_str(row.get("Frais par filière (détail)")),
+            "programs": programs,
+            "programs_tags": filieres_text,
+            "filieres": filieres_text,
+            "admission_selectivity": selectivity,
+            "employability_score": 3.7,
+            "salary_entry_min_mad": 5000,
+            "salary_entry_max_mad": 12000,
+            "international_double_degree": False,
+            "website_url": _safe_str(row.get("Site Web")),
+            "logo_url": "",
+            "acronym": _safe_str(row.get("Sigle")),
+            "source": "excel_catalog",
+            "source_row_id": str(i),
+        }
+
+        summary_parts = [
+            f"{name} in {city}." if city else f"{name}.",
+            f"Status: {status}." if status else "",
+            f"Domain: {domain}." if domain else "",
+            f"Programs: {filieres_text}." if filieres_text else "",
+            f"Admission: {conditions}." if conditions else "",
+        ]
+        if tuition_min > 0 or tuition_max > 0:
+            summary_parts.append(f"Tuition range {tuition_min} to {tuition_max} MAD.")
+        summary_text = " ".join(p for p in summary_parts if p)
+
+        transcripts.append(
+            {
+                "chunk_id": f"{school_id}_overview",
+                "video_id": "excel_catalog",
+                "school_id": school_id,
+                "program": programs[0],
+                "level": "bac_plus_1",
+                "language": "fr",
+                "recorded_at": _safe_str(row.get("Date de collecte")) or "2026-01-01",
+                "text": summary_text,
+                "sentiment": "positive",
+                "tags": [
+                    _normalize_token(city),
+                    _normalize_token(school_type),
+                    _normalize_token(domain),
+                ],
+            }
+        )
+
+    return schools, transcripts
+
+
 def load_from_excel_mcd(xlsx_path: Path) -> tuple[dict[str, dict], list[dict]]:
     tables = _sheet_rows_by_headers(xlsx_path)
+
+    # Support catalog-style workbook with human-readable headers.
+    catalog_schools, catalog_transcripts = _load_from_excel_catalog_tables(tables)
+    if catalog_schools:
+        return catalog_schools, catalog_transcripts
 
     etab: list[dict[str, Any]] = []
     filiere: list[dict[str, Any]] = []
@@ -630,6 +736,17 @@ def load_policy(policy_path: Path) -> dict:
 
 def load_bundle(root_dir: Path) -> DataBundle:
     strict_supabase = os.getenv("SUPABASE_STRICT_MODE", "1").strip().lower() in {"1", "true", "yes", "on"}
+    # If strict mode is requested but credentials are missing, fail open to local fallback
+    # so the app can still boot in development environments.
+    supabase_url = (os.getenv("SUPABASE_URL") or "").strip()
+    supabase_key = (
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY")
+        or os.getenv("SUPABASE_API_KEY")
+        or os.getenv("SUPABASE_ANON_KEY")
+        or ""
+    ).strip()
+    if strict_supabase and (not supabase_url or not supabase_key):
+        strict_supabase = False
     # Explicit switch behavior:
     # - strict_supabase=True  -> DB-only mode (must load from Supabase)
     # - strict_supabase=False -> local documents/data mode

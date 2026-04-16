@@ -2171,7 +2171,7 @@ def retrieve(
 
         rescored.append(
             {
-                "score": float(0.85 * components["final"] + 0.15 * hybrid_semantic),
+                "score": float(0.30 * components["final"] + 0.70 * hybrid_semantic),
                 "chunk": chosen_chunk,
                 "school": school,
                 "score_components": components,

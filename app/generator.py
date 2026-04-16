@@ -187,6 +187,30 @@ def _humanize_text(text: str) -> str:
     return raw
 
 
+def _strip_metadata_labels(text: str) -> str:
+    raw = str(text or "").strip()
+    if not raw:
+        return ""
+    raw = re.sub(
+        r"\b(score_components|match_score|weighted|weighted_score|confidence|debug|metadata|evidence|ranked_schools|criteria|semantic_fit|geo_fit|budget_fit|motivation_fit)\b\s*[:=]?\s*[^.\n]*",
+        "",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    raw = re.sub(r"\{[^{}]*\}", "", raw)
+    raw = re.sub(r"\[[^\[\]]*\]", "", raw)
+    raw = re.sub(r"\s+", " ", raw).strip(" .,:;-")
+    return raw
+
+
+def _sanitize_payload(payload: dict[str, str]) -> dict[str, str]:
+    clean: dict[str, str] = {}
+    for key, value in payload.items():
+        text = _humanize_text(_strip_metadata_labels(str(value or "")))
+        clean[key] = text
+    return clean
+
+
 class QwenGenerator:
     def __init__(self, model_id: str | None = None) -> None:
         self._lock = Lock()
@@ -677,6 +701,7 @@ class QwenGenerator:
             f"{evidence_context}\n\n"
             f"IMPORTANT: Respond ONLY in {lang_name}. Write like a human advisor, not like a report. "
             "Use 2-4 short natural sentences. Avoid raw stats, score dumps, or labels like 'Best match'. "
+            "Do NOT output metadata/debug terms (example: match_score, score_components, weighted, confidence, evidence, criteria). "
             "Base your recommendation on the provided school data AND the evidence from retrieved documents.\n"
             "Return ONLY valid JSON with keys: short_answer, why_it_fits, alternative, next_action. "
             "Requirements: short_answer should sound conversational and mention the school naturally. "
@@ -704,7 +729,7 @@ class QwenGenerator:
             )
             if detected_language == "fr":
                 payload = self._force_french_payload(payload=payload, selected=selected)
-            return payload
+            return _sanitize_payload(payload)
 
         try:
             inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=2048)
@@ -746,7 +771,7 @@ class QwenGenerator:
         )
         if detected_language == "fr":
             payload = self._force_french_payload(payload=payload, selected=selected)
-        return payload
+        return _sanitize_payload(payload)
 
 
 QWEN_GENERATOR = QwenGenerator()

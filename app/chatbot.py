@@ -546,6 +546,135 @@ def _build_message_paragraph(
     return " ".join(sentences)
 
 
+def _admission_route_hint(school_name: str, school: dict[str, Any]) -> str:
+    name = str(school_name or "").lower()
+    selectivity = str(school.get("admission_selectivity", "")).strip().lower()
+    if any(k in name for k in ["emi", "ehtp", "ensias", "inpt", "emines"]):
+        return "usually through CPGE/CNC path; competitive"
+    if "ensa" in name:
+        return "often accessible after Bac via selection and exam"
+    if "est" in name or "ofppt" in name:
+        return "generally more accessible and practical"
+    if selectivity:
+        return f"selectivity: {selectivity}"
+    return "admission route depends on program and yearly seats"
+
+
+def _school_strength_hint(school: dict[str, Any]) -> str:
+    labels = _humanize_programs(_school_program_labels(school))
+    if labels:
+        return labels
+    programs = school.get("programs", [])
+    if isinstance(programs, list) and programs:
+        cleaned = [" ".join(str(p).replace("_", " ").split()) for p in programs[:4] if str(p).strip()]
+        if cleaned:
+            return ", ".join(cleaned)
+    return "engineering and applied tracks"
+
+
+def _build_structured_advisor_response(
+    *,
+    question: str,
+    profile: UserProfile,
+    ranked_schools: list[dict[str, Any]],
+    next_action: str,
+) -> str:
+    bac_key = (profile.bac_stream or "").strip().lower()
+    bac_label = _BAC_LABEL.get(bac_key, bac_key or "bac")
+    city_label = profile.city.strip() if (profile.city or "").strip() else "Morocco"
+    q_tokens = _norm_tokens(question)
+
+    engineering_terms = {
+        "engineering", "ingenierie", "ingenieur", "genie", "cpge", "cpi", "ensa", "est", "emi", "ehtp"
+    }
+    university_terms = {
+        "university", "universite", "fac", "faculty", "fs", "fsjes", "fst"
+    }
+    business_terms = {
+        "business", "management", "finance", "commerce", "encg", "iscae", "marketing"
+    }
+    health_terms = {"medecine", "medicine", "medical", "health", "paramedical", "sante"}
+
+    path_lines: list[str] = []
+    if q_tokens & engineering_terms:
+        path_lines.append("- Engineering path (CPGE/CNC or integrated engineering schools)")
+        path_lines.append("- Applied path (ENSA/EST/OFPPT style practical route)")
+    if q_tokens & business_terms:
+        path_lines.append("- Business/management path (commerce, finance, management schools)")
+    if q_tokens & health_terms:
+        path_lines.append("- Health path (medical or paramedical tracks)")
+    if q_tokens & university_terms:
+        path_lines.append("- University path (more flexibility and wider program choice)")
+
+    if not path_lines:
+        path_lines = [
+            "- Ambitious path (selective schools)",
+            "- Balanced path (good quality with realistic admission)",
+            "- Safe path (accessible options with strong outcomes)",
+        ]
+
+    lines: list[str] = []
+    lines.append(
+        f"Since you are a Bac {bac_label} student in {city_label}, your best choices depend on your target path:"
+    )
+    lines.extend(path_lines)
+    lines.append("")
+    lines.append("Here are 3 strong schools to target:")
+
+    top3 = ranked_schools[:3]
+    for idx, item in enumerate(top3, start=1):
+        name = str(item.get("name", "School"))
+        city = str(item.get("city", "")).strip()
+        school_header = f"{idx}. {name}" + (f" - {city}" if city else "")
+        lines.append(school_header)
+
+        school_payload = {
+            "name": item.get("name", ""),
+            "programs": item.get("programs", []),
+            "programs_tags": item.get("programs_tags", ""),
+            "filieres": item.get("filieres", ""),
+            "admission_selectivity": item.get("admission_selectivity", ""),
+        }
+        strengths = _school_strength_hint(school_payload)
+        admission = _admission_route_hint(name, school_payload)
+
+        lines.append(f"   - Strong in: {strengths}")
+        lines.append(f"   - Admission: {admission}")
+
+        tuition_min = _to_int(item.get("tuition_min_mad"), default=0)
+        tuition_max = _to_int(item.get("tuition_max_mad"), default=0)
+        if tuition_max > 0:
+            lines.append(f"   - Tuition range: {tuition_min}-{tuition_max} MAD")
+        lines.append("")
+
+    lines.append("Simple advice for you:")
+    if bac_key == "sm":
+        if q_tokens & engineering_terms:
+            lines.append("- If you are strong in math/physics and accept pressure: prioritize CPGE then selective engineering schools.")
+            lines.append("- Keep an ENSA/EST style option as your safer backup.")
+        elif q_tokens & business_terms:
+            lines.append("- For Bac SM, your math profile is a strong asset for finance/management tracks.")
+            lines.append("- Keep one selective commerce school and one balanced backup.")
+        else:
+            lines.append("- Use your math profile to keep one ambitious option and one realistic backup.")
+            lines.append("- Favor schools with clear admission route and program fit.")
+    else:
+        lines.append("- Start with schools matching your strongest subjects and realistic admission level.")
+        lines.append("- Keep one ambitious option, one balanced option, and one safe option.")
+
+    lines.append("")
+    lines.append("My recommendation:")
+    if top3:
+        lines.append(f"- Top target: {top3[0].get('name', 'N/A')}")
+    if len(top3) > 1:
+        lines.append(f"- Strong backup: {top3[1].get('name', 'N/A')}")
+    if len(top3) > 2:
+        lines.append(f"- Safe backup: {top3[2].get('name', 'N/A')}")
+    lines.append(f"- Next step: {next_action}")
+
+    return "\n".join(lines).strip()
+
+
 def _match_grade(score_0_100: float) -> str:
     if score_0_100 >= 90:
         return "A+"
@@ -650,6 +779,7 @@ def answer_question(
 ) -> QueryResponse:
     city_only_mode = False
     is_fr = True
+    user_question = " ".join(str(question or "").split())
 
     if not _profile_has_signal(profile):
         return QueryResponse(
@@ -668,9 +798,25 @@ def answer_question(
         )
 
     query_for_context = _profile_to_query(profile)
-    retrieval_question = query_for_context
-    retrieval_profile = profile
-    question = retrieval_question
+    base_question = user_question or query_for_context
+
+    query_understanding: dict[str, Any] = {}
+    if user_question:
+        try:
+            query_understanding = QWEN_GENERATOR.understand_query(
+                question=user_question,
+                profile=profile,
+                chat_history=chat_history,
+            )
+        except Exception:
+            query_understanding = {}
+
+    retrieval_question, retrieval_profile = _merge_query_understanding_into_request(
+        question=base_question,
+        profile=profile,
+        query_understanding=query_understanding,
+    )
+    retrieval_question = " ".join(str(retrieval_question or "").split()) or base_question
 
     effective_profile = resolve_effective_profile(
         question=retrieval_question,
@@ -840,7 +986,7 @@ def answer_question(
 
     alt_hit = _select_alternative_hit(
         hits=hits,
-        question=question,
+        question=user_question,
         profile=effective_profile,
     )
     if alt_hit is not None:
@@ -870,7 +1016,7 @@ def answer_question(
 
     try:
         generated = QWEN_GENERATOR.generate(
-            question=query_for_context,
+            question=user_question or query_for_context,
             profile=effective_profile,
             top_schools=top_schools,
             generation_evidence=generation_evidence,
@@ -884,7 +1030,7 @@ def answer_question(
         alternative = str(generated.get("alternative", alternative)).strip() or alternative
         next_action = str(generated.get("next_action", next_action)).strip() or next_action
 
-    if _is_city_only_school_request(question, effective_profile):
+    if _is_city_only_school_request(user_question, effective_profile):
         city_only_mode = True
         options: list[str] = []
         seen: set[str] = set()
@@ -943,7 +1089,7 @@ def answer_question(
             )
             next_action = "Tell me your intended field, your budget band, and your expected grade so I can give one precise recommendation."
 
-    if _has_conflicting_constraints(question, effective_profile):
+    if _has_conflicting_constraints(user_question, effective_profile):
         if is_fr:
             alternative = (
                 "Ta demande combine un budget serre avec un objectif de prestige eleve. Le plus prudent est de commencer par des options publiques abordables, "
