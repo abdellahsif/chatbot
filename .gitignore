@@ -2,3 +2,5 @@
 __pycache__/
 *.pyc
 .env
+checkpoints/model/
+ragas_validate.py
