@@ -1,0 +1,463 @@
+{
+  "created_at": "2026-04-18T15:58:22.044979+00:00",
+  "prompt_file": "C:\\Users\\abdos\\OneDrive\\Documents\\pfe\\data\\mock\\hybrid_eval_prompts.json",
+  "summary": {
+    "total": 40,
+    "routing_accuracy": 1.0,
+    "quality_pass_rate": 0.95,
+    "per_group": {
+      "chat": {
+        "count": 15,
+        "routing_accuracy": 1.0,
+        "quality_pass_rate": 1.0
+      },
+      "orientation": {
+        "count": 25,
+        "routing_accuracy": 1.0,
+        "quality_pass_rate": 0.92
+      }
+    }
+  },
+  "results": [
+    {
+      "question": "hey",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "how is the weather today?",
+      "word_count": 5,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "how are you today",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "tell me a short joke",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Sure! Here's one for you: Why don't scientists trust atoms?",
+      "word_count": 10,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "what are you doing",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about.",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "thanks for your help",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "! i'm going to ask you some questions about the world",
+      "word_count": 11,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "good morning",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "how can i get help with my homework?",
+      "word_count": 8,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "can we just chat a bit",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "what is your name",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "i am stressed today",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "what should i do?",
+      "word_count": 4,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "give me motivation",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "for learning new languages",
+      "word_count": 4,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "who won the world cup 2018",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "what time is it",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Hi! I am here with you. Tell me what you want to talk about",
+      "word_count": 14,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "i like football",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "but i don't play it. what should i do?",
+      "word_count": 9,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "say something funny",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Sure, here's a joke for you: Why don't scientists trust atoms? Because they make up everything!",
+      "word_count": 16,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "hello my friend",
+      "expected_intent": "chat",
+      "predicted_intent": "chat",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "how is your day going?",
+      "word_count": 5,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "what should i do after bac sm",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Centrale Casablanca, Mundiapolis University If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 67,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "which school is better emi or ensa",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, École Supérieure de Communication — Supcours If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 73,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "i have bac spc in rabat what are my options",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with École Nationale Supérieure d'Informatique pour l'Industrie et l'Entreprise — ESIIA Maroc For École Nationale Supérieure d'Informatique pour l'Industrie et l'Entreprise — ESIIA Maroc in rabat: École Nationale Supérieure d'Informatique pour l'Industrie et l'Entreprise — ESIIA Maroc in Rabat. Status: Privé. Domain: Informatique / Systèmes d'Information. Programs: Ingénierie Logicielle &. You could also consider Institut Supérieur de Design ISD Maroc, HEM — Haute École de Management If you want, I can narrow it down further between École Nationale Supérieure d'Informatique pour l'Industrie",
+      "word_count": 84,
+      "has_technical_artifacts": false,
+      "evidence_count": 3
+    },
+    {
+      "question": "best engineering school in morocco",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with École Polytechnique Privée de Casablanca For École Polytechnique Privée de Casablanca in morocco: École Polytechnique Privée de Casablanca in Casablanca. Status: Privé. Domain: Ingénierie. Programs: Génie Civil & BTP | Génie Électrique | Génie Informatique | Génie. You could also consider École Nationale Supérieure d'Informatique pour l'Industrie et l'Entreprise — ESIIA Maroc, École Centrale Casablanca If you want, I can narrow it down further between École Polytechnique Privée de Casablanca and",
+      "word_count": 74,
+      "has_technical_artifacts": false,
+      "evidence_count": 3
+    },
+    {
+      "question": "i want to study medicine after bac",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Je n ai pas trouve d ecole qui respecte exactement ton profil.",
+      "word_count": 12,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "which private university is good for business",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Je n ai pas trouve d ecole qui respecte exactement ton profil.",
+      "word_count": 12,
+      "has_technical_artifacts": false,
+      "evidence_count": 0
+    },
+    {
+      "question": "can you compare iscae and hem",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": false,
+      "response": "I’d start with École Polytechnique Privée de Casablanca. It feels like the most practical choice here It matches your budget and profile well. The retrieved . The tuition is around 40000 MAD, which keeps the choice realistic You could also consider École Centrale Casablanca, AIVANCITY — Campus Maroc If you want, I can narrow it down further between École Polytechnique Privée de Casablanca and",
+      "word_count": 64,
+      "has_technical_artifacts": false,
+      "evidence_count": 3
+    },
+    {
+      "question": "i want to study abroad after my license",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, École Supérieure de Communication — Supcours. Keep one other internationally oriented If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 78,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "what masters can i do after computer science",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, AIVANCITY — Campus Maroc If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 71,
+      "has_technical_artifacts": false,
+      "evidence_count": 3
+    },
+    {
+      "question": "best path for bac svt",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with ESCA École de Management For ESCA École de Management in Rabat: ESCA École de Management in Casablanca. Status: Privé. Domain: Management / Leadership. Programs: Management & Stratégie des Entreprises | Finance & Marchés Financiers |. You could also consider No available. Another school worth checking is ESCA École de Management If you want, I can narrow it down further between ESCA École de Management and ESCA",
+      "word_count": 69,
+      "has_technical_artifacts": false,
+      "evidence_count": 1
+    },
+    {
+      "question": "schools in rabat with budget 50k",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "Bon choix. A rabat, je te propose de commencer par École Nationale Supérieure d'Informatique pour l'Industrie et l'Entreprise — ESIIA Maroc, Institut Supérieur de Design ISD Maroc, et HEM — Haute École de Management. Comme ta demande est centree sur la ville, voici une shortlist simple pour rabat. Le meilleur choix dependra de la filiere, du budget, et du niveau attendu. Une pratique est de commencer par des parcours publics ou professionnalisants si le cout est prioritaire, puis comparer une option plus selective. Donne moi la filiere visee, le budget, et la note attendue pour une recommandation precise",
+      "word_count": 98,
+      "has_technical_artifacts": false,
+      "evidence_count": 3
+    },
+    {
+      "question": "career path after economics degree",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider UIR — Université Internationale de Rabat, Mundiapolis University If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 70,
+      "has_technical_artifacts": false,
+      "evidence_count": 4
+    },
+    {
+      "question": "orientation for bac lettres",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur d'Architecture et d'Urbanisme — Salé For Institut Supérieur d'Architecture et d'Urbanisme — Salé in Rabat: Institut Supérieur d'Architecture et d'Urbanisme — Salé in Salé. Status: Privé. Domain: Architecture / Urbanisme. Programs: Architecture | Urbanisme | Architecture d'Intérieur. Admission: Baccalauréat. You could also consider Institut Supérieur des Arts et Métiers de Sfax — Antenne Maroc (partenariat), Institut Supérieur des Métiers If you want, I can narrow it down further between Institut Supérieur d'Architecture et d'Urbanisme —",
+      "word_count": 80,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "how to choose between cpge and ensa",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider École Polytechnique Privée de Casablanca, École Supérieure de Communication — Supcours If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 73,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "which programs lead to good employability",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, École Supérieure de Communication — Supcours If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 73,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "hi i need help",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider HEM — Haute École de Management, École Supérieure de Communication — Supcours If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 74,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "i am lost what should i do",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider HEM — Haute École de Management, École Polytechnique Privée de Casablanca If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 73,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "can you advise me",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": false,
+      "response": "I recommend studying at HEM \\u2014 Haute École de Management in Rabat. It's a great place to learn about business",
+      "word_count": 20,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "i want a better future",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Centrale Casablanca, AIVANCITY — Campus Maroc If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 69,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "what is best for me",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, École Supérieure de Communication — Supcours If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 73,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "hello, i have bac but not sure",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider HEM — Haute École de Management, École Supérieure de Communication — Supcours If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 74,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "i need guidance",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider HEM — Haute École de Management, École Supérieure de Communication — Supcours If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 74,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "help me choose",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Supérieure de Communication — Supcours, AIVANCITY — Campus Maroc If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 72,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "what path is good",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with HEM — Haute École de Management For HEM — Haute École de Management in Rabat: HEM — Haute École de Management in Casablanca / Rabat / Fès / Marrakech. Status: Privé. Domain: Management / Commerce. Programs: Management Général |. You could also consider École Polytechnique Privée de Casablanca, École Centrale Casablanca If you want, I can narrow it down further between HEM — Haute École de Management",
+      "word_count": 70,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    },
+    {
+      "question": "i am confused about next step",
+      "expected_intent": "orientation",
+      "predicted_intent": "orientation",
+      "routing_ok": true,
+      "quality_ok": true,
+      "response": "I’d start with Institut Supérieur de Design ISD Maroc For Institut Supérieur de Design ISD Maroc in Rabat: Institut Supérieur de Design ISD Maroc in Casablanca / Rabat. Status: Privé. Domain: Design. Programs: Design Industriel | Design de Mode | Design Graphique. You could also consider HEM — Haute École de Management, École Supérieure de Communication — Supcours If you want, I can narrow it down further between Institut Supérieur de Design ISD Maroc",
+      "word_count": 74,
+      "has_technical_artifacts": false,
+      "evidence_count": 5
+    }
+  ]
+}

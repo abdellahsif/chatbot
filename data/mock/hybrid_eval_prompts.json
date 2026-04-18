@@ -1,0 +1,48 @@
+{
+  "chat": [
+    "hey",
+    "how are you today",
+    "tell me a short joke",
+    "what are you doing",
+    "thanks for your help",
+    "good morning",
+    "can we just chat a bit",
+    "what is your name",
+    "i am stressed today",
+    "give me motivation",
+    "who won the world cup 2018",
+    "what time is it",
+    "i like football",
+    "say something funny",
+    "hello my friend"
+  ],
+  "orientation": [
+    "what should i do after bac sm",
+    "which school is better emi or ensa",
+    "i have bac spc in rabat what are my options",
+    "best engineering school in morocco",
+    "i want to study medicine after bac",
+    "which private university is good for business",
+    "can you compare iscae and hem",
+    "i want to study abroad after my license",
+    "what masters can i do after computer science",
+    "best path for bac svt",
+    "schools in rabat with budget 50k",
+    "career path after economics degree",
+    "orientation for bac lettres",
+    "how to choose between cpge and ensa",
+    "which programs lead to good employability"
+  ],
+  "ambiguous": [
+    "hi i need help",
+    "i am lost what should i do",
+    "can you advise me",
+    "i want a better future",
+    "what is best for me",
+    "hello, i have bac but not sure",
+    "i need guidance",
+    "help me choose",
+    "what path is good",
+    "i am confused about next step"
+  ]
+}

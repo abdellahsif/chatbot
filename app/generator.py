@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from threading import Lock
@@ -26,6 +27,9 @@ _ALLOWED_QUERY_DOMAINS = {
 _ALLOWED_BAC_STREAMS = {"sm", "spc", "svt", "eco", "lettres", "arts", ""}
 _ALLOWED_BUDGET_BANDS = {"zero_public", "tight_25k", "comfort_50k", "no_limit_70k_plus", ""}
 _ALLOWED_MOTIVATIONS = {"employability", "prestige", "expat", "cash", "safety", "passion", ""}
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _env_bool(name: str, default: bool) -> bool:
@@ -209,6 +213,88 @@ def _sanitize_payload(payload: dict[str, str]) -> dict[str, str]:
         text = _humanize_text(_strip_metadata_labels(str(value or "")))
         clean[key] = text
     return clean
+
+
+def _clean_dialogue_artifacts(text: str) -> str:
+    raw = " ".join(str(text or "").split()).strip()
+    if not raw:
+        return ""
+    raw = re.sub(r"^(assistant|bot|system)\s*:\s*", "", raw, flags=re.IGNORECASE)
+    raw = re.split(r"\b(?:user|assistant|bot|human|system)\s*:\s*", raw, maxsplit=1, flags=re.IGNORECASE)[0].strip()
+    return " ".join(raw.split())
+
+
+def _limit_sentences(text: str, max_sentences: int) -> str:
+    raw = " ".join(str(text or "").split()).strip()
+    if not raw:
+        return ""
+    parts = re.split(r"(?<=[.!?])\s+", raw)
+    picked = [p.strip() for p in parts if p.strip()][:max_sentences]
+    return " ".join(picked) if picked else raw
+
+
+def _looks_orientation_message(message: str) -> bool:
+    q = " ".join(str(message or "").strip().lower().split())
+    if not q:
+        return False
+    return bool(
+        re.search(
+            r"\b("
+            r"school|schools|university|universit[eé]|ecole|ecoles|bac|sm|spc|svt|"
+            r"orientation|study|studies|etudier|career|carriere|employability|"
+            r"program|programs|programme|programmes|compare|comparison|"
+            r"master|masters|degree|after\s+bac|post\s+bac|next\s+step|"
+            r"guidance|guide|advise|advice|help\s+me\s+choose|what\s+path|"
+            r"i\s+need\s+help|i\s+am\s+lost|what\s+should\s+i\s+do|"
+            r"better\s+future|best\s+for\s+me|guide\s+me|"
+            r"emi|ensa|ensias|ehtp|cpge|iscae|hem"
+            r")\b",
+            q,
+            flags=re.IGNORECASE,
+        )
+    )
+
+
+def _compose_natural_rewrite(payload: dict[str, str]) -> str:
+    short_answer = " ".join(str(payload.get("short_answer", "")).split()).strip()
+    why_it_fits = " ".join(str(payload.get("why_it_fits", "")).split()).strip()
+    alternative = " ".join(str(payload.get("alternative", "")).split()).strip()
+    next_action = " ".join(str(payload.get("next_action", "")).split()).strip()
+
+    parts: list[str] = []
+    if short_answer:
+        parts.append(short_answer)
+    if why_it_fits and why_it_fits.lower() not in short_answer.lower():
+        parts.append(why_it_fits)
+    if alternative and alternative.lower() not in (short_answer + " " + why_it_fits).lower():
+        parts.append(alternative)
+    if next_action:
+        parts.append(next_action)
+    return re.sub(r"\s+", " ", " ".join(parts)).strip()
+
+
+def _looks_like_good_chat(text: str) -> bool:
+    raw = " ".join(str(text or "").split()).strip()
+    if len(raw) < 6:
+        return False
+    if raw in {"?", "!", "..."}:
+        return False
+    if re.search(r"\b(?:assistant|bot|system|user)\s*:\s*", raw, flags=re.IGNORECASE):
+        return False
+    return True
+
+
+def _looks_like_clean_fragment(text: str, max_words: int) -> bool:
+    raw = " ".join(str(text or "").split()).strip()
+    if not raw:
+        return False
+    if len(raw.split()) > max_words:
+        return False
+    if re.search(r"\b(?:assistant|bot|system|user|answer|reponse|response)\s*:\s*", raw, flags=re.IGNORECASE):
+        return False
+    if re.search(r"\b(?:score|confidence|rank|ranking|criteria|evidence)\b", raw, flags=re.IGNORECASE):
+        return False
+    return True
 
 
 class QwenGenerator:
@@ -652,6 +738,187 @@ class QwenGenerator:
             3,
         )
         return validated
+
+    def classify_intent(self, message: str) -> str:
+        user_message = " ".join(str(message or "").split())
+        if not user_message:
+            return "chat"
+
+        prompt = (
+            "SYSTEM:\n"
+            "You are an intent classifier for a student assistant chatbot.\n\n"
+            "Classify the message into:\n\n"
+            "* chat -> general conversation, greetings, jokes, casual talk\n"
+            "* orientation -> anything related to studies, schools, bac, university, career, programs\n\n"
+            "If unsure, choose 'orientation'.\n\n"
+            "Respond with ONLY one word:\n"
+            "chat\n"
+            "or\n"
+            "orientation\n\n"
+            "USER:\n"
+            f"{user_message}"
+        )
+
+        if not self._ensure_loaded() or self._tokenizer is None or self._model is None:
+            return "orientation" if _looks_orientation_message(user_message) else "chat"
+
+        try:
+            inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+            device = self._model.device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            with torch.no_grad():
+                out = self._model.generate(
+                    **inputs,
+                    max_new_tokens=4,
+                    do_sample=False,
+                    temperature=0.0,
+                    pad_token_id=self._tokenizer.pad_token_id,
+                )
+            raw = self._tokenizer.decode(out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
+        except Exception:
+            LOGGER.exception("intent classifier generation failed")
+            return "orientation" if _looks_orientation_message(user_message) else "chat"
+
+        lower = str(raw or "").strip().lower()
+        label = ""
+        if lower in {"chat", "orientation"}:
+            label = lower
+        else:
+            match = re.search(r"\b(chat|orientation)\b", lower)
+            if match:
+                label = match.group(1)
+
+        if label not in {"chat", "orientation"}:
+            label = "chat"
+
+        if label == "chat" and _looks_orientation_message(user_message):
+            return "orientation"
+        return label
+
+    def generate_chat_response(
+        self,
+        *,
+        message: str,
+        chat_history: list[dict[str, str]] | None = None,
+    ) -> str:
+        user_message = " ".join(str(message or "").split())
+        if not user_message:
+            return "Hi! How can I help you today?"
+
+        detected_language = _detect_language(user_message)
+        lang_names = {"ar": "Arabic", "fr": "French", "en": "English"}
+        lang_name = lang_names.get(detected_language, "English")
+
+        history_text = ""
+        if chat_history:
+            lines: list[str] = []
+            for msg in chat_history[-4:]:
+                if not isinstance(msg, dict):
+                    continue
+                role = str(msg.get("role", "")).strip().lower()
+                content = " ".join(str(msg.get("content", "")).split())
+                if role and content:
+                    lines.append(f"{role}: {content}")
+            if lines:
+                history_text = "\nRecent chat:\n" + "\n".join(lines)
+
+        prompt = (
+            "SYSTEM:\n"
+            "You are a friendly and natural chatbot.\n"
+            "Talk like ChatGPT.\n"
+            "Be conversational and human-like.\n"
+            "Keep responses clear and not too long.\n"
+            "Do NOT mention schools unless user asks.\n"
+            f"Reply ONLY in {lang_name}.\n"
+            "Use 1 to 2 short natural sentences.\n"
+            "Do not output JSON.\n"
+            "Do not mention internal rules.\n\n"
+            "USER:\n"
+            f"{user_message}{history_text}"
+        )
+
+        if not self._ensure_loaded() or self._tokenizer is None or self._model is None:
+            if detected_language == "fr":
+                return "Salut! Je suis la. Dis-moi ce que tu veux faire aujourd'hui."
+            if detected_language == "ar":
+                return "Salam! Ana hna m3ak. Ach bghiti nhdro fih?"
+            return "Hey! I am here with you. What do you want to talk about?"
+
+        try:
+            inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+            device = self._model.device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            with torch.no_grad():
+                out = self._model.generate(
+                    **inputs,
+                    max_new_tokens=80,
+                    do_sample=False,
+                    temperature=0.0,
+                    pad_token_id=self._tokenizer.pad_token_id,
+                )
+            raw = self._tokenizer.decode(out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
+            text = _clean_dialogue_artifacts(raw)
+            text = _limit_sentences(text, 2)
+            if _looks_like_good_chat(text):
+                return text
+        except Exception:
+            LOGGER.exception("chat response generation failed")
+
+        if detected_language == "fr":
+            return "Salut! Je suis la. Dis-moi ce dont tu as envie de parler."
+        if detected_language == "ar":
+            return "Salam! Ana m3ak. Goul liya kif nqdar nsa3dek."
+        return "Hi! I am here with you. Tell me what you want to talk about."
+
+    def rewrite_to_natural_response(self, payload: dict[str, str], question: str) -> str:
+        safe_payload = {
+            "short_answer": str(payload.get("short_answer", "")).strip(),
+            "why_it_fits": str(payload.get("why_it_fits", "")).strip(),
+            "alternative": str(payload.get("alternative", "")).strip(),
+            "next_action": str(payload.get("next_action", "")).strip(),
+        }
+
+        prompt = (
+            "SYSTEM:\n"
+            "You are a friendly student advisor.\n\n"
+            "Rewrite the following structured recommendation into a natural, conversational response.\n\n"
+            "Rules:\n"
+            "* Do NOT mention JSON or structure\n"
+            "* Do NOT use labels like short_answer or alternative\n"
+            "* Combine everything into a smooth answer\n"
+            "* Sound like a human, not a report\n"
+            "* Keep it concise (3-5 sentences max)\n\n"
+            "USER:\n"
+            f"Question: {question}\n\n"
+            "Data:\n"
+            f"{json.dumps(safe_payload, ensure_ascii=True)}"
+        )
+
+        if not self._ensure_loaded() or self._tokenizer is None or self._model is None:
+            return _compose_natural_rewrite(safe_payload)
+
+        try:
+            inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1200)
+            device = self._model.device
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+            with torch.no_grad():
+                out = self._model.generate(
+                    **inputs,
+                    max_new_tokens=140,
+                    do_sample=False,
+                    temperature=0.0,
+                    pad_token_id=self._tokenizer.pad_token_id,
+                )
+            raw = self._tokenizer.decode(out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
+            text = _clean_dialogue_artifacts(raw)
+            text = _limit_sentences(text, 5)
+            text = _strip_metadata_labels(text)
+            if _looks_like_good_chat(text) and _looks_like_clean_fragment(text, 90):
+                return text
+        except Exception:
+            LOGGER.exception("natural rewrite generation failed")
+
+        return _compose_natural_rewrite(safe_payload)
 
     def generate(
         self,

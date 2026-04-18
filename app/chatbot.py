@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from statistics import mean
 from typing import Any
@@ -447,6 +448,39 @@ def _content_tokens(text: str) -> set[str]:
     return {t for t in _norm_tokens(text) if t not in stop}
 
 
+def _sanitize_user_facing_text(text: str) -> str:
+    raw = " ".join(str(text or "").split()).strip()
+    if not raw:
+        return ""
+
+    # Recover structured output if the model leaked JSON.
+    if raw.startswith("{") and any(k in raw for k in ['"short_answer"', '"why_it_fits"', '"alternative"', '"next_action"']):
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                parts = [
+                    str(parsed.get("short_answer", "")).strip(),
+                    str(parsed.get("why_it_fits", "")).strip(),
+                    str(parsed.get("alternative", "")).strip(),
+                    str(parsed.get("next_action", "")).strip(),
+                ]
+                raw = " ".join(p for p in parts if p)
+        except Exception:
+            pass
+
+    raw = re.sub(
+        r"\b(short_answer|why_it_fits|alternative|next_action|confidence|ranked_schools|score_components|match_score|criteria)\b\s*[:=]?",
+        "",
+        raw,
+        flags=re.IGNORECASE,
+    )
+    raw = re.sub(r"\bEvidence for\b", "For", raw, flags=re.IGNORECASE)
+    raw = re.sub(r"\bNo alternative available\.?", "", raw, flags=re.IGNORECASE)
+    raw = re.sub(r"[{}\[\]\"]", "", raw)
+    raw = re.sub(r"\s+", " ", raw).strip(" ,.;:-")
+    return raw
+
+
 def _grounding_ratio(text: str, evidence_tokens: set[str]) -> float:
     tokens = _content_tokens(text)
     if not tokens:
@@ -781,6 +815,36 @@ def answer_question(
     is_fr = True
     user_question = " ".join(str(question or "").split())
 
+    intent = "orientation"
+    if user_question:
+        try:
+            intent = QWEN_GENERATOR.classify_intent(user_question)
+        except Exception:
+            intent = "orientation"
+
+    if intent == "chat":
+        try:
+            chat_text = QWEN_GENERATOR.generate_chat_response(
+                message=user_question,
+                chat_history=chat_history,
+            )
+        except Exception:
+            chat_text = "Hi! I am here with you. Tell me what you want to talk about."
+
+        chat_text = _sanitize_user_facing_text(chat_text)
+        if len(chat_text.split()) < 3:
+            chat_text = "Hi! I am here with you. Tell me what you want to talk about."
+        return QueryResponse(
+            short_answer=chat_text,
+            why_it_fits="",
+            evidence=[],
+            alternative="",
+            next_action="",
+            confidence=0.85,
+            message_paragraph=chat_text,
+            ranked_schools=[],
+        )
+
     if not _profile_has_signal(profile):
         return QueryResponse(
             short_answer="Donne moi ton profil pour que je recommande les meilleures ecoles.",
@@ -1112,12 +1176,35 @@ def answer_question(
         )
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
-    message_paragraph = _build_message_paragraph(
-        short_answer=short_answer,
-        why_it_fits=why_it_fits,
-        alternative=alternative,
-        next_action=next_action,
-    )
+    payload = {
+        "short_answer": short_answer,
+        "why_it_fits": why_it_fits,
+        "alternative": alternative,
+        "next_action": next_action,
+    }
+    try:
+        message_paragraph = QWEN_GENERATOR.rewrite_to_natural_response(
+            payload=payload,
+            question=user_question or query_for_context,
+        )
+    except Exception:
+        message_paragraph = ""
+
+    if not str(message_paragraph or "").strip():
+        message_paragraph = _build_message_paragraph(
+            short_answer=short_answer,
+            why_it_fits=why_it_fits,
+            alternative=alternative,
+            next_action=next_action,
+        )
+    message_paragraph = _sanitize_user_facing_text(message_paragraph)
+    if not message_paragraph:
+        message_paragraph = _build_message_paragraph(
+            short_answer=short_answer,
+            why_it_fits=why_it_fits,
+            alternative=alternative,
+            next_action=next_action,
+        )
 
     return QueryResponse(
         short_answer=short_answer,
