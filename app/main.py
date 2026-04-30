@@ -14,6 +14,7 @@ except Exception:
 from app.chatbot import answer_question
 from app.data_loader import DataBundle, load_bundle
 from app.models import QueryRequest
+from app.recommendation_system import recommend_schools
 from app.supabase_store import fetch_schools
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
@@ -145,6 +146,28 @@ class ChatbotHandler(BaseHTTPRequestHandler):
                     transcripts=data.transcripts,
                     top_k=req.top_k,
                     chat_history=req.chat_history,
+                    user_id=req.user_id,
+                    mode=req.mode,
+                )
+                self._send_json(200, result.to_dict())
+                return
+            except json.JSONDecodeError:
+                self._send_json(400, {"error": "invalid_json"})
+                return
+
+        if self.path == "/recommendations/query":
+            try:
+                payload = self._read_json_body()
+                req = QueryRequest.from_dict(payload)
+
+                result = recommend_schools(
+                    question=req.question,
+                    profile=req.profile,
+                    schools=data.schools,
+                    transcripts=data.transcripts,
+                    top_k=req.top_k,
+                    chat_history=req.chat_history,
+                    user_id=req.user_id,
                 )
                 self._send_json(200, result.to_dict())
                 return

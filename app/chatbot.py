@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import json
+import random
 import re
+from collections import deque
 from statistics import mean
 from typing import Any
 
 from app.generator import QWEN_GENERATOR
 from app.models import EvidenceItem, QueryResponse, UserProfile
 from app.retriever import resolve_effective_profile, retrieve
+from app.supabase_store import fetch_user_career_profile
 
 
 _BUDGET_MAX = {
@@ -41,6 +44,23 @@ _MOTIVATION_LABEL = {
     "safety": "safe realistic path",
     "passion": "interest fit",
 }
+
+_RECENT_OUTPUTS: deque[str] = deque(maxlen=5)
+_RECENT_OPENERS: deque[str] = deque(maxlen=3)
+_RESPONSE_STYLES = [
+    "advisor_exploratory",
+    "comparison_balanced",
+    "confused_guidance",
+    "direct_recommendation",
+    "clarification_mode",
+]
+
+
+def detect_language(text: str) -> str:
+    q = " ".join(str(text or "").split()).strip().lower()
+    if re.search(r"\b(le|la|les|un|une|des|est|pour|avec|quelle|quelles|ecole|ecoles|universite|bonjour|salut|merci)\b", q):
+        return "fr"
+    return "en"
 
 
 def _to_int(value: Any, default: int = 0) -> int:
@@ -86,6 +106,22 @@ def _profile_to_query(profile: UserProfile) -> str:
         parts.append(f"grade {profile.expected_grade_band.strip()}")
 
     return ". ".join(parts)
+
+
+def _is_placeholder_profile_request(question: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    if not q:
+        return False
+    if q == "profile request":
+        return True
+    if q.startswith("profile request ("):
+        return True
+    return q in {
+        "recommend based on profile",
+        "recommendation based on profile",
+        "profile recommendation",
+        "recommend me based on profile",
+    }
 
 
 def _norm_tokens(text: str) -> set[str]:
@@ -148,11 +184,343 @@ def _humanize_programs(text: str, max_items: int = 4) -> str:
     return ", ".join(labels[:max_items])
 
 
+def _clean_program_list(school: dict[str, Any], max_items: int = 4) -> list[str]:
+    raw = _school_program_labels(school)
+    if not raw:
+        return []
+    parts = [p.strip() for p in raw.split("|") if p.strip()]
+    out: list[str] = []
+    for p in parts:
+        item = " ".join(str(p).replace("_", " ").split())
+        if item and item not in out:
+            out.append(item)
+        if len(out) >= max_items:
+            break
+    return out
+
+
+def _program_tokens_from_school(school: dict[str, Any]) -> set[str]:
+    text = " ".join(
+        [
+            str(school.get("programs_tags", "")),
+            str(school.get("filieres", "")),
+            " ".join(str(p) for p in school.get("programs", []) if str(p).strip()),
+        ]
+    )
+    tokens = set(re.findall(r"[a-z0-9]+", text.lower()))
+    stop = {
+        "de", "la", "le", "et", "des", "du", "the", "and", "of",
+        "program", "programs", "programme", "programmes",
+    }
+    return {tok for tok in tokens if len(tok) >= 4 and tok not in stop}
+
+
+def _schools_share_direction(a: dict[str, Any], b: dict[str, Any]) -> bool:
+    a_tokens = _program_tokens_from_school(a)
+    b_tokens = _program_tokens_from_school(b)
+    if not a_tokens or not b_tokens:
+        return False
+    overlap = a_tokens & b_tokens
+    return len(overlap) >= 2 or (len(overlap) >= 1 and min(len(a_tokens), len(b_tokens)) <= 3)
+
+
+def _message_signals_rejection(text: str) -> bool:
+    q = " ".join(str(text or "").strip().lower().split())
+    if not q:
+        return False
+    patterns = [
+        r"\b(i do not like|i don't like|dont like|do not want|don't want|not interested|another option|something else|change direction)\b",
+        r"\b(je n aime pas|j aime pas|je ne veux pas|pas interesse|pas intéressé|autre chose|une autre option|changer de voie)\b",
+        r"\b(ma bghitch|mabghitch|ma3jbnich|la ma bghitch|bghit haja okhra)\b",
+    ]
+    return any(re.search(p, q, flags=re.IGNORECASE) for p in patterns)
+
+
+def _extract_rejected_school_from_history(
+    *,
+    chat_history: list[dict[str, str]] | None,
+    candidate_schools: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not chat_history or not candidate_schools:
+        return None
+
+    last_user = ""
+    last_assistant = ""
+    for msg in reversed(chat_history):
+        if not isinstance(msg, dict):
+            continue
+        role = str(msg.get("role", "")).strip().lower()
+        content = " ".join(str(msg.get("content", "")).split()).strip()
+        if role == "user" and not last_user and content:
+            last_user = content
+        elif role == "assistant" and not last_assistant and content:
+            last_assistant = content
+        if last_user and last_assistant:
+            break
+
+    if not _message_signals_rejection(last_user):
+        return None
+
+    lowered = last_assistant.lower()
+    for school in candidate_schools:
+        name = str(school.get("name", "")).strip()
+        if name and name.lower() in lowered:
+            return school
+    return None
+
+
+def _clean_admission_text(value: Any) -> str:
+    raw = " ".join(str(value or "").split()).strip().lower()
+    if not raw:
+        return ""
+    if raw in {"medium", "high", "low", "moyen", "moyenne", "faible", "not specified", "unknown"}:
+        return ""
+    return " ".join(str(value or "").split()).strip()
+
+
+def build_school_facts(school: dict[str, Any]) -> dict[str, Any]:
+    name = str(school.get("name", "")).strip() or "this school"
+    city = str(school.get("city", "")).strip()
+    programs = _clean_program_list(school)
+    tuition_min, tuition_max = _school_tuition_range(school)
+    if tuition_min > 0 and tuition_max > 0 and tuition_min != tuition_max:
+        tuition_range = f"{tuition_min}-{tuition_max} MAD"
+    elif tuition_max > 0:
+        tuition_range = f"{tuition_max} MAD"
+    elif tuition_min > 0:
+        tuition_range = f"{tuition_min} MAD"
+    else:
+        tuition_range = "not specified"
+    admission_requirements = (
+        _clean_admission_text(school.get("admission_requirements", ""))
+        or _clean_admission_text(school.get("admission_policy", ""))
+        or _clean_admission_text(school.get("admission_selectivity", ""))
+        or "not specified"
+    )
+    return {
+        "name": name,
+        "city": city,
+        "programs": programs,
+        "tuition_range": tuition_range,
+        "admission_requirements": admission_requirements,
+    }
+
+
+def _infer_dialogue_mode(question: str) -> str:
+    q = " ".join(str(question or "").lower().split())
+    if not q:
+        return "explore"
+    if re.search(r"\b(compare|comparison|versus|vs|diff|difference|ENSIAS\s+and\s+ENSA|ensias|ensa)\b", q, flags=re.IGNORECASE):
+        return "compare"
+    if re.search(r"\b(i don't know|dont know|not sure|confused|lost|help me choose|what should i choose|what should i pick|ma3rftch|mab9itch 3arf)\b", q, flags=re.IGNORECASE):
+        return "confused"
+    if re.search(r"\b(best|top|recommend|recommendation|which school|suggest)\b", q, flags=re.IGNORECASE):
+        return "direct"
+    if re.search(r"\b(explore|options|schools?)\b", q, flags=re.IGNORECASE):
+        return "explore"
+    if len(q.split()) <= 4:
+        return "vague"
+    return "direct"
+
+
+def _intent_from_mode(mode: str) -> str:
+    m = str(mode or "").strip().lower()
+    if m == "compare":
+        return "compare"
+    if m == "confused":
+        return "confused"
+    if m in {"explore", "vague"}:
+        return "explore"
+    return "direct"
+
+
+def _opening_sentence(text: str) -> str:
+    parts = re.split(r"(?<=[.!?])\s+", " ".join(str(text or "").split()).strip(), maxsplit=1)
+    return parts[0].strip().lower() if parts and parts[0].strip() else ""
+
+
+def _recent_openings(last_n: int = 3) -> set[str]:
+    openings: set[str] = set()
+    recent = list(_RECENT_OUTPUTS)[-last_n:]
+    for item in recent:
+        op = _opening_sentence(item)
+        if op:
+            openings.add(op)
+    return openings
+
+
+def _record_output(text: str) -> None:
+    raw = " ".join(str(text or "").split()).strip()
+    if raw:
+        _RECENT_OUTPUTS.append(raw)
+
+
+def _record_opener(opener: str) -> None:
+    clean = " ".join(str(opener or "").split()).strip()
+    if clean:
+        _RECENT_OPENERS.append(clean)
+
+
+def _looks_structured_output(text: str) -> bool:
+    raw = " ".join(str(text or "").split()).strip().lower()
+    if not raw:
+        return True
+    if re.search(r"(^|\n)\s*(?:[-*•]|\d+[.)])\s+", str(text or "")):
+        return True
+    if re.search(r"\b(programs?|tuition|admission|status|score|criteria|rank)\s*[:=]", raw):
+        return True
+    return False
+
+
+def _select_style(*, mode: str, confidence: float, top_gap: float, has_school: bool) -> str:
+    if not has_school:
+        return "clarification_mode"
+    if mode == "compare":
+        return "comparison_balanced"
+    if mode == "confused":
+        return "confused_guidance"
+    if mode in {"vague", "explore"}:
+        return "advisor_exploratory"
+    return "direct_recommendation"
+
+
+def _alternate_style(style: str) -> str:
+    order = {
+        "clarification_mode": "clarification_mode",
+        "advisor_exploratory": "advisor_exploratory",
+        "comparison_balanced": "comparison_balanced",
+        "confused_guidance": "confused_guidance",
+        "direct_recommendation": "direct_recommendation",
+    }
+    return order.get(style, "advisor_exploratory")
+
+
+def _style_openings(style: str) -> list[str]:
+    if style == "comparison_balanced":
+        return [
+            "If you put these side by side, the real difference shows up in how each one fits your priorities",
+            "The choice here really comes down to how you weigh cost, selectivity, and learning environment",
+            "A fair comparison here is about tradeoffs, not labels",
+        ]
+    if style == "confused_guidance":
+        return [
+            "We can narrow this down step by step",
+            "Let us make this easier by focusing on one thing first",
+            "You do not need to decide everything at once",
+        ]
+    if style == "clarification_mode":
+        return [
+            "Before I suggest a school, I need one detail from you",
+            "I can guide you better with one quick clarification",
+            "To avoid giving a random recommendation, I need one preference first",
+        ]
+    if style == "advisor_exploratory":
+        return [
+            "There are a couple of directions you can take here",
+            "You are not locked into one path yet, which is a good thing",
+            "You can keep your options open while we narrow what matters most",
+        ]
+    return [
+        "Based on what you are looking for, one option stands out",
+        "There is a direction here that could make sense for you",
+        "From your profile, one path looks especially aligned",
+    ]
+
+
+def _pick_opening(style: str) -> str:
+    used = {item.lower() for item in _RECENT_OPENERS}
+    options = _style_openings(style)
+    choices = [opener for opener in options if opener.lower() not in used]
+    picked = random.choice(choices or options)
+    _record_opener(picked)
+    return picked
+
+
+def _extract_detected_city(question: str, schools: list[dict[str, Any]]) -> str:
+    q = " ".join(str(question or "").split()).strip().lower()
+    if not q:
+        return ""
+    # Prefer explicit mention of known candidate cities.
+    for school in schools:
+        city = " ".join(str(school.get("city", "")).split()).strip()
+        if city and city.lower() in q:
+            return city
+    m = re.search(r"\b(?:in|at|a|à|au|aux|en)\s+([A-Za-z][A-Za-z\- ]{1,30})\b", q, flags=re.IGNORECASE)
+    if not m:
+        return ""
+    return " ".join(m.group(1).split()[:3]).strip()
+
+
+def _compose_why_from_facts(*, facts: dict[str, Any], profile: UserProfile, question: str = "") -> str:
+    name = str(facts.get("name", "This school")).strip() or "This school"
+    city = str(facts.get("city", "")).strip()
+    programs = facts.get("programs", [])
+    mode = _infer_dialogue_mode(question)
+
+    has_tech = any(re.search(r"informatique|computer|software|data|cyber|ia|ai|engineering|ingenierie", str(p), flags=re.IGNORECASE) for p in programs)
+    has_business = any(re.search(r"gestion|management|marketing|commerce|finance", str(p), flags=re.IGNORECASE) for p in programs)
+
+    intent_hint = ""
+    if mode == "confused":
+        intent_hint = "You do not need to lock everything right away"
+    elif mode == "compare":
+        intent_hint = "What matters most here is tradeoff, not labels"
+    elif mode == "vague":
+        intent_hint = "To make this useful, we can keep it simple"
+    else:
+        intent_hint = "In your case"
+
+    fit_hint = ""
+    if has_tech and has_business:
+        fit_hint = "it keeps your options open between technical and management directions"
+    elif has_tech:
+        fit_hint = "it stays aligned with a practical technical direction"
+    elif has_business:
+        fit_hint = "it leans toward a management-oriented path with concrete outcomes"
+    else:
+        fit_hint = "it can still be a practical base while you refine your direction"
+
+    budget_hint = ""
+    if profile.budget_band in {"zero_public", "tight_25k"}:
+        budget_hint = "and it remains realistic for a tighter budget"
+
+    where_hint = f" around {city}" if city else ""
+    if mode == "compare":
+        if budget_hint:
+            return f"{intent_hint}; with {name}{where_hint}, you get a direction that stays grounded and {fit_hint}, {budget_hint}."
+        return f"{intent_hint}; with {name}{where_hint}, you get a direction that stays grounded and {fit_hint}."
+    if mode == "confused":
+        if budget_hint:
+            return f"{intent_hint}. {name}{where_hint} is usually easier to start with because {fit_hint}, {budget_hint}."
+        return f"{intent_hint}. {name}{where_hint} is usually easier to start with because {fit_hint}."
+    if budget_hint:
+        return f"{intent_hint}, {name}{where_hint} can work well as a first step since {fit_hint}, {budget_hint}."
+    return f"{intent_hint}, {name}{where_hint} can work well as a first step since {fit_hint}."
+
+
+def _compose_alternative_from_facts(*, facts: dict[str, Any], question: str = "") -> str:
+    name = str(facts.get("name", "this school")).strip() or "this school"
+    city = str(facts.get("city", "")).strip()
+    mode = _infer_dialogue_mode(question)
+    if city:
+        if mode == "compare":
+            return f"To keep the comparison honest, I would also keep {name} in {city} on the table."
+        if mode == "confused":
+            return f"If you want a backup that still feels manageable, {name} in {city} is a reasonable second option."
+        return f"Another direction you could explore is {name} in {city}."
+    if mode == "compare":
+        return f"To keep the comparison honest, I would also keep {name} on the table."
+    if mode == "confused":
+        return f"If you want a backup that still feels manageable, {name} is a reasonable second option."
+    return f"Another direction you could explore is {name}."
+
+
 def _select_alternative_hit(
     *,
     hits: list[dict],
     question: str,
     profile: UserProfile,
+    rejected_school: dict[str, Any] | None = None,
 ) -> dict | None:
     if len(hits) <= 1:
         return None
@@ -203,6 +571,8 @@ def _select_alternative_hit(
         school = hit.get("school", {})
         school_id = str(school.get("school_id", ""))
         if school_id and school_id == top_school_id:
+            continue
+        if rejected_school and _schools_share_direction(school, rejected_school):
             continue
 
         chunk = hit.get("chunk", {})
@@ -293,6 +663,18 @@ def _is_greeting_or_low_intent(question: str) -> bool:
     if len(tokens) <= 3 and all(t in greeting_tokens or t in filler_tokens for t in tokens):
         return True
     return False
+
+
+def _is_identity_question(question: str) -> bool:
+    q = " ".join((question or "").strip().lower().split())
+    if not q:
+        return False
+    return bool(
+        re.search(
+            r"\b(who\s+are\s+you|your\s+name|what\s*'?s\s+your\s+name|whats\s+your\s+name|who\s+r\s+u|ur\s+name)\b",
+            q,
+        )
+    )
 
 
 def _looks_french(question: str) -> bool:
@@ -481,15 +863,31 @@ def _sanitize_user_facing_text(text: str) -> str:
     return raw
 
 
-def _grounding_ratio(text: str, evidence_tokens: set[str]) -> float:
-    tokens = _content_tokens(text)
-    if not tokens:
-        return 1.0
-    return len(tokens & evidence_tokens) / float(len(tokens))
+def _chat_continuity_fallback(message: str, chat_history: list[dict[str, str]] | None = None) -> str:
+    user_msg = " ".join(str(message or "").strip().lower().split())
+    last_assistant = ""
+    if chat_history:
+        for msg in reversed(chat_history):
+            if not isinstance(msg, dict):
+                continue
+            role = str(msg.get("role", "")).strip().lower()
+            content = " ".join(str(msg.get("content", "")).split()).strip()
+            if role == "assistant" and content:
+                last_assistant = content
+                break
 
-
-def _excerpt(text: str, words: int) -> str:
-    return " ".join(str(text or "").split()[:words])
+    is_brief_ack = bool(
+        re.fullmatch(
+            r"(yes|yeah|yep|ok|okay|sure|go on|continue|right|exactly|true|"
+            r"oui|daccord|d'accord|safi|wakha|no|nope|non|la)",
+            user_msg,
+        )
+    )
+    if last_assistant and is_brief_ack:
+        return "Great, let us continue. Share a little more detail about your situation and I will help step by step."
+    if last_assistant:
+        return "I understand. Tell me a bit more and I will help you continue from there."
+    return "Hi! I am here with you. Tell me what you want to talk about."
 
 
 def _enforce_grounded_response(
@@ -498,31 +896,77 @@ def _enforce_grounded_response(
     why_it_fits: str,
     alternative: str,
     next_action: str,
-    generation_evidence: list[EvidenceItem],
+    top_school: dict[str, Any],
+    alt_school: dict[str, Any] | None,
     profile: UserProfile,
+    question: str = "",
+    style: str = "advisor_exploratory",
+    suggest_school: bool = True,
 ) -> tuple[str, str, str, str]:
-    if not generation_evidence:
+    top_facts = build_school_facts(top_school)
+    alt_facts = build_school_facts(alt_school or top_school)
+    top_name = str(top_facts.get("name", "this school")).strip() or "this school"
+    alt_name = str(alt_facts.get("name", "")).strip()
+    opening = _pick_opening(style)
+    intent = _intent_from_mode(_infer_dialogue_mode(question))
+
+    if not suggest_school:
+        short_answer = f"{opening}."
+        mode = _infer_dialogue_mode(question)
+        if mode == "compare":
+            why_it_fits = "I can compare options for you, but I need to know which tradeoff matters most first."
+        elif mode == "confused":
+            why_it_fits = "I do not want to force a recommendation before we define what matters most to you."
+        else:
+            why_it_fits = "I can guide you better once one priority is clear."
+        alternative = ""
+        if not (next_action or "").strip():
+            if mode == "compare":
+                next_action = "Should we compare mainly by selectivity, practical outcomes, or affordability?"
+            elif mode == "confused":
+                next_action = "Would you like to start from city preference or budget comfort?"
+            else:
+                next_action = "Do you want to prioritize city, budget comfort, or selectivity first?"
         return short_answer, why_it_fits, alternative, next_action
 
-    top_ev = generation_evidence[0]
-    alt_ev = generation_evidence[1] if len(generation_evidence) > 1 else top_ev
-    city_hint = f" in {profile.city}" if profile.city else ""
+    if not (short_answer or "").strip():
+        mode = _infer_dialogue_mode(question)
+        if mode == "compare":
+            if alt_name and alt_name.lower() != top_name.lower():
+                short_answer = f"{opening}. We should compare {top_name} and {alt_name} directly."
+            else:
+                short_answer = f"{opening}. We should compare the closest options side by side."
+        elif mode == "confused":
+            if alt_name and alt_name.lower() != top_name.lower():
+                short_answer = f"{opening}. We can begin with {top_name} and keep {alt_name} as a backup while we narrow your priorities."
+            else:
+                short_answer = f"{opening}. We can begin with one practical option and keep a backup while we narrow your priorities."
+        elif mode == "vague":
+            if alt_name and alt_name.lower() != top_name.lower():
+                short_answer = f"{opening}. {top_name} and {alt_name} are both reasonable directions while we refine what matters most to you."
+            else:
+                short_answer = f"{opening}. There are multiple reasonable directions while we refine what matters most to you."
+        else:
+            short_answer = f"{opening}. Based on your current profile, {top_name} is a strong first option."
 
-    evidence_tokens: set[str] = set()
-    for ev in generation_evidence:
-        evidence_tokens |= _content_tokens(f"{ev.school_name} {ev.program} {ev.text}")
+    if not (why_it_fits or "").strip():
+        why_it_fits = _compose_why_from_facts(facts=top_facts, profile=profile, question=question)
 
-    if _grounding_ratio(short_answer, evidence_tokens) < 0.18:
-        short_answer = f"Based on the retrieved evidence, {top_ev.school_name} looks like the strongest match{city_hint}."
-
-    if _grounding_ratio(why_it_fits, evidence_tokens) < 0.18:
-        why_it_fits = f"Evidence for {top_ev.school_name}{city_hint}: {_excerpt(top_ev.text, 24)}."
-
-    if _grounding_ratio(alternative, evidence_tokens) < 0.15:
-        alternative = f"A grounded alternative is {alt_ev.school_name}, with supporting details: {_excerpt(alt_ev.text, 20)}."
+    if intent in {"compare", "explore"} and alt_name and alt_name.lower() != top_name.lower():
+        alternative = _compose_alternative_from_facts(facts=alt_facts, question=question)
+    elif not (alternative or "").strip() and alt_name and alt_name.lower() != top_name.lower():
+        alternative = _compose_alternative_from_facts(facts=alt_facts, question=question)
 
     if not (next_action or "").strip():
-        next_action = "Share your target program, budget range, and preferred city so I can narrow this further."
+        mode = _infer_dialogue_mode(question)
+        if mode == "confused":
+            next_action = "Would it help if we narrow this down with one simple priority first, like city or budget?"
+        elif mode == "compare":
+            next_action = "Do you want to prioritize selectivity, practical outcomes, or affordability in that comparison?"
+        elif mode == "vague":
+            next_action = "Are you leaning more toward a technical path or something broader for now?"
+        else:
+            next_action = "Is that close to what you had in mind, or should we pivot toward another direction?"
 
     return short_answer, why_it_fits, alternative, next_action
 
@@ -810,13 +1254,24 @@ def answer_question(
     transcripts: list[dict],
     top_k: int,
     chat_history: list[dict[str, str]] | None = None,
+    user_id: str = "",
+    mode: str = "auto",
 ) -> QueryResponse:
     city_only_mode = False
     is_fr = True
     user_question = " ".join(str(question or "").split())
+    response_language = detect_language(user_question)
+
+    normalized_mode = str(mode or "auto").strip().lower()
+    if normalized_mode not in {"auto", "chat", "recommendation"}:
+        normalized_mode = "auto"
 
     intent = "orientation"
-    if user_question:
+    if normalized_mode == "chat":
+        intent = "chat"
+    elif normalized_mode == "recommendation":
+        intent = "orientation"
+    elif user_question:
         try:
             intent = QWEN_GENERATOR.classify_intent(user_question)
         except Exception:
@@ -827,13 +1282,11 @@ def answer_question(
             chat_text = QWEN_GENERATOR.generate_chat_response(
                 message=user_question,
                 chat_history=chat_history,
+                response_language=response_language,
             )
         except Exception:
-            chat_text = "Hi! I am here with you. Tell me what you want to talk about."
-
-        chat_text = _sanitize_user_facing_text(chat_text)
-        if len(chat_text.split()) < 3:
-            chat_text = "Hi! I am here with you. Tell me what you want to talk about."
+            chat_text = ""
+        _record_output(chat_text)
         return QueryResponse(
             short_answer=chat_text,
             why_it_fits="",
@@ -847,25 +1300,22 @@ def answer_question(
 
     if not _profile_has_signal(profile):
         return QueryResponse(
-            short_answer="Donne moi ton profil pour que je recommande les meilleures ecoles.",
+            short_answer="On peut faire mieux qu une recommandation au hasard, mais j ai besoin d un peu de contexte sur toi.",
             why_it_fits=(
-                "Je base les recommandations uniquement sur ton profil: filiere bac, budget, motivation, ville et niveau attendu."
+                "Si tu me donnes juste ton objectif principal, je peux deja te guider de facon utile sans te noyer dans les options."
             ),
             evidence=[],
-            alternative=(
-                "Exemple de profil utile: bac=spc, budget=tight_25k, motivation=employability, city=Rabat."
-            ),
-            next_action=(
-                "Envoie ton profil et je te renvoie directement un classement des ecoles les plus compatibles."
-            ),
+            alternative="Par exemple, tu peux commencer par me dire la ville que tu preferes et le type de parcours que tu imagines.",
+            next_action="Tu veux qu on commence par clarifier ton objectif ou ton budget en premier ?",
             confidence=0.0,
         )
 
     query_for_context = _profile_to_query(profile)
-    base_question = user_question or query_for_context
+    is_profile_placeholder = _is_placeholder_profile_request(user_question)
+    base_question = query_for_context if is_profile_placeholder else (user_question or query_for_context)
 
     query_understanding: dict[str, Any] = {}
-    if user_question:
+    if user_question and not is_profile_placeholder:
         try:
             query_understanding = QWEN_GENERATOR.understand_query(
                 question=user_question,
@@ -888,12 +1338,20 @@ def answer_question(
         schools=schools,
     )
 
+    career_profile: dict[str, Any] | None = None
+    if user_id:
+        try:
+            career_profile = fetch_user_career_profile(user_id)
+        except Exception:
+            career_profile = None
+
     hits = retrieve(
         question=retrieval_question,
         profile=effective_profile,
         schools=schools,
         transcripts=transcripts,
         top_k=top_k,
+        career_profile=career_profile,
     )
 
     if not hits:
@@ -942,16 +1400,17 @@ def answer_question(
                 distance_km = round(float(distance_km_raw), 1)
             except (TypeError, ValueError):
                 distance_km = None
-        match_score = round(
-            100.0
-            * (
+        profile_priority = float(components.get("profile_priority", 0.0))
+        career_domain_match = float(components.get("career_domain_match", 0.0))
+        blended = 0.8 * profile_priority + 0.2 * career_domain_match
+        if blended <= 0.0:
+            blended = (
                 0.5 * float(components.get("bac_semantic", 0.0))
                 + 0.2 * float(components.get("location_match", 0.0))
                 + 0.15 * float(components.get("budget_match", 0.0))
                 + 0.15 * float(components.get("motivation_match", 0.0))
-            ),
-            1,
-        )
+            )
+        match_score = round(100.0 * blended, 1)
         match_grade = _match_grade(match_score)
         top_schools.append(
             {
@@ -980,6 +1439,12 @@ def answer_question(
                     "motivation_match": round(float(components.get("motivation_match", 0.0)), 4),
                     "bac_semantic": round(float(components.get("bac_semantic", 0.0)), 4),
                     "weighted": round(float(components.get("weighted", 0.0)), 4),
+                    "profile_priority": round(float(components.get("profile_priority", 0.0)), 4),
+                    "career_domain_match": round(float(components.get("career_domain_match", 0.0)), 4),
+                    "career_overlap": round(float(components.get("career_overlap", 0.0)), 4),
+                    "domain_alignment": round(float(components.get("domain_alignment", 0.0)), 4),
+                    "profile_constraints_match": round(float(components.get("profile_constraints_match", 0.0)), 4),
+                    "public_constraints_match": round(float(components.get("public_constraints_match", 0.0)), 4),
                 },
             }
         )
@@ -1002,14 +1467,14 @@ def answer_question(
 
     top_schools.sort(
         key=lambda item: (
-            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
             -float(item.get("match_score", 0.0)),
+            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
         )
     )
     ranked_schools.sort(
         key=lambda item: (
-            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
             -float(item.get("match_score", 0.0)),
+            float(item.get("distance_km")) if item.get("distance_km") is not None else float("inf"),
         )
     )
     if ranked_schools:
@@ -1029,70 +1494,87 @@ def answer_question(
         )
 
     generation_evidence = _select_generation_evidence(evidence, max_items=3)
-    top_ev = generation_evidence[0]
-    top_school = top_schools[0] if top_schools else hits[0].get("school", {})
-    top_status = _school_status_text(top_school)
-    top_min, top_max = _school_tuition_range(top_school)
-    tuition_text = f" with tuition around {top_min}-{top_max} MAD" if top_max > 0 else ""
-    short_answer = f"I’d start with {top_ev.school_name} for what you asked"
-    if top_status:
-        short_answer += f", especially since it is {top_status.lower()}"
-    short_answer += f"{tuition_text}."
 
-    ev_text = " ".join(str(top_ev.text).split())
-    ev_excerpt = " ".join(ev_text.split()[:24])
-    city_hint = f" in {effective_profile.city}" if effective_profile.city else ""
-    top_programs = _school_program_labels(top_school)
-    top_programs_human = _humanize_programs(top_programs)
-    program_hint = f" Key program areas include {top_programs_human}." if top_programs_human else ""
-    evidence_hint = f" Retrieved evidence highlights: {ev_excerpt}." if ev_excerpt else ""
-    why_it_fits = f"It fits your request{city_hint} in a practical way.{program_hint}{evidence_hint}".strip()
-
-    alt_hit = _select_alternative_hit(
-        hits=hits,
-        question=user_question,
-        profile=effective_profile,
+    rejected_school = _extract_rejected_school_from_history(
+        chat_history=chat_history,
+        candidate_schools=top_schools,
     )
-    if alt_hit is not None:
-        alt_school_obj = alt_hit.get("school", {})
-        alt_school = str(alt_school_obj.get("name", top_ev.school_name))
-        alt_min, alt_max = _school_tuition_range(alt_school_obj)
-        alt_programs = _humanize_programs(_school_program_labels(alt_school_obj))
-        alt_bits: list[str] = []
-        if alt_programs:
-            alt_bits.append(f"program focus: {alt_programs}")
-        if alt_max > 0:
-            alt_bits.append(f"tuition around {alt_min}-{alt_max} MAD")
-        alt_excerpt = ", ".join(alt_bits) if alt_bits else "a profile close to your criteria"
-    elif len(generation_evidence) > 1:
-        alt_school = generation_evidence[1].school_name
-        alt_text = " ".join(str(generation_evidence[1].text).split())
-        alt_excerpt = " ".join(alt_text.split()[:16]) if alt_text else "a profile close to your criteria"
+    if rejected_school:
+        rejected_id = str(rejected_school.get("school_id", "")).strip()
+        filtered_top = [
+            s for s in top_schools
+            if str(s.get("school_id", "")).strip() != rejected_id and not _schools_share_direction(s, rejected_school)
+        ]
+        if filtered_top:
+            allowed_ids = {str(s.get("school_id", "")).strip() for s in filtered_top}
+            top_schools = filtered_top
+            ranked_schools = [s for s in ranked_schools if str(s.get("school_id", "")).strip() in allowed_ids]
+            hits = [h for h in hits if str(h.get("school", {}).get("school_id", "")).strip() in allowed_ids]
+            evidence = [e for e in evidence if str(e.school_id).strip() in allowed_ids]
+            generation_evidence = _select_generation_evidence(evidence, max_items=3)
+
+    detected_city = _extract_detected_city(user_question, top_schools)
+    if detected_city:
+        filtered_top = [s for s in top_schools if _match_city(str(s.get("city", "")), detected_city)]
+        if filtered_top:
+            allowed_ids = {str(s.get("school_id", "")).strip() for s in filtered_top}
+            top_schools = filtered_top
+            ranked_schools = [s for s in ranked_schools if str(s.get("school_id", "")).strip() in allowed_ids]
+            hits = [h for h in hits if str(h.get("school", {}).get("school_id", "")).strip() in allowed_ids]
+            evidence = [e for e in evidence if str(e.school_id).strip() in allowed_ids]
+            generation_evidence = _select_generation_evidence(evidence, max_items=3)
+
+    top_school = top_schools[0] if top_schools else hits[0].get("school", {})
+    top_facts = build_school_facts(top_school)
+    mode = _infer_dialogue_mode(user_question)
+    intent_mode = _intent_from_mode(mode)
+    top_score = float(top_schools[0].get("match_score", 0.0)) if top_schools else 0.0
+    second_score = float(top_schools[1].get("match_score", 0.0)) if len(top_schools) > 1 else 0.0
+    top_gap = max(0.0, top_score - second_score)
+    confidence_ratio = max(0.0, min(1.0, top_score / 100.0))
+    style = _select_style(mode=mode, confidence=confidence_ratio, top_gap=top_gap, has_school=bool(top_schools))
+    suggest_school = style != "clarification_mode"
+
+    if top_schools:
+        if intent_mode in {"compare", "explore", "confused"}:
+            selected_schools = top_schools[:2]
+        else:
+            selected_schools = top_schools[:1]
     else:
-        alt_school = top_ev.school_name
-        alt_excerpt = "a profile close to your criteria"
+        selected_schools = []
 
-    alternative = f"Another option worth checking is {alt_school}, especially for {alt_excerpt}."
-    top_website = str(top_school.get("website_url", "")).strip()
-    next_action = "If you share your target program, budget range, and preferred study duration, I can make it more precise."
-    if top_website:
-        next_action = f"You can verify official details on {top_website}. Then tell me your target program and budget so I can narrow the shortlist."
+    if selected_schools:
+        top_school = selected_schools[0]
 
-    try:
-        generated = QWEN_GENERATOR.generate(
-            question=user_question or query_for_context,
+    short_answer = ""
+    why_it_fits = ""
+
+    alt_school_obj: dict[str, Any] | None = None
+    if len(selected_schools) > 1:
+        alt_school_obj = selected_schools[1]
+    else:
+        alt_hit = _select_alternative_hit(
+            hits=hits,
+            question=user_question,
             profile=effective_profile,
-            top_schools=top_schools,
-            generation_evidence=generation_evidence,
+            rejected_school=rejected_school,
         )
-    except Exception:
-        generated = {}
+        if alt_hit is not None:
+            alt_school_obj = alt_hit.get("school", {})
+        elif len(generation_evidence) > 1:
+            alt_school_name = str(generation_evidence[1].school_name).strip().lower()
+            for item in top_schools[1:]:
+                if str(item.get("name", "")).strip().lower() == alt_school_name:
+                    alt_school_obj = item
+                    break
+        else:
+            alt_school_obj = top_school
 
-    if generated:
-        short_answer = str(generated.get("short_answer", short_answer)).strip() or short_answer
-        why_it_fits = str(generated.get("why_it_fits", why_it_fits)).strip() or why_it_fits
-        alternative = str(generated.get("alternative", alternative)).strip() or alternative
-        next_action = str(generated.get("next_action", next_action)).strip() or next_action
+    alternative = ""
+    top_website = str(top_school.get("website_url", "")).strip()
+    next_action = ""
+    if suggest_school and top_website:
+        next_action = f"You can also verify details on {top_website}, then we can choose based on your priority."
 
     if _is_city_only_school_request(user_question, effective_profile):
         city_only_mode = True
@@ -1123,35 +1605,33 @@ def answer_question(
         city = effective_profile.city or "that city"
         if options:
             if is_fr:
-                joined = ", ".join(options[:-1]) + (f", et {options[-1]}" if len(options) > 1 else options[0])
-                short_answer = f"Bon choix. A {city}, je te propose de commencer par {joined}."
+                joined = ", ".join(options[:2]) if len(options) > 1 else options[0]
+                short_answer = f"Si ton critere principal est {city}, je commencerais par {joined} puis on affine selon ton objectif."
             else:
-                joined = ", ".join(options[:-1]) + (f", and {options[-1]}" if len(options) > 1 else options[0])
-                short_answer = f"Good choice. In {city}, I’d start with options like {joined}."
+                joined = ", ".join(options[:2]) if len(options) > 1 else options[0]
+                short_answer = f"If city is your main filter for {city}, I would begin with {joined} and then narrow based on your direction."
         else:
             if is_fr:
-                short_answer = f"Bon choix. Il existe quelques options solides a {city}."
+                short_answer = f"A {city}, il y a des options interessantes; l important est de choisir celle qui colle a ton objectif reel."
             else:
-                short_answer = f"Good choice. There are a few solid school options in {city}."
+                short_answer = f"In {city}, there are viable options; the key is matching one to your real goal."
 
         if is_fr:
             why_it_fits = (
-                f"Comme ta demande est centree sur la ville, voici une shortlist simple pour {city}. "
-                "Le meilleur choix dependra de la filiere, du budget, et du niveau attendu."
+                f"Comme ta demande est centree sur {city}, on peut avancer simplement et choisir selon ton projet avant de comparer plus large."
             )
             alternative = (
-                "Une alternative pratique est de commencer par des parcours publics ou professionnalisants si le cout est prioritaire, puis comparer une option plus selective."
+                "Si tu veux, on peut aussi regarder une option plus ambitieuse en parallele pour garder un plan B motive."
             )
-            next_action = "Donne moi la filiere visee, le budget, et la note attendue pour une recommandation precise."
+            next_action = "Tu preferes qu on tranche d abord par type de parcours ou par niveau de selectivite ?"
         else:
             why_it_fits = (
-                f"Because your request is city-only, this is a simple shortlist for {city}. "
-                "The best fit will depend on your field, budget, and expected grade."
+                f"Since you are city-first around {city}, we can keep this simple and decide based on direction before widening the scope."
             )
             alternative = (
-                "A practical alternative is to begin with public or vocational tracks if affordability matters most, then compare one selective option too."
+                "If you want balance, we can keep one ambitious option in view while staying realistic on your main path."
             )
-            next_action = "Tell me your intended field, your budget band, and your expected grade so I can give one precise recommendation."
+            next_action = "Do you want to narrow first by learning style, budget comfort, or selectivity level?"
 
     if _has_conflicting_constraints(user_question, effective_profile):
         if is_fr:
@@ -1171,9 +1651,26 @@ def answer_question(
             why_it_fits=why_it_fits,
             alternative=alternative,
             next_action=next_action,
-            generation_evidence=generation_evidence,
+            top_school=top_school,
+            alt_school=alt_school_obj,
             profile=effective_profile,
+            question=user_question,
+            style=style,
+            suggest_school=suggest_school,
         )
+
+    if intent_mode == "explore" and len(selected_schools) > 1:
+        a_name = str(selected_schools[0].get("name", "")).strip()
+        b_name = str(selected_schools[1].get("name", "")).strip()
+        short_answer = f"{_pick_opening(style)}. {a_name} and {b_name} both look viable depending on whether you want a more selective path or a more accessible one."
+        why_it_fits = "At this stage, it is better to compare fit factors than to push a single best choice."
+        alternative = ""
+        if not (next_action or "").strip():
+            next_action = "Do you want to narrow this by budget, selectivity, or program style first?"
+
+    assert "score=" not in why_it_fits
+    assert "chunk=" not in why_it_fits
+    assert "sb_" not in why_it_fits
 
     confidence = max(0.2, min(0.95, mean(item.score for item in evidence)))
     payload = {
@@ -1182,29 +1679,61 @@ def answer_question(
         "alternative": alternative,
         "next_action": next_action,
     }
+    rewrite_facts = {
+        "top_school": top_facts,
+        "allowed_school_names": [str(item.get("name", "")).strip() for item in top_schools if str(item.get("name", "")).strip()],
+        "allowed_cities": [str(item.get("city", "")).strip() for item in top_schools if str(item.get("city", "")).strip()],
+    }
+    message_paragraph = ""
     try:
         message_paragraph = QWEN_GENERATOR.rewrite_to_natural_response(
             payload=payload,
             question=user_question or query_for_context,
+            facts=rewrite_facts,
+            response_language=response_language,
+            reframe_instruction=f"style_seed={style}; avoid opening='{', '.join(_recent_openings(last_n=3))}'",
         )
     except Exception:
         message_paragraph = ""
 
-    if not str(message_paragraph or "").strip():
-        message_paragraph = _build_message_paragraph(
-            short_answer=short_answer,
-            why_it_fits=why_it_fits,
-            alternative=alternative,
-            next_action=next_action,
-        )
     message_paragraph = _sanitize_user_facing_text(message_paragraph)
-    if not message_paragraph:
-        message_paragraph = _build_message_paragraph(
-            short_answer=short_answer,
-            why_it_fits=why_it_fits,
-            alternative=alternative,
-            next_action=next_action,
+    if _looks_structured_output(message_paragraph) or _opening_sentence(message_paragraph) in _recent_openings(last_n=3):
+        alt_style = _alternate_style(style)
+        short_answer, why_it_fits, alternative, next_action = _enforce_grounded_response(
+            short_answer="",
+            why_it_fits="",
+            alternative="",
+            next_action="",
+            top_school=top_school,
+            alt_school=alt_school_obj,
+            profile=effective_profile,
+            question=user_question,
+            style=alt_style,
+            suggest_school=suggest_school,
         )
+        payload = {
+            "short_answer": short_answer,
+            "why_it_fits": why_it_fits,
+            "alternative": alternative,
+            "next_action": next_action,
+        }
+        try:
+            message_paragraph = QWEN_GENERATOR.rewrite_to_natural_response(
+                payload=payload,
+                question=user_question or query_for_context,
+                facts=rewrite_facts,
+                response_language=response_language,
+                reframe_instruction=f"style_seed={alt_style}; avoid opening='{', '.join(_recent_openings(last_n=3))}'",
+            )
+        except Exception:
+            message_paragraph = ""
+        message_paragraph = _sanitize_user_facing_text(message_paragraph)
+
+    if not message_paragraph or _looks_structured_output(message_paragraph):
+        message_paragraph = _sanitize_user_facing_text(f"{short_answer} {next_action}")
+    if _opening_sentence(message_paragraph) in _recent_openings(last_n=3):
+        message_paragraph = _sanitize_user_facing_text(f"{_pick_opening(style)}. {next_action}")
+    _record_output(message_paragraph)
 
     return QueryResponse(
         short_answer=short_answer,

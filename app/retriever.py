@@ -625,6 +625,8 @@ class _CrossEncoderReranker:
 
 CROSS_ENCODER_RERANKER = _CrossEncoderReranker()
 MIN_SCORE_THRESHOLD = max(0.0, min(1.0, _env_float("MIN_SCORE_THRESHOLD", 0.60)))
+PROFILE_CITY_FALLBACK_MAX_KM = max(50.0, _env_float("PROFILE_CITY_FALLBACK_MAX_KM", 650.0))
+STRICT_BAC_MIN_SCORE = max(0.0, min(1.0, _env_float("STRICT_BAC_MIN_SCORE", 0.01)))
 
 
 def budget_allows(profile_budget: str, tuition_max_mad: int) -> bool:
@@ -664,45 +666,76 @@ def _normalize_bac_series(text: str) -> str:
         return ""
 
     mapping = {
+        "bac sciences mathematiques a": "sm_a",
+        "bac sciences mathematiques b": "sm_b",
         "science mathematiques": "sm",
         "sciences mathematiques": "sm",
         "science math": "sm",
         "sciences math": "sm",
         "sm": "sm",
+        "sma": "sm_a",
+        "smb": "sm_b",
+        "bac sciences physiques": "spc",
         "pc": "spc",
         "spc": "spc",
         "sciences physiques": "spc",
         "physique": "spc",
+        "svt bac": "svt",
         "svt": "svt",
         "sciences de la vie": "svt",
         "sciences de la vie et de la terre": "svt",
         "science de la vie": "svt",
         "sciences de la vie et terre": "svt",
+        "bac sciences agronomiques": "agro",
+        "sciences agronomiques": "agro",
+        "bac sciences et technologies electriques": "ste",
+        "sciences et technologies electriques": "ste",
+        "bac sciences et technologies mecaniques": "stm",
+        "sciences et technologies mecaniques": "stm",
+        "arts appliques": "arts_appliques",
+        "bac sciences economiques": "eco",
         "eco": "eco",
         "economique": "eco",
         "economie": "eco",
         "sciences economiques": "eco",
+        "bac techniques de gestion et comptabilite": "tgc",
+        "techniques de gestion et comptabilite": "tgc",
         "sciences de gestion": "eco",
+        "bac lettres": "lettres",
         "lettres": "lettres",
         "litterature": "lettres",
-        "sciences humaines": "lettres",
-        "sciences humaines et sociales": "lettres",
-        "sciences sociales": "lettres",
-        "humanities": "lettres",
-        "arts": "arts",
-        "art": "arts",
-        "design": "arts",
+        "sciences humaines": "sc_humaines",
+        "sciences humaines et sociales": "sc_humaines",
+        "sciences sociales": "sc_humaines",
+        "humanities": "sc_humaines",
+        "langue arabe": "langue_arabe",
+        "sciences de la chariaa": "chariaa",
+        "sciences de la shariaa": "chariaa",
+        "chariaa": "chariaa",
+        "charia": "chariaa",
+        "arts": "arts_appliques",
+        "art": "arts_appliques",
+        "design": "arts_appliques",
     }
     return mapping.get(value, value)
 
 
 _BAC_SERIES_ALLOWED_DOMAINS: dict[str, set[str]] = {
+    "sm_a": {"engineering", "computer", "science", "health", "business"},
+    "sm_b": {"engineering", "computer", "science", "health", "business"},
     "sm": {"engineering", "computer", "science", "health", "business"},
     "spc": {"engineering", "computer", "science", "business"},
     "svt": {"health", "science"},
+    "agro": {"science", "health"},
+    "ste": {"engineering", "computer", "science"},
+    "stm": {"engineering", "computer", "science"},
     "eco": {"business", "law", "public_admin"},
-    "lettres": {"law", "arts", "humanities", "business"},
-    "arts": {"arts", "humanities"},
+    "tgc": {"business", "law", "public_admin"},
+    "lettres": {"law", "humanities", "public_admin"},
+    "sc_humaines": {"law", "humanities", "public_admin"},
+    "langue_arabe": {"law", "humanities", "public_admin"},
+    "chariaa": {"law", "humanities", "public_admin"},
+    "arts_appliques": {"arts", "humanities"},
 }
 
 _SCHOOL_DOMAIN_KEYWORDS: dict[str, set[str]] = {
@@ -822,6 +855,16 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
         return 0.0
 
     keyword_groups: dict[str, list[set[str]]] = {
+        "sm_a": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
+            {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
+            {"science", "sciences", "math", "mathematiques"},
+        ],
+        "sm_b": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
+            {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
+            {"science", "sciences", "math", "mathematiques"},
+        ],
         "eco": [
             {"business", "commerce", "management", "gestion", "finance", "accounting", "audit"},
             {"law", "droit", "juridique", "legal"},
@@ -842,11 +885,44 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
             {"biology", "biologie", "bio", "life", "vie", "terre"},
             {"science", "sciences", "environment", "ecologie"},
         ],
-        "lettres": [
-            {"arts", "art", "design", "creative", "cinema"},
-            {"humanities", "lettres", "litterature", "communication", "education"},
+        "agro": [
+            {"agriculture", "agronomie", "agronomique", "agro", "elevage"},
+            {"biology", "biologie", "bio", "environment", "ecologie", "terre"},
+            {"science", "sciences", "life", "vie", "nature"},
         ],
-        "arts": [
+        "ste": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie", "electrique", "electronique"},
+            {"computer", "informatique", "software", "automation", "automatisme", "reseaux"},
+            {"science", "sciences", "physique", "electricite"},
+        ],
+        "stm": [
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie", "mecanique", "industriel"},
+            {"computer", "informatique", "automation", "automatisme", "maintenance"},
+            {"science", "sciences", "physique", "production"},
+        ],
+        "tgc": [
+            {"business", "commerce", "management", "gestion", "finance", "accounting", "audit"},
+            {"comptabilite", "comptable", "gestion", "entreprise", "marketing"},
+            {"law", "droit", "juridique", "administration", "public"},
+        ],
+        "lettres": [
+            {"humanities", "lettres", "litterature", "communication", "education", "langue"},
+            {"law", "droit", "juridique", "legal", "administration", "public", "gouvernance"},
+        ],
+        "sc_humaines": [
+            {"humanities", "lettres", "litterature", "communication", "education", "sociologie", "histoire"},
+            {"law", "droit", "juridique", "legal", "administration", "public", "gouvernance"},
+        ],
+        "langue_arabe": [
+            {"humanities", "lettres", "litterature", "communication", "education", "arabe", "langue"},
+            {"law", "droit", "juridique", "legal", "administration", "public"},
+        ],
+        "chariaa": [
+            {"law", "droit", "juridique", "legal", "charia", "chariaa", "fiqh"},
+            {"humanities", "lettres", "litterature", "education", "religieux"},
+            {"administration", "public", "gouvernance"},
+        ],
+        "arts_appliques": [
             {"arts", "art", "design", "creative", "cinema", "portfolio"},
             {"architecture", "urbanisme", "beaux", "graphique"},
         ],
@@ -866,6 +942,17 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
         return 0.0
 
     return min(1.0, max(hits) * 0.65 + sum(hits) / len(hits) * 0.35)
+
+
+def _passes_strict_bac_constraint(profile_bac_stream: str, school: dict[str, Any], chunks: list[dict[str, Any]]) -> bool:
+    bac = _normalize_bac_series(profile_bac_stream)
+    if not bac:
+        return True
+    if _has_semantic_domain_incompatibility(bac, school, chunks):
+        return False
+    if not _school_bac_compatible(bac, school, chunks):
+        return False
+    return _bac_semantic_score(bac, school, chunks) >= STRICT_BAC_MIN_SCORE
 
 
 def _tokenize(text: str) -> set[str]:
@@ -1513,6 +1600,13 @@ def _sanitize_query_text(question: str) -> str:
     return text or (question or "").strip()
 
 
+def _is_profile_driven_query(question: str) -> bool:
+    q = " ".join(str(question or "").strip().lower().split())
+    if not q:
+        return False
+    return q.startswith("best matching schools") or q == "profile request" or q.startswith("profile request (")
+
+
 def _build_query_variants(question: str, profile: UserProfile) -> list[str]:
     base = (question or "").strip()
     if not base:
@@ -1788,7 +1882,78 @@ def _score_candidate(
     semantic: float,
     city_intent: str | None = None,
     fallback_cities: set[str] | None = None,
+    career_profile: dict[str, Any] | None = None,
 ) -> dict[str, float]:
+    domain_keywords: dict[str, set[str]] = {
+        "computer": {"computer", "software", "informatique", "data", "cyber", "ai", "devops", "reseaux"},
+        "engineering": {"engineering", "ingenierie", "ingenieur", "genie", "civil", "mecanique", "electrique"},
+        "business": {"business", "management", "finance", "marketing", "commerce", "comptabilite", "econom"},
+        "law": {"law", "droit", "juridique"},
+        "medicine": {"medicine", "medical", "medecine", "pharmacie", "sante", "health"},
+        "arts": {"arts", "design", "communication", "media", "litterature"},
+    }
+
+    def infer_school_domains() -> set[str]:
+        text_parts = [
+            str(school.get("name", "")),
+            str(school.get("city", "")),
+            " ".join(str(x) for x in school.get("programs", []) if x),
+            " ".join(str(x) for x in school.get("programs_tags", []) if x),
+            " ".join(str(x) for x in school.get("filieres", []) if x),
+            " ".join(str(c.get("program", "")) for c in chunks[:8]),
+            " ".join(str(c.get("text", "")) for c in chunks[:4]),
+        ]
+        text = " ".join(text_parts).lower()
+        domains: set[str] = set()
+        for domain, keywords in domain_keywords.items():
+            if any(keyword in text for keyword in keywords):
+                domains.add(domain)
+        return domains
+
+    def career_domain_match_score() -> tuple[float, float, float]:
+        if not isinstance(career_profile, dict):
+            return 0.0, 0.0, 0.0
+
+        school_domains = infer_school_domains()
+        school_text = " ".join(
+            [
+                str(school.get("name", "")),
+                " ".join(str(x) for x in school.get("programs", []) if x),
+                " ".join(str(x) for x in school.get("programs_tags", []) if x),
+                " ".join(str(x) for x in school.get("filieres", []) if x),
+                " ".join(str(c.get("program", "")) for c in chunks[:6]),
+                " ".join(str(c.get("text", "")) for c in chunks[:3]),
+            ]
+        ).lower()
+
+        inferred_careers = career_profile.get("inferred_careers", [])
+        if not isinstance(inferred_careers, list):
+            inferred_careers = []
+        career_tokens = {
+            token
+            for phrase in inferred_careers
+            for token in _tokenize(str(phrase))
+            if len(token) >= 3
+        }
+        overlap_hits = sum(1 for token in career_tokens if token in school_text)
+        overlap_score = min(1.0, overlap_hits / max(1, min(6, len(career_tokens)))) if career_tokens else 0.0
+
+        domain_scores = career_profile.get("domain_scores", {})
+        if not isinstance(domain_scores, dict):
+            domain_scores = {}
+        domain_values: list[float] = []
+        for domain in school_domains:
+            raw = domain_scores.get(domain, 0.0)
+            try:
+                val = float(raw)
+            except (TypeError, ValueError):
+                val = 0.0
+            domain_values.append(max(0.0, min(1.0, val)))
+        domain_alignment = max(domain_values) if domain_values else 0.0
+
+        combined = 0.55 * overlap_score + 0.45 * domain_alignment
+        return combined, overlap_score, domain_alignment
+
     program_match = _program_match_score(question, school, chunks)
     intent_match = _intent_group_match_score(question, school, chunks)
     bac_match = _bac_stream_match_score(profile.bac_stream, chunks, school)
@@ -1798,13 +1963,15 @@ def _score_candidate(
     location_match = _location_match_score(profile, school, city_intent=city_intent, fallback_cities=fallback_cities)
     motivation_match = _motivation_match_score(profile, school)
 
-    weighted = (
-        0.5 * bac_semantic
+    profile_priority = (
+        0.4 * bac_semantic
         + 0.2 * location_match
-        + 0.15 * budget_match
-        + 0.15 * motivation_match
+        + 0.2 * budget_match
+        + 0.2 * motivation_match
     )
-    final_score = 0.7 * weighted + 0.3 * max(0.0, semantic)
+    career_domain_match, career_overlap, domain_alignment = career_domain_match_score()
+    weighted = 0.7 * profile_priority + 0.3 * career_domain_match
+    final_score = 0.75 * weighted + 0.25 * max(0.0, semantic)
     return {
         "program_match": program_match,
         "intent_match": intent_match,
@@ -1814,6 +1981,10 @@ def _score_candidate(
         "grade_match": grade_match,
         "location_match": location_match,
         "motivation_match": motivation_match,
+        "profile_priority": profile_priority,
+        "career_domain_match": career_domain_match,
+        "career_overlap": career_overlap,
+        "domain_alignment": domain_alignment,
         "weighted": weighted,
         "final": final_score,
     }
@@ -1929,6 +2100,7 @@ def retrieve(
     schools: dict[str, dict],
     transcripts: list[dict],
     top_k: int,
+    career_profile: dict[str, Any] | None = None,
 ) -> list[dict]:
     query_text = _sanitize_query_text(question)
     profile = resolve_effective_profile(
@@ -1939,11 +2111,16 @@ def retrieve(
     SEMANTIC_INDEX.ensure(schools, transcripts)
     SPARSE_INDEX.ensure(schools, transcripts)
     city_intent = _extract_city_intent(query_text, schools)
+    profile_driven_query = _is_profile_driven_query(query_text)
     profile_city = _canonical_city_name(profile.city)
     fallback_city_distances: list[tuple[str, float]] = []
     fallback_cities: set[str] = set()
     if not city_intent and profile_city:
-        fallback_city_distances = _nearest_cities_from_target(profile_city, schools, limit=5)
+        fallback_city_distances = [
+            (city, dist)
+            for city, dist in _nearest_cities_from_target(profile_city, schools, limit=5)
+            if dist <= PROFILE_CITY_FALLBACK_MAX_KM
+        ]
         fallback_cities = {city for city, _ in fallback_city_distances[:3]}
 
     q_norm = _normalize_city_text(query_text)
@@ -1997,11 +2174,7 @@ def retrieve(
     for item in candidates:
         school = item["school"]
         chunks = item.get("chunks", [])
-        if _has_semantic_domain_incompatibility(profile.bac_stream, school, chunks):
-            continue
-        if not school_matches_profile(school, profile):
-            continue
-        if profile_requires_public_only(profile) and not school_is_public(school):
+        if not _passes_strict_bac_constraint(profile.bac_stream, school, chunks):
             continue
         filtered.append(item)
 
@@ -2013,6 +2186,28 @@ def retrieve(
         ]
         if city_filtered:
             filtered = city_filtered
+
+    if profile_driven_query and not city_intent and profile_city:
+        if fallback_cities:
+            nearby_filtered = [
+                item
+                for item in filtered
+                if _school_matches_any_city(str(item.get("school", {}).get("city", "")), fallback_cities)
+            ]
+            if nearby_filtered:
+                filtered = nearby_filtered
+            else:
+                return []
+        else:
+            exact_city_filtered = [
+                item
+                for item in filtered
+                if _city_matches_intent(str(item.get("school", {}).get("city", "")), profile_city)
+            ]
+            if exact_city_filtered:
+                filtered = exact_city_filtered
+            else:
+                return []
 
     if not city_intent and profile_city and fallback_cities:
         nearest_filtered = [
@@ -2087,6 +2282,7 @@ def retrieve(
             hybrid_semantic,
             city_intent=city_intent,
             fallback_cities=fallback_cities if not city_intent else None,
+            career_profile=career_profile,
         )
         components["lexical_match"] = lexical
         components["name_query_match"] = name_query_match
@@ -2171,12 +2367,35 @@ def retrieve(
 
         rescored.append(
             {
-                "score": float(0.30 * components["final"] + 0.70 * hybrid_semantic),
+                "score": float(0.65 * components["final"] + 0.35 * hybrid_semantic),
                 "chunk": chosen_chunk,
                 "school": school,
                 "score_components": components,
             }
         )
+
+    if not rescored:
+        return []
+
+    post_constraint_scored: list[dict] = []
+    for item in rescored:
+        school = item.get("school", {})
+        components = item.get("score_components", {})
+        profile_ok = school_matches_profile(school, profile)
+        public_ok = (not profile_requires_public_only(profile)) or school_is_public(school)
+        components["profile_constraints_match"] = 1.0 if profile_ok else 0.0
+        components["public_constraints_match"] = 1.0 if public_ok else 0.0
+
+        if not public_ok:
+            continue
+        if not profile_ok:
+            item["score"] = float(item.get("score", 0.0)) * 0.75
+            components["final"] = float(components.get("final", 0.0)) * 0.85
+        post_constraint_scored.append(item)
+
+    rescored = post_constraint_scored
+    if not rescored:
+        return []
 
     rescored.sort(key=lambda x: x["score"], reverse=True)
     rescored = CROSS_ENCODER_RERANKER.rerank(query_text, rescored)

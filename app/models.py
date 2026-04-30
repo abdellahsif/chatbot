@@ -23,30 +23,52 @@ def _normalize_bac_stream(value: str) -> str:
         return ""
 
     mapping = {
+        "bac sciences mathematiques a": "sm_a",
+        "bac sciences mathematiques b": "sm_b",
         "science mathematiques": "sm",
         "sciences mathematiques": "sm",
         "science math": "sm",
         "sciences math": "sm",
         "sm": "sm",
+        "sma": "sm_a",
+        "smb": "sm_b",
+        "bac sciences physiques": "spc",
         "pc": "spc",
         "spc": "spc",
         "physique": "spc",
         "sciences physiques": "spc",
+        "svt bac": "svt",
         "svt": "svt",
         "sciences de la vie": "svt",
         "sciences de la vie et de la terre": "svt",
         "science de la vie": "svt",
+        "bac sciences agronomiques": "agro",
+        "sciences agronomiques": "agro",
+        "bac sciences et technologies electriques": "ste",
+        "sciences et technologies electriques": "ste",
+        "bac sciences et technologies mecaniques": "stm",
+        "sciences et technologies mecaniques": "stm",
+        "arts appliques": "arts_appliques",
+        "bac sciences economiques": "eco",
         "eco": "eco",
         "economique": "eco",
         "economie": "eco",
         "sciences economiques": "eco",
+        "bac techniques de gestion et comptabilite": "tgc",
+        "techniques de gestion et comptabilite": "tgc",
         "sciences de gestion": "eco",
+        "bac lettres": "lettres",
         "lettres": "lettres",
         "litterature": "lettres",
-        "sciences humaines": "lettres",
-        "arts": "arts",
-        "art": "arts",
-        "design": "arts",
+        "sciences humaines": "sc_humaines",
+        "langue arabe": "langue_arabe",
+        "sciences de la chariaa": "chariaa",
+        "sciences de la shariaa": "chariaa",
+        "chariaa": "chariaa",
+        "charia": "chariaa",
+        "arts": "arts_appliques",
+        "art": "arts_appliques",
+        "design": "arts_appliques",
     }
     return mapping.get(text, text)
 
@@ -199,11 +221,15 @@ class QueryRequest:
     profile: UserProfile
     top_k: int = 5
     chat_history: list[dict[str, str]] | None = None
+    user_id: str = ""
+    mode: str = "auto"
 
     @staticmethod
     def from_dict(data: dict[str, Any]) -> "QueryRequest":
         top_k = int(data.get("top_k", 5))
         top_k = max(1, min(10, top_k))
+        raw_mode = str(data.get("mode", "auto") or "auto").strip().lower()
+        mode = raw_mode if raw_mode in {"auto", "chat", "recommendation"} else "auto"
         profile_payload = data.get("profile", {})
         if not isinstance(profile_payload, dict):
             profile_payload = {}
@@ -221,6 +247,8 @@ class QueryRequest:
                 for item in (data.get("chat_history", []) if isinstance(data.get("chat_history", []), list) else [])
                 if isinstance(item, dict)
             ],
+            user_id=str(data.get("user_id", data.get("userId", "")) or "").strip(),
+            mode=mode,
         )
 
 

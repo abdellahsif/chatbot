@@ -3,325 +3,654 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chatbot Interface</title>
+  <title>Assistant Interface</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-1: #f8f4ec;
-      --bg-2: #c9e6dc;
-      --ink: #1c2a2f;
-      --ink-soft: #3b4f56;
-      --accent: #d65a31;
-      --accent-2: #117a65;
-      --card: rgba(255, 255, 255, 0.82);
-      --border: rgba(28, 42, 47, 0.12);
+      --bg: #f4f6f9;
+      --paper: #ffffff;
+      --paper-soft: #f8fafc;
+      --ink: #1f2937;
+      --ink-soft: #64748b;
+      --line: #e5e7eb;
+      --brand: #0f766e;
+      --brand-2: #ea580c;
+      --user: #fff3e8;
+      --assistant: #f0fdfa;
+      --shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
     }
 
     * {
       box-sizing: border-box;
     }
 
+    html,
     body {
       margin: 0;
-      min-height: 100vh;
+      min-height: 100%;
       font-family: "Space Grotesk", sans-serif;
       color: var(--ink);
       background:
-        radial-gradient(circle at 12% 14%, #fff3cc 0, transparent 35%),
-        radial-gradient(circle at 87% 18%, #e5f4ef 0, transparent 38%),
-        linear-gradient(130deg, var(--bg-1) 0%, var(--bg-2) 100%);
-      animation: settle 600ms ease-out;
+        radial-gradient(circle at 8% 8%, rgba(14, 116, 144, 0.12), transparent 28%),
+        radial-gradient(circle at 94% 12%, rgba(249, 115, 22, 0.13), transparent 33%),
+        var(--bg);
     }
 
-    @keyframes settle {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .wrap {
-      width: min(1080px, 94vw);
-      margin: 24px auto;
+    .app {
+      min-height: 100vh;
       display: grid;
-      gap: 16px;
-      grid-template-columns: 320px 1fr;
+      grid-template-columns: 288px minmax(0, 1fr);
+      gap: 14px;
+      padding: 14px;
     }
 
-    .panel {
-      background: var(--card);
-      backdrop-filter: blur(6px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      box-shadow: 0 14px 40px rgba(28, 42, 47, 0.08);
+    .sidebar {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
     }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 1.6rem;
-      letter-spacing: 0.02em;
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
     }
 
-    p.note {
-      margin: 0 0 12px;
+    .brand-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .brand-subtitle {
+      margin: 0;
       color: var(--ink-soft);
-      font-size: 0.92rem;
+      font-size: 0.86rem;
     }
 
-    .group {
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-      font-size: 0.88rem;
-    }
-
-    input, select, textarea, button {
-      font: inherit;
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      padding: 10px 12px;
-      background: white;
+    .btn {
+      border: 1px solid var(--line);
+      background: var(--paper);
       color: var(--ink);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 120ms ease, box-shadow 120ms ease;
     }
 
-    textarea {
-      min-height: 92px;
-      resize: vertical;
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.primary {
+      border-color: transparent;
+      background: linear-gradient(120deg, var(--brand), #14b8a6);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(15, 118, 110, 0.25);
+    }
+
+    .btn.secondary {
+      border-color: transparent;
+      background: linear-gradient(120deg, var(--brand-2), #fb923c);
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(234, 88, 12, 0.24);
+    }
+
+    .hint {
+      margin: 0;
+      font-size: 0.86rem;
+      color: var(--ink-soft);
+      line-height: 1.45;
+    }
+
+    .history {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: auto;
+    }
+
+    .history h3 {
+      margin: 0;
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+
+    .history-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--paper-soft);
+      padding: 8px 10px;
+      font-size: 0.83rem;
+      color: var(--ink-soft);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    details.profile-panel {
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    details.profile-panel summary {
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .profile-grid {
+      display: grid;
+      gap: 9px;
+      grid-template-columns: 1fr;
     }
 
     .row {
       display: grid;
-      gap: 10px;
       grid-template-columns: 1fr 1fr;
+      gap: 8px;
     }
 
-    .actions {
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.79rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      font: inherit;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .workspace {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin-top: 8px;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      min-height: 0;
+      overflow: hidden;
     }
 
-    button {
-      cursor: pointer;
+    .workspace-header {
+      border-bottom: 1px solid var(--line);
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .workspace-title {
+      margin: 0;
+      font-size: 1rem;
       font-weight: 700;
-      border: none;
-      transition: transform 140ms ease, box-shadow 140ms ease;
     }
 
-    button.primary {
-      color: #fff;
-      background: linear-gradient(120deg, var(--accent), #ef8f38);
-      box-shadow: 0 10px 20px rgba(214, 90, 49, 0.28);
-    }
-
-    button.secondary {
-      color: #fff;
-      background: linear-gradient(120deg, var(--accent-2), #1ea188);
-      box-shadow: 0 10px 20px rgba(17, 122, 101, 0.25);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
+    .workspace-note {
+      margin: 2px 0 0;
+      color: var(--ink-soft);
+      font-size: 0.86rem;
     }
 
     .status {
-      margin-top: 8px;
-      font-size: 0.9rem;
       color: var(--ink-soft);
+      font-size: 0.82rem;
+      max-width: 48%;
+      text-align: right;
       min-height: 1.2rem;
     }
 
-    .response {
+    .messages {
+      padding: 18px 20px 24px;
+      overflow: auto;
       display: grid;
-      gap: 12px;
+      gap: 16px;
       align-content: start;
+      background: #fff;
+    }
+
+    .hero {
+      border: 1px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 18px;
+      background: linear-gradient(145deg, #f8fafc, #f0fdfa);
+      color: #0f172a;
+    }
+
+    .hero h2 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.45;
+      font-size: 0.92rem;
+    }
+
+    .message-row {
+      display: grid;
+      gap: 8px;
+      animation: pop-in 220ms ease;
+    }
+
+    .role {
+      font-size: 0.76rem;
+      color: var(--ink-soft);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 700;
     }
 
     .bubble {
-      padding: 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.85);
-      opacity: 0;
-      transform: translateY(8px);
-      animation: bubble-in 360ms ease forwards;
-    }
-
-    .bubble h3 {
-      margin: 0 0 8px;
-      font-size: 0.96rem;
-      color: var(--ink-soft);
-    }
-
-    .bubble p {
-      margin: 0;
-      line-height: 1.5;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 13px;
+      line-height: 1.55;
+      background: var(--paper-soft);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     .bubble.user {
-      background: rgba(214, 90, 49, 0.08);
-      border-color: rgba(214, 90, 49, 0.35);
+      background: var(--user);
+      border-color: #fed7aa;
     }
 
     .bubble.assistant {
-      background: rgba(17, 122, 101, 0.08);
-      border-color: rgba(17, 122, 101, 0.3);
-    }
-
-    .chat-text {
-      white-space: pre-wrap;
-      line-height: 1.55;
+      background: var(--assistant);
+      border-color: #99f6e4;
     }
 
     details.evidence-block {
-      margin-top: 10px;
-      border-top: 1px dashed var(--border);
+      border-top: 1px dashed #cbd5e1;
       padding-top: 8px;
     }
 
     details.evidence-block summary {
       cursor: pointer;
+      color: #475569;
       font-weight: 600;
-      color: var(--ink-soft);
+      font-size: 0.84rem;
     }
 
-    @keyframes bubble-in {
-      to { opacity: 1; transform: translateY(0); }
+    .evidence {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: #334155;
+      font-size: 0.86rem;
     }
 
     .evidence li {
-      margin: 0 0 8px;
+      margin-bottom: 8px;
       line-height: 1.45;
     }
 
     .mono {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.86rem;
+      font-size: 0.8rem;
     }
 
-    @media (max-width: 920px) {
-      .wrap {
+    .composer {
+      border-top: 1px solid var(--line);
+      padding: 12px 14px 14px;
+      background: #f8fafc;
+      display: grid;
+      gap: 10px;
+    }
+
+    .composer-shell {
+      border: 1px solid #dbe3ee;
+      background: #fff;
+      border-radius: 14px;
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .composer textarea {
+      min-height: 58px;
+      max-height: 180px;
+      resize: vertical;
+      border: none;
+      outline: none;
+      padding: 8px;
+      background: transparent;
+    }
+
+    .composer-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+
+    .composer-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .send-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(120deg, var(--brand), #14b8a6);
+      cursor: pointer;
+    }
+
+    .profile-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(120deg, var(--brand-2), #fb923c);
+      cursor: pointer;
+    }
+
+    .meta {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+    }
+
+    @keyframes pop-in {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 1080px) {
+      .app {
         grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+
+      .workspace {
+        order: 1;
+        min-height: 70vh;
+      }
+
+      .status {
+        max-width: 100%;
+        text-align: left;
+      }
+
+      .workspace-header {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <section class="panel">
-      <h1>University Matcher</h1>
-      <p class="note">Fill your profile to get evidence-based school matches.</p>
-
-      <div class="group">
-        <label for="question">Optional Details</label>
-        <textarea id="question" placeholder="Optional: add extra preferences (program type, schedule, language, etc.)."></textarea>
-      </div>
-
-      <div class="row">
-        <div class="group">
-          <label for="city">City</label>
-          <input id="city" value="Rabat" />
-        </div>
-        <div class="group">
-          <label for="country">Country</label>
-          <input id="country" value="MA" />
+  <main class="app">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <div>
+          <h1 class="brand-title">Edu Assistant</h1>
+          <p class="brand-subtitle">One chat for advice and school matches</p>
         </div>
       </div>
 
-      <div class="row">
-        <div class="group">
-          <label for="bac">Bac Stream</label>
-          <select id="bac">
-            <option value="sm">Sciences Math (sm)</option>
-            <option value="spc" selected>Sciences Physiques (spc)</option>
-            <option value="svt">SVT (svt)</option>
-            <option value="eco">Eco (eco)</option>
-            <option value="lettres">Lettres (lettres)</option>
-            <option value="arts">Arts (arts)</option>
-          </select>
+      <p class="hint">Ask normally. The assistant will chat, explain, or recommend schools using your profile when needed.</p>
+
+      <button class="btn primary" id="clearBtn" type="button">New Chat</button>
+
+      <section class="history">
+        <h3>Recent Turns</h3>
+        <div id="historyList"></div>
+      </section>
+
+      <details class="profile-panel" open>
+        <summary>Recommendation Profile</summary>
+        <div class="profile-grid">
+          <div>
+            <label for="userId">User ID</label>
+            <input id="userId" placeholder="Optional career profile id" />
+          </div>
+          <div class="row">
+            <div>
+              <label for="city">City</label>
+              <input id="city" value="Rabat" />
+            </div>
+            <div>
+              <label for="country">Country</label>
+              <input id="country" value="MA" />
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="bac">Bac Stream</label>
+              <select id="bac">
+                <option value="sm">Sciences Math</option>
+                <option value="spc" selected>Sciences Physiques</option>
+                <option value="svt">SVT</option>
+                <option value="eco">Eco</option>
+                <option value="lettres">Lettres</option>
+                <option value="arts">Arts</option>
+              </select>
+            </div>
+            <div>
+              <label for="grade">Grade Band</label>
+              <select id="grade">
+                <option value="passable">Passable</option>
+                <option value="bien" selected>Bien</option>
+                <option value="tres_bien">Tres bien</option>
+                <option value="elite">Elite</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="motivation">Motivation</label>
+              <select id="motivation">
+                <option value="cash">Cash</option>
+                <option value="prestige">Prestige</option>
+                <option value="passion">Passion</option>
+                <option value="safety">Safety</option>
+                <option value="expat">Expat</option>
+                <option value="employability" selected>Employability</option>
+              </select>
+            </div>
+            <div>
+              <label for="budget">Budget</label>
+              <select id="budget">
+                <option value="zero_public">zero_public</option>
+                <option value="tight_25k">tight_25k</option>
+                <option value="comfort_50k" selected>comfort_50k</option>
+                <option value="no_limit_70k_plus">no_limit_70k_plus</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="topk">Top K</label>
+            <input id="topk" type="number" min="1" max="10" value="3" />
+          </div>
         </div>
-        <div class="group">
-          <label for="grade">Grade Band</label>
-          <select id="grade">
-            <option value="passable">Passable</option>
-            <option value="bien" selected>Bien</option>
-            <option value="tres_bien">Tres bien</option>
-            <option value="elite">Elite</option>
-          </select>
+      </details>
+    </aside>
+
+    <section class="workspace">
+      <header class="workspace-header">
+        <div>
+          <h2 class="workspace-title">Conversation</h2>
+          <p class="workspace-note">Ask naturally. Recommendations are handled behind the conversation.</p>
         </div>
-      </div>
+        <div class="status" id="status"></div>
+      </header>
 
-      <div class="row">
-        <div class="group">
-          <label for="motivation">Motivation</label>
-          <select id="motivation">
-            <option value="cash">Cash (ROI)</option>
-            <option value="prestige">Prestige</option>
-            <option value="passion">Passion</option>
-            <option value="safety">Safety</option>
-            <option value="expat">Expat</option>
-            <option value="employability" selected>Employability (career)</option>
-          </select>
+      <section class="messages" id="responsePanel" aria-live="polite"></section>
+
+      <footer class="composer">
+        <div class="composer-shell">
+          <textarea id="question" placeholder="Message Edu Assistant..."></textarea>
+          <button class="send-btn" id="askBtn" type="button">Send</button>
         </div>
-        <div class="group">
-          <label for="budget">Budget Band</label>
-          <select id="budget">
-            <option value="zero_public">zero_public</option>
-            <option value="tight_25k">tight_25k</option>
-            <option value="comfort_50k" selected>comfort_50k</option>
-            <option value="no_limit_70k_plus">no_limit_70k_plus</option>
-          </select>
+        <div class="composer-actions">
+          <div class="composer-buttons">
+            <button class="profile-btn" id="profileOnlyBtn" type="button">Profile Only Recommendation</button>
+          </div>
+          <span class="meta">Enter to send. Shift+Enter for a newline.</span>
         </div>
-      </div>
-
-      <div class="group">
-        <label for="topk">Top K</label>
-        <input id="topk" type="number" min="1" max="10" value="3" />
-      </div>
-
-      <div class="actions">
-        <button class="primary" id="askBtn">Find Best Matches</button>
-        <button class="secondary" id="clearBtn">Clear Chat</button>
-      </div>
-
-      <div class="status" id="status"></div>
-    </section>
-
-    <section class="panel response" id="responsePanel">
-      <div class="bubble">
-        <h3>Ready</h3>
-        <p>Submit your profile to see best matches, why they fit, confidence, and evidence.</p>
-      </div>
+      </footer>
     </section>
   </main>
 
   <script>
     const statusEl = document.getElementById("status");
     const panelEl = document.getElementById("responsePanel");
+    const historyListEl = document.getElementById("historyList");
+    const questionEl = document.getElementById("question");
+    const askBtn = document.getElementById("askBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const profileOnlyBtn = document.getElementById("profileOnlyBtn");
     const CHAT_STORAGE_KEY = "chatbot_history_v1";
-    let turnCounter = 0;
-    let chatState = {
-      turns: [],
-    };
 
-    const READY_HTML = `
-      <div class="bubble">
-        <h3>Ready</h3>
-        <p>Submit your profile to see best matches, why they fit, confidence, and evidence.</p>
-      </div>
-    `;
+    let chatState = { turns: [] };
 
-    function resetChatPanel() {
-      turnCounter = 0;
-      panelEl.dataset.started = "0";
-      panelEl.innerHTML = READY_HTML;
+    function escapeHtml(v) {
+      return String(v)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setStatus(text) {
+      statusEl.textContent = text || "";
+    }
+
+    function hasProfileSignal(profile) {
+      return Boolean(
+        profile &&
+          [
+            profile.bac_stream,
+            profile.expected_grade_band,
+            profile.motivation,
+            profile.budget_band,
+            profile.city,
+            profile.country,
+          ].some((value) => String(value || "").trim())
+      );
+    }
+
+    function buildAssistantMessage(data) {
+      const clean = (text) => {
+        const raw = String(text || "").trim();
+        if (!raw) {
+          return "";
+        }
+        return raw
+          .replace(/^Best match:\s*/i, "")
+          .replace(/^Evidence snippet:\s*/i, "")
+          .replace(/^Alternative\s+/i, "")
+          .replace(/^Evidence focus:\s*/i, "")
+          .trim();
+      };
+
+      if (data && data.message_paragraph) {
+        const paragraph = clean(data.message_paragraph);
+        if (paragraph) {
+          return paragraph;
+        }
+      }
+
+      const parts = [];
+      if (data && data.short_answer) parts.push(clean(data.short_answer));
+      if (data && data.why_it_fits) parts.push(clean(data.why_it_fits));
+      if (data && data.alternative) parts.push(clean(data.alternative));
+      if (data && data.next_action) parts.push(clean(data.next_action));
+      const message = parts.filter(Boolean).join(" ");
+      if (message) {
+        return message;
+      }
+      return buildRecommendationMessage(data);
+    }
+
+    function formatCriteria(criteria) {
+      if (!criteria || typeof criteria !== "object") {
+        return "";
+      }
+      const items = [
+        ["semantic", criteria.semantic_fit],
+        ["geo", criteria.geo_fit],
+        ["budget", criteria.budget_fit],
+        ["motivation", criteria.motivation_fit],
+      ]
+        .filter(([, value]) => value !== undefined && value !== null && value !== "")
+        .map(([label, value]) => `${label} ${Number(value).toFixed(1)}%`);
+      return items.length ? ` (${items.join(", ")})` : "";
+    }
+
+    function buildRecommendationMessage(data) {
+      const ranked = Array.isArray(data?.ranked_schools) ? data.ranked_schools : [];
+      const top = Array.isArray(data?.top_schools) ? data.top_schools : [];
+      const schools = ranked.length ? ranked : top;
+      if (!schools.length) {
+        return "No matching schools passed the recommendation filters. Try widening the city, budget, or field.";
+      }
+
+      const lines = ["Top recommendations"];
+      schools.slice(0, 10).forEach((school, index) => {
+        const name = String(school.name || "Unnamed school").trim();
+        const city = String(school.city || "").trim();
+        const score = school.match_score !== undefined && school.match_score !== null
+          ? ` - ${Number(school.match_score).toFixed(1)}%`
+          : "";
+        const grade = school.match_grade ? ` ${school.match_grade}` : "";
+        const criteria = formatCriteria(school.criteria);
+        lines.push(`${index + 1}. ${name}${city ? `, ${city}` : ""}${score}${grade}${criteria}`);
+      });
+      return lines.join("\n");
     }
 
     function loadChatState() {
@@ -334,9 +663,7 @@
         if (!parsed || !Array.isArray(parsed.turns)) {
           return { turns: [] };
         }
-        return {
-          turns: parsed.turns.filter((t) => t && typeof t === "object"),
-        };
+        return { turns: parsed.turns.filter((t) => t && typeof t === "object") };
       } catch {
         return { turns: [] };
       }
@@ -358,189 +685,144 @@
       for (const turn of recentTurns) {
         const q = String(turn.question || "").trim();
         const a = String((turn.response && (turn.response.message_paragraph || buildAssistantMessage(turn.response))) || "").trim();
-        if (q) {
-          messages.push({ role: "user", content: q });
-        }
-        if (a) {
-          messages.push({ role: "assistant", content: a });
-        }
+        if (q) messages.push({ role: "user", content: q });
+        if (a) messages.push({ role: "assistant", content: a });
       }
       return messages;
     }
 
-    function ensureChatStarted() {
-      if (panelEl.dataset.started === "1") {
-        return;
-      }
-      panelEl.dataset.started = "1";
-      panelEl.innerHTML = "";
-    }
-
-    function setStatus(text) {
-      statusEl.textContent = text || "";
-    }
-
-    function escapeHtml(v) {
-      return String(v)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function hasProfileSignal(profile) {
-      return Boolean(
-        profile &&
-          [
-            profile.bac_stream,
-            profile.expected_grade_band,
-            profile.motivation,
-            profile.budget_band,
-            profile.city,
-            profile.country,
-          ].some((value) => String(value || "").trim())
-      );
+    function buildProfilePayload() {
+      return {
+        bac_stream: document.getElementById("bac").value.trim(),
+        expected_grade_band: document.getElementById("grade").value.trim(),
+        motivation: document.getElementById("motivation").value.trim(),
+        budget_band: document.getElementById("budget").value,
+        city: document.getElementById("city").value.trim(),
+        country: document.getElementById("country").value.trim(),
+      };
     }
 
     function buildProfileRequestSummary(profile) {
-      const bacLabel = {
-        sm: "sciences_math",
-        spc: "sciences_physiques",
-        svt: "svt",
-        eco: "eco",
-        lettres: "lettres",
-        arts: "arts",
-      };
-      const gradeLabel = {
-        passable: "passable",
-        bien: "bien",
-        tres_bien: "tres_bien",
-        elite: "elite",
-      };
-      const motivationLabel = {
-        cash: "cash",
-        prestige: "prestige",
-        passion: "passion",
-        safety: "safety",
-        expat: "expat",
-        employability: "career",
-      };
       const parts = [];
-      if (profile.bac_stream) parts.push(`bac=${bacLabel[profile.bac_stream] || profile.bac_stream}`);
-      if (profile.expected_grade_band) parts.push(`grade=${gradeLabel[profile.expected_grade_band] || profile.expected_grade_band}`);
-      if (profile.motivation) parts.push(`motivation=${motivationLabel[profile.motivation] || profile.motivation}`);
+      if (profile.bac_stream) parts.push(`bac=${profile.bac_stream}`);
+      if (profile.expected_grade_band) parts.push(`grade=${profile.expected_grade_band}`);
+      if (profile.motivation) parts.push(`motivation=${profile.motivation}`);
       if (profile.budget_band) parts.push(`budget=${profile.budget_band}`);
       if (profile.city) parts.push(`city=${profile.city}`);
       if (profile.country) parts.push(`country=${profile.country}`);
       return parts.length ? `Profile request (${parts.join(", ")})` : "Profile request";
     }
 
-    function buildAssistantMessage(data) {
-      const clean = (text) => {
-        const raw = String(text || "").trim();
-        if (!raw) {
-          return "";
-        }
-        return raw
-          .replace(/^Best match:\s*/i, "")
-          .replace(/^Evidence snippet:\s*/i, "")
-          .replace(/^Alternative\s+/i, "")
-          .replace(/^Evidence focus:\s*/i, "")
-          .trim();
-      };
-
-      if (data.message_paragraph) {
-        const paragraph = clean(data.message_paragraph);
-        if (paragraph) {
-          return paragraph;
-        }
+    function renderHistoryList() {
+      const turns = Array.isArray(chatState.turns) ? chatState.turns : [];
+      const recent = turns.slice(-10).reverse();
+      historyListEl.innerHTML = "";
+      if (!recent.length) {
+        const empty = document.createElement("div");
+        empty.className = "history-item";
+        empty.textContent = "No turns yet.";
+        historyListEl.appendChild(empty);
+        return;
       }
-
-      const parts = [];
-      if (data.short_answer) {
-        parts.push(clean(data.short_answer));
+      for (const turn of recent) {
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.textContent = String(turn.question || "").trim() || "Profile-only request";
+        historyListEl.appendChild(item);
       }
-      if (data.why_it_fits) {
-        parts.push(clean(data.why_it_fits));
-      }
-      if (data.alternative) {
-        parts.push(clean(data.alternative));
-      }
-      if (data.next_action) {
-        parts.push(clean(data.next_action));
-      }
-      return parts.filter(Boolean).join(" ");
     }
 
-    function renderChatResult(data, question) {
-      ensureChatStarted();
-      turnCounter += 1;
-      const userRequestText = String(question || "").trim() || "Profile-based recommendation request";
-      const evidenceItems = Array.isArray(data.evidence)
-        ? data.evidence.map((e) => `<li><strong>${escapeHtml(e.school_name || "N/A")}</strong> (${escapeHtml(e.program || "N/A")})<br/><span class="mono">score=${escapeHtml(e.score)} chunk=${escapeHtml(e.chunk_id)}</span><br/>${escapeHtml(e.text || "")}</li>`).join("")
-        : "";
-
-      const userBubble = document.createElement("div");
-      userBubble.className = "bubble user";
-      userBubble.innerHTML = `
-        <h3>You</h3>
-        <p>${escapeHtml(userRequestText)}</p>
+    function resetMessages() {
+      panelEl.innerHTML = `
+        <div class="hero">
+          <h2>Start chatting</h2>
+          <p>Ask a normal question, request school matches, or use your profile for a recommendation.</p>
+        </div>
       `;
-      panelEl.appendChild(userBubble);
+    }
 
-      const assistantBubble = document.createElement("div");
-      assistantBubble.className = "bubble assistant";
-      assistantBubble.innerHTML = `
-        <h3>Assistant</h3>
-        <p class="chat-text">${escapeHtml(buildAssistantMessage(data) || "I can help more if you share more details.")}</p>
-        <details class="evidence-block">
-          <summary>Show evidence</summary>
-          <ul class="evidence">${evidenceItems || "<li>No evidence returned.</li>"}</ul>
-        </details>
-      `;
-      panelEl.appendChild(assistantBubble);
-      assistantBubble.scrollIntoView({ behavior: "smooth", block: "end" });
+    function appendMessage(role, text, evidenceItems = []) {
+      const row = document.createElement("article");
+      row.className = "message-row";
+
+      const roleLabel = document.createElement("div");
+      roleLabel.className = "role";
+      roleLabel.textContent = role;
+
+      const bubble = document.createElement("div");
+      bubble.className = `bubble ${role === "You" ? "user" : "assistant"}`;
+      bubble.innerHTML = `<div>${escapeHtml(text || "")}</div>`;
+
+      row.appendChild(roleLabel);
+      row.appendChild(bubble);
+
+      if (role !== "You" && Array.isArray(evidenceItems) && evidenceItems.length) {
+        const details = document.createElement("details");
+        details.className = "evidence-block";
+        const evidenceHtml = evidenceItems
+          .map((e) => `<li><strong>${escapeHtml(e.school_name || "N/A")}</strong> (${escapeHtml(e.program || "N/A")})<br/><span class="mono">score=${escapeHtml(e.score)} chunk=${escapeHtml(e.chunk_id)}</span><br/>${escapeHtml(e.text || "")}</li>`)
+          .join("");
+        details.innerHTML = `<summary>Show evidence</summary><ul class="evidence">${evidenceHtml}</ul>`;
+        row.appendChild(details);
+      }
+
+      panelEl.appendChild(row);
+      panelEl.scrollTop = panelEl.scrollHeight;
+    }
+
+    function renderTurn(turn) {
+      if (!turn) return;
+      const userText = String(turn.question || "").trim() || "Profile-only request";
+      const assistantText = buildAssistantMessage(turn.response || {}) || "I can help more if you share details.";
+      appendMessage("You", userText);
+      appendMessage("Assistant", assistantText, Array.isArray(turn.response?.evidence) ? turn.response.evidence : []);
     }
 
     function restoreSavedChat() {
       chatState = loadChatState();
-      if (!chatState.turns.length) {
-        resetChatPanel();
-        return;
-      }
-      resetChatPanel();
+      resetMessages();
       for (const turn of chatState.turns) {
-        renderChatResult(turn.response || {}, turn.question || "");
+        renderTurn(turn);
       }
-      setStatus("Loaded previous chat history.");
+      renderHistoryList();
+      if (chatState.turns.length) {
+        setStatus("Loaded previous chat history.");
+      }
     }
 
-    async function askChatbot() {
+    async function askChatbot({ profileOnly = false } = {}) {
+      const profile = buildProfilePayload();
+      const inputText = String(questionEl.value || "").trim();
+      const question = profileOnly ? "" : inputText;
+      const requestMode = profileOnly ? "recommendation" : "auto";
       const payload = {
-        question: document.getElementById("question").value.trim(),
+        question,
         top_k: Number(document.getElementById("topk").value || "3"),
+        mode: requestMode,
+        user_id: document.getElementById("userId").value.trim(),
         chat_history: buildBackendChatHistory(),
-        profile: {
-          bac_stream: document.getElementById("bac").value.trim(),
-          expected_grade_band: document.getElementById("grade").value.trim(),
-          motivation: document.getElementById("motivation").value.trim(),
-          budget_band: document.getElementById("budget").value,
-          city: document.getElementById("city").value.trim(),
-          country: document.getElementById("country").value.trim(),
-        },
+        profile,
       };
 
-      if (!hasProfileSignal(payload.profile)) {
+      if (!profileOnly && !payload.question) {
+        setStatus("Type a message before sending.");
+        return;
+      }
+
+      if (profileOnly && !hasProfileSignal(payload.profile)) {
         setStatus("Please provide at least one profile field.");
         return;
       }
 
       const displayQuestion = payload.question || buildProfileRequestSummary(payload.profile);
+      appendMessage("You", displayQuestion);
+      setStatus(profileOnly ? "Getting recommendations..." : "Sending message...");
 
-      setStatus("Asking chatbot...");
+      askBtn.disabled = true;
+      profileOnlyBtn.disabled = true;
       try {
-        const res = await fetch("/chat/query", {
+        const endpoint = "/chat/query";
+        const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -549,26 +831,45 @@
           throw new Error(`Request failed with status ${res.status}`);
         }
         const data = await res.json();
-        renderChatResult(data, displayQuestion);
+        const assistantText = buildAssistantMessage(data) || "I can help more if you share more details.";
+        appendMessage("Assistant", assistantText, Array.isArray(data.evidence) ? data.evidence : []);
+
         chatState.turns.push({
           question: displayQuestion,
+          mode: requestMode,
+          endpoint,
           response: data,
         });
-        if (chatState.turns.length > 30) {
-          chatState.turns = chatState.turns.slice(-30);
+        if (chatState.turns.length > 40) {
+          chatState.turns = chatState.turns.slice(-40);
         }
         saveChatState();
+        renderHistoryList();
+        questionEl.value = "";
         setStatus("Done.");
       } catch (err) {
-        setStatus(`Error: ${err.message}`);
+        appendMessage("Assistant", `Error: ${err.message || "Request failed."}`);
+        setStatus(`Error: ${err.message || "Request failed."}`);
+      } finally {
+        askBtn.disabled = false;
+        profileOnlyBtn.disabled = false;
       }
     }
 
-    document.getElementById("askBtn").addEventListener("click", askChatbot);
-    document.getElementById("clearBtn").addEventListener("click", () => {
+    askBtn.addEventListener("click", () => askChatbot());
+    profileOnlyBtn.addEventListener("click", () => askChatbot({ profileOnly: true }));
+    clearBtn.addEventListener("click", () => {
       clearChatState();
-      resetChatPanel();
-      setStatus("Chat cleared and stored context removed.");
+      resetMessages();
+      renderHistoryList();
+      setStatus("Conversation cleared.");
+    });
+
+    questionEl.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        askChatbot();
+      }
     });
 
     restoreSavedChat();

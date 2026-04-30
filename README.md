@@ -4,8 +4,9 @@ Production API for school recommendations backed by Supabase.
 
 ## Runtime
 - `app/main.py` starts the HTTP server.
-- `app/chatbot.py` formats answers.
-- `app/retriever.py` ranks schools and applies profile filters.
+- `app/recommendation_system.py` is the decision engine: builds the retrieval query, applies profile constraints, ranks schools, and returns structured top schools.
+- `app/chatbot.py` is the advisor layer: classifies chat vs recommendation intent and explains recommendation results.
+- `app/retriever.py` provides hybrid retrieval, scoring, and cross-encoder reranking.
 - `app/data_loader.py` loads Supabase or local fallback data.
 
 ## Start
@@ -17,7 +18,10 @@ Production API for school recommendations backed by Supabase.
 ## Endpoints
 - `GET /health`
 - `POST /chat/query`
+- `POST /recommendations/query`
 - `GET /chat/schools?limit=100`
+
+`/recommendations/query` returns structured ranked schools only. `/chat/query` calls the same recommendation system, then explains the result in natural language.
 
 ## Notes
 - The app uses Supabase as the primary read source.

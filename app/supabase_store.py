@@ -180,3 +180,77 @@ def fetch_schools(limit: int = 100) -> dict[str, Any]:
         order_column=order_column,
         select=select,
     )
+
+
+def _to_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _parse_json_like(value: Any) -> Any:
+    if isinstance(value, (dict, list)):
+        return value
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return None
+        try:
+            return json.loads(raw)
+        except Exception:
+            return None
+    return None
+
+
+def fetch_user_career_profile(user_id: str) -> dict[str, Any] | None:
+    safe_user_id = str(user_id or "").strip()
+    if not safe_user_id:
+        return None
+
+    cfg = _load_config_from_env()
+    if cfg is None:
+        return None
+
+    table = (os.getenv("SUPABASE_TABLE_USER_CAREER_PROFILES") or "user_career_profiles").strip()
+    params = {
+        "select": "id,userId,inferredCareers,domainScores,computed_at",
+        "userId": f"eq.{safe_user_id}",
+        "order": "computed_at.desc",
+        "limit": "1",
+    }
+
+    _, rows = _request_json(
+        cfg,
+        method="GET",
+        path=table,
+        query=parse.urlencode(params),
+    )
+
+    if not isinstance(rows, list) or not rows:
+        return None
+    row = rows[0] if isinstance(rows[0], dict) else None
+    if not row:
+        return None
+
+    inferred_raw = _parse_json_like(row.get("inferredCareers"))
+    inferred_careers: list[str] = []
+    if isinstance(inferred_raw, list):
+        inferred_careers = [str(item).strip().lower() for item in inferred_raw if str(item).strip()]
+
+    domain_raw = _parse_json_like(row.get("domainScores"))
+    domain_scores: dict[str, float] = {}
+    if isinstance(domain_raw, dict):
+        for k, v in domain_raw.items():
+            key = str(k).strip().lower()
+            if not key:
+                continue
+            domain_scores[key] = max(0.0, min(1.0, _to_float(v, 0.0)))
+
+    return {
+        "id": str(row.get("id", "") or "").strip(),
+        "user_id": str(row.get("userId", safe_user_id) or safe_user_id).strip(),
+        "inferred_careers": inferred_careers,
+        "domain_scores": domain_scores,
+        "computed_at": str(row.get("computed_at", "") or "").strip(),
+    }
