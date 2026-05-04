@@ -199,6 +199,32 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    text = str(raw).strip()
+    if not text:
+        return default
+    try:
+        return int(float(text))
+    except ValueError:
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    text = str(raw).strip()
+    if not text:
+        return default
+    try:
+        return float(text)
+    except ValueError:
+        return default
+
+
 def _normalize_domain(value: str) -> str:
     token = re.sub(r"\s+", " ", str(value or "").strip().lower())
     if not token:
@@ -348,7 +374,7 @@ def _humanize_text(text: str) -> str:
         return ""
     raw = re.sub(r"\b(confidence|score|weighted_score|tuition_max|city|evidence|best match)\b[:=]?\s*[^.]*", "", raw, flags=re.IGNORECASE)
     raw = re.sub(r"\s+", " ", raw).strip(" .,:;-")
-    return raw
+    return _normalize_punctuation(raw)
 
 
 def _strip_metadata_labels(text: str) -> str:
@@ -364,7 +390,7 @@ def _strip_metadata_labels(text: str) -> str:
     raw = re.sub(r"\{[^{}]*\}", "", raw)
     raw = re.sub(r"\[[^\[\]]*\]", "", raw)
     raw = re.sub(r"\s+", " ", raw).strip(" .,:;-")
-    return raw
+    return _normalize_punctuation(raw)
 
 
 def _sanitize_payload(payload: dict[str, str]) -> dict[str, str]:
@@ -678,9 +704,71 @@ def _clean_dialogue_artifacts(text: str) -> str:
     raw = " ".join(str(text or "").split()).strip()
     if not raw:
         return ""
-    raw = re.sub(r"^(assistant|bot|system)\s*:\s*", "", raw, flags=re.IGNORECASE)
-    raw = re.split(r"\b(?:user|assistant|bot|human|system)\s*:\s*", raw, maxsplit=1, flags=re.IGNORECASE)[0].strip()
+
+    raw = raw.strip(" \t\r\n\"'`")
+
+    # Some fine-tuned / misprompted models emit training-pair artifacts like:
+    # "Assistant, ... User response: ...". In that format, the actual assistant output
+    # is typically AFTER "User response:". Prefer extracting that segment when present.
+    user_response_match = re.search(r"\buser\s+response\s*[:,-]\s*", raw, flags=re.IGNORECASE)
+    if user_response_match:
+        raw = raw[user_response_match.end() :].strip()
+
+    # If the model starts a dialogue with a "User:" turn and then continues with "Assistant:",
+    # extract only the assistant portion.
+    if re.match(r"^(?:user|human)\s*[:,-]\s*", raw, flags=re.IGNORECASE):
+        assistant_marker = re.search(r"\bassistant\s*[:,-]\s*", raw, flags=re.IGNORECASE)
+        if assistant_marker:
+            raw = raw[assistant_marker.end() :].strip()
+
+    # Strip leading role markers (Assistant:, Assistant -, Assistant, etc).
+    raw = re.sub(
+        r"^(?:#+\s*)?(assistant|bot|system|model|chatgpt)(?:\s+(?:reply|response|answer|message))?\s*[:,-]\s*",
+        "",
+        raw,
+        flags=re.IGNORECASE,
+    ).strip()
+
+    # If the model emits multi-turn text, keep only the first assistant segment.
+    role_marker = r"\b(?:user|human|assistant|bot|system|model|chatgpt)(?:\s+(?:response|reply|answer|message))?\s*[:,-]\s*"
+    raw = re.split(role_marker, raw, maxsplit=1, flags=re.IGNORECASE)[0].strip()
+
+    # Remove leftover "User response:" fragments even when the colon is missing.
+    raw = re.sub(r"\buser\s+response\b\s*[:,-]?\s*$", "", raw, flags=re.IGNORECASE).strip()
+
+    # Strip common thinking tags if present.
+    raw = re.sub(r"<think>.*?</think>", "", raw, flags=re.IGNORECASE).strip()
+
+    raw = _normalize_punctuation(raw)
     return " ".join(raw.split())
+
+
+def _normalize_punctuation(text: str) -> str:
+    raw = str(text or "")
+    if not raw:
+        return ""
+
+    # Fix common mojibake sequences from mis-decoding UTF-8 as Windows-1252.
+    # (We keep this lightweight and then normalize to ASCII-friendly punctuation.)
+    fixes = {
+        "â€™": "’",
+        "â€˜": "‘",
+        "â€œ": "“",
+        "â€": "”",
+        "â€“": "–",
+        "â€”": "—",
+        "Â ": " ",
+        "Â": "",
+    }
+    for bad, good in fixes.items():
+        raw = raw.replace(bad, good)
+
+    # Normalize smart punctuation to plain ASCII so output looks clean even under bad encodings.
+    raw = raw.replace("\u00a0", " ").replace("\u202f", " ")
+    raw = raw.replace("’", "'").replace("‘", "'")
+    raw = raw.replace("“", '"').replace("”", '"')
+    raw = raw.replace("—", "-").replace("–", "-")
+    return raw
 
 
 def _limit_sentences(text: str, max_sentences: int) -> str:
@@ -903,7 +991,7 @@ def _looks_like_good_chat(text: str) -> bool:
         return False
     if raw in {"?", "!", "..."}:
         return False
-    if re.search(r"\b(?:assistant|bot|system|user)\s*:\s*", raw, flags=re.IGNORECASE):
+    if re.search(r"\b(?:assistant|bot|system|user|human)\s*(?:response|reply|answer|message)?\s*[:,-]\s*", raw, flags=re.IGNORECASE):
         return False
     return True
 
@@ -948,12 +1036,233 @@ def _is_brief_acknowledgement(text: str) -> bool:
     )
 
 
+def _assistant_name() -> str:
+    return " ".join(str(os.getenv("ASSISTANT_NAME", "")).strip().split())
+
+
+def _maybe_smalltalk_reply(*, user_message: str, detected_language: str) -> str:
+    q = " ".join(str(user_message or "").strip().lower().split())
+    if not q:
+        return ""
+
+    name = _assistant_name()
+    is_fr = detected_language == "fr"
+    is_ar = detected_language == "ar"
+
+    # Basic greetings should NOT invoke the model (keeps first-turn replies stable and avoids role artifacts).
+    is_greeting = bool(
+        re.fullmatch(
+            r"(?:hi|hello|hey|yo|sup|salut|bonjour|bonsoir|coucou|cc|salam|slm|"
+            r"(?:assalam|salam)\s+(?:alaykum|alaykoum|aleykoum)|"
+            r"(?:good\s+morning|good\s+evening|good\s+afternoon))"
+            r"(?:\s+there)?[!.?]*",
+            q,
+            flags=re.IGNORECASE,
+        )
+    )
+    if is_greeting:
+        if is_fr:
+            if name:
+                return f"Salut! Moi c'est {name}. Tu veux parler orientation (ecoles / filieres) ou tu as une question rapide ?"
+            return "Salut! Tu veux parler orientation (ecoles / filieres) ou tu as une question rapide ?"
+        if is_ar:
+            if name:
+                return f"Salam! Ana {name}. Bghiti nhedro 3la l'orientation (ecoles / filieres) wla 3ndk so2al sghir ?"
+            return "Salam! Bghiti nhedro 3la l'orientation (ecoles / filieres) wla 3ndk so2al sghir ?"
+        if name:
+            return f"Hey! I'm {name}. Do you want school/program guidance, or do you have a quick question?"
+        return "Hey! Do you want school/program guidance, or do you have a quick question?"
+
+    wants_name = bool(
+        re.search(r"\b(what('?s)?|whats)\s+(your|ur)\s+name\b", q)
+        or re.search(r"\bwho\s+are\s+you\b", q)
+        or re.search(r"\b(comment\s+tu\s+t'appelles|ton\s+nom|qui\s+es\s+tu)\b", q)
+        or re.search(r"(اسمك|من\s+أنت|شنو\s+سميتك|شكون\s+نتا)", user_message)
+    )
+    if wants_name:
+        if is_fr:
+            if name:
+                return f"Tu peux m'appeler {name}. Je suis la pour t'aider a choisir une ecole / filiere. Tu vises quel domaine ?"
+            return "Je suis ton assistant d'orientation scolaire. Tu vises quel domaine ?"
+        if is_ar:
+            if name:
+                return f"T9dar tsmini {name}. Ana m3ak f l'orientation w l'ecoles. Chno l'majale li katfker fih ?"
+            return "Ana l'assistant dial l'orientation. Chno l'majale li katfker fih ?"
+        if name:
+            return f"You can call me {name}. I can help you choose schools and programs. What field are you aiming for?"
+        return "I am your school advisor assistant. What field are you aiming for?"
+
+    is_thanks = bool(
+        re.fullmatch(r"(?:thanks|thank\s+you|thx|ty|merci|chokran|shukran)(?:\s+a\s+lot)?[!.?]*", q, flags=re.IGNORECASE)
+        or re.search(r"\b(thanks|thank\s+you|merci|chokran|shukran)\b", q, flags=re.IGNORECASE)
+    )
+    if is_thanks:
+        if is_fr:
+            return "Avec plaisir. Si tu veux, dis-moi juste ta ville et ce que tu veux etudier, et je t'aide a avancer."
+        if is_ar:
+            return "B kol farah. Ila bghiti, goul lia lmdina w chno bghiti t9ra, w n3awnk step by step."
+        return "You're welcome. If you want, tell me your city and what you want to study, and I'll help you step by step."
+
+    asks_how_are_you = bool(
+        re.search(r"\b(how\s+are\s+you|how('?s)?\s+it\s+going|how\s+you\s+doing|hru)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(ça\s+va|comment\s+ça\s+va|comment\s+vas\s+tu|tu\s+vas\s+bien)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(kidayr|kifach|labas|lbas)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_how_are_you:
+        if is_fr:
+            return "Ca va, merci - je suis la avec toi. Et toi, comment tu te sens aujourd'hui ? Tu veux parler orientation ou juste discuter un peu ?"
+        if is_ar:
+            return "Labas, merci - ana m3ak. W nta kidayr lyoum ? Bghiti nhedro 3la l'orientation wla ghir nhdrou chwiya ?"
+        return "I'm doing good - I'm here with you. How are you feeling today? Do you want school guidance, or just to chat for a bit?"
+
+    asks_joke = bool(
+        re.search(r"\b(joke|funny|make\s+me\s+laugh|something\s+funny)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(blague|dr[ôo]le|fais[- ]moi\s+rire)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(nkta|nokat|d7k|dahk)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_joke:
+        if is_fr:
+            return "Ok, petite blague: Pourquoi le livre de maths etait triste ? Parce qu'il avait trop de problemes. Tu veux une autre ou on parle orientation ?"
+        if is_ar:
+            return "Wa7d nkat sghir: 3lach ktabe dyal riadiyat kan m9l9 ? Hit fih bzaaf dyal l-moshkil. Bghiti wa7d okhra wla ndkhlou f l'orientation ?"
+        return "Quick one: Why was the math book sad? Because it had too many problems. Want another, or should we talk school plans?"
+
+    mentions_stress = bool(
+        re.search(r"\b(stress|stressed|anxious|overwhelmed|burnt\s*out|tired|sad)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(stress[eé]|angoiss[eé]|d[ée]prim[eé]|fatigu[eé]|submerg[eé])\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(m9l9|m9alla9|mkhlo3|mghmoum|ta3ban)\b", q, flags=re.IGNORECASE)
+    )
+    if mentions_stress:
+        if is_fr:
+            return "Je suis desole que tu te sentes comme ca. On peut avancer doucement: c'est quoi le truc principal qui te stresse maintenant (choix de filiere, examens, ou autre) ?"
+        if is_ar:
+            return "Smah lia 3la had l-ihsas. N9dro nmchiw b chwya: chno huwa l-7aja l'kbara li كتstressik daba (imti7anat, filiere, wla chi haja okhra) ?"
+        return "I'm sorry you're feeling that. We can take it step by step: what's the main thing stressing you right now (exams, choosing a track, or something else)?"
+
+    asks_motivation = bool(
+        re.search(r"\b(motivation|motivate|encourage|inspire)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(motive\s+moi|encourage\s+moi|boost)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(3tini\s+motivation|chj3ni)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_motivation:
+        if is_fr:
+            return "Tu peux y arriver. Choisis juste une petite action maintenant (10 minutes), puis on enchaine - c'est comme ca que tu reprends le controle. Tu travailles sur quoi en ce moment ?"
+        if is_ar:
+            return "Rah t9dr. Ddir ghir wa7d lkhoutwa sghira daba (10 dqaye9), w mn ba3d nkemlou - haka katrj3 t7ss b lkontrol. Chno katkhdem 3lih daba ?"
+        return "You've got this. Pick one small action right now (10 minutes), then we build momentum from there. What are you working on today?"
+
+    asks_time = bool(
+        re.search(r"\b(what\s+time\s+is\s+it|time\s+is\s+it|current\s+time)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(quelle\s+heure|il\s+est\s+quelle\s+heure)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(chhal\s+f\s*ssa3a|f\s*ssa3a\s+chhal)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_time:
+        if is_fr:
+            return "Je ne vois pas l'heure en temps reel ici. Si tu me dis ta ville / fuseau horaire, je peux te dire a quelle heure il est environ."
+        if is_ar:
+            return "Ma kaynach 3ndi l-wa9t live hna. Ila goulti lia lmdina / timezone, n9dr n9dr lk l-wa9t ta9riban."
+        return "I can't see your current time from inside this app. If you tell me your city/timezone, I can estimate it."
+
+    asks_world_cup_2018 = bool(re.search(r"\b(world\s+cup\s+2018|coupe\s+du\s+monde\s+2018|mondial\s+2018)\b", q, flags=re.IGNORECASE))
+    if asks_world_cup_2018:
+        if is_fr:
+            return "La France a gagne la Coupe du monde 2018. Tu suis plutot le foot de clubs ou les selections nationales ?"
+        if is_ar:
+            return "France rbe7at Coupe du monde 2018. Kat3jbek ktar l'clubs wla l'equipes lwataniya ?"
+        return "France won the 2018 FIFA World Cup. Do you follow club football or national teams more?"
+
+    asks_just_chat = bool(
+        re.search(r"\b(just\s+chat|chat\s+a\s+bit|can\s+we\s+chat|let'?s\s+chat)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(on\s+peut\s+juste\s+discuter|juste\s+discuter|parler\s+un\s+peu)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(ghir\s+nhdrou|nhedro\s+chwiya)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_just_chat:
+        if is_fr:
+            return "Bien sur. Tu veux parler de quoi la maintenant - ton stress, tes projets, ou juste une discussion legere ?"
+        if is_ar:
+            return "Bien sur. 3la chno bghiti nhdrou daba - stress, plans dyalk, wla ghir hdra khfifa ?"
+        return "Of course. What do you want to talk about right now - stress, plans, or just something light?"
+
+    mentions_football = bool(re.search(r"\b(football|soccer|foot)\b", q, flags=re.IGNORECASE))
+    if mentions_football:
+        if is_fr:
+            return "Nice. Tu supportes quelle equipe ? Et tu joues aussi ou tu regardes surtout ?"
+        if is_ar:
+            return "Zwin. Chkon l'equipe li katshj3 ? W katl3b ta nta wla ghir katفرج ?"
+        return "Nice. Which team do you support? And do you play too, or mostly watch?"
+
+    asks_what_doing = bool(
+        re.search(r"\b(what\s+are\s+you\s+doing|what\s+do\s+you\s+do|what\s+are\s+you\s+up\s+to)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(que\s+fais\s+tu|tu\s+fais\s+quoi)\b", q, flags=re.IGNORECASE)
+        or re.search(r"\b(chno\s+katdir|ach\s+katdir)\b", q, flags=re.IGNORECASE)
+    )
+    if asks_what_doing:
+        if is_fr:
+            return "La maintenant, je suis la avec toi. Dis-moi ce que tu as en tete et on avance ensemble."
+        if is_ar:
+            return "Daba ana m3ak hna. Goul lia chno f balk w nkemlou m3a b3diyatna."
+        return "Right now, I'm here with you. Tell me what's on your mind and we'll figure it out together."
+
+    asks_weather = bool(
+        re.search(r"\b(weather|forecast|temperature|temp|rain|sunny|wind|humidity)\b", q)
+        or re.search(r"\b(meteo|m[eé]t[eé]o|temps|climat)\b", q)
+        or re.search(r"\b(ta9s|ljaw|shno\s+ta9s|chhal\s+ddarja)\b", q)
+        or re.search(r"(الطقس|الجو|درجة\s+الحرارة|مطر|رياح)", user_message)
+    )
+    if asks_weather:
+        if is_fr:
+            return (
+                "Je ne peux pas verifier la meteo en temps reel ici. "
+                "Dis-moi ta ville (et si c'est pour aujourd'hui ou demain) et je t'aide a te preparer; sinon, regarde une app meteo. "
+                "Tu es dans quelle ville ?"
+            )
+        if is_ar:
+            return (
+                "Ma n9drch nchouf l-meteo live hna. "
+                "Goul lia lmdina (w wach lyoum wla ghdda) w n3awnk t7ddar; w ila bghiti l'wa9e3, chof app dyal meteo. "
+                "F ach mn mdina nta ?"
+            )
+        return (
+            "I cannot check live weather from inside this app. "
+            "Tell me your city (and whether it's for today or tomorrow) and I can help you plan; otherwise please check a weather app. "
+            "What city are you in?"
+        )
+
+    asks_capabilities = bool(
+        re.search(r"\b(what can you do|how can you help|help me|commands|features)\b", q)
+        or re.search(r"\b(que peux tu faire|tu peux faire quoi|aide moi)\b", q)
+        or re.search(r"\b(chno t9dr tdir|chno t9dr t3awnni|3awnni)\b", q)
+        or re.search(r"(شنو\s+تقدر\s+تدير|عاونني|شنو\s+كتخدم)", user_message)
+    )
+    if asks_capabilities:
+        if is_fr:
+            return (
+                "Je peux t'aider a choisir une ecole / filiere au Maroc: recommandations selon ton profil (bac, budget, ville) "
+                "ou comparaison entre deux ecoles. Tu veux etudier quoi, et dans quelle ville ?"
+            )
+        if is_ar:
+            return (
+                "N9dr n3awnk t5tar ecole / filiere: recommendation 3la حساب profil dyalk (bac, budget, mdina) "
+                "wla comparaison بين جوج ديال المدارس. Chno bghiti t9ra, w f ach mn mdina ?"
+            )
+        return (
+            "I can help you pick schools and programs: recommendations from your profile (bac, budget, city) or a direct comparison. "
+            "What do you want to study, and in which city?"
+        )
+
+    return ""
+
+
 def _contextual_chat_fallback(
     *,
     user_message: str,
     chat_history: list[dict[str, str]] | None,
     detected_language: str,
 ) -> str:
+    smalltalk = _maybe_smalltalk_reply(user_message=user_message, detected_language=detected_language)
+    if smalltalk:
+        return smalltalk
+
     last_assistant = _extract_last_assistant_message(chat_history)
     has_context = bool(last_assistant)
     is_ack = _is_brief_acknowledgement(user_message)
@@ -1002,7 +1311,7 @@ class QwenGenerator:
                 dtype = torch.float16 if torch.cuda.is_available() else torch.float32
                 self._model = AutoModelForCausalLM.from_pretrained(
                     self.model_id,
-                    dtype=dtype,
+                    torch_dtype=dtype,
                     device_map="auto",
                     low_cpu_mem_usage=True,
                 )
@@ -1480,49 +1789,73 @@ class QwenGenerator:
             detected_language = _detect_language(user_message)
         lang_names = {"ar": "Arabic", "fr": "French", "en": "English"}
         lang_name = lang_names.get(detected_language, "English")
+        assistant_name = _assistant_name()
 
-        history_text = ""
-        if chat_history:
-            lines: list[str] = []
-            for msg in chat_history[-8:]:
-                if not isinstance(msg, dict):
-                    continue
-                role = str(msg.get("role", "")).strip().lower()
-                content = " ".join(str(msg.get("content", "")).split())
-                if role and content:
-                    lines.append(f"{role}: {content}")
-            if lines:
-                history_text = "\nRecent chat:\n" + "\n".join(lines)
-
-        prompt = (
-            "SYSTEM:\n"
-            f"{CHAT_PROMPT_HEADER}"
-            f"Reply ONLY in {lang_name}.\n"
-            "Use 2 to 6 sentences by default; go deeper only when user asks.\n"
-            "End with one short relevant follow-up question when it helps.\n"
-            "Do not output JSON.\n"
-            "Do not mention internal rules.\n\n"
-            "Recent conversation:\n"
-            f"{history_text if history_text else '(none)'}\n\n"
-            "Latest user message:\n"
-            f"{user_message}"
-        )
+        smalltalk = _maybe_smalltalk_reply(user_message=user_message, detected_language=detected_language)
+        if smalltalk:
+            return smalltalk
 
         if not self._ensure_loaded() or self._tokenizer is None or self._model is None:
-            return ""
+            return _normalize_punctuation(_contextual_chat_fallback(
+                user_message=user_message,
+                chat_history=chat_history,
+                detected_language=detected_language,
+            ))
 
         try:
-            inputs = self._tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+            system_prompt = CHAT_PROMPT_HEADER
+            if assistant_name:
+                system_prompt = f"Your name is {assistant_name}.\n" + system_prompt
+            system_prompt = (
+                system_prompt
+                + f"\nReply ONLY in {lang_name}.\n"
+                + "Keep it human and concise (2 to 4 sentences by default).\n"
+                + "Ask at most one short follow-up question when it helps.\n"
+                + "Do not output JSON. Do not mention internal rules.\n"
+            )
+
+            messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
+            if chat_history:
+                for msg in chat_history[-8:]:
+                    if not isinstance(msg, dict):
+                        continue
+                    role = str(msg.get("role", "")).strip().lower()
+                    content = " ".join(str(msg.get("content", "")).split()).strip()
+                    if role in {"user", "assistant"} and content:
+                        messages.append({"role": role, "content": content})
+            messages.append({"role": "user", "content": user_message})
+
+            inputs = self._tokenizer.apply_chat_template(
+                messages,
+                tokenize=True,
+                add_generation_prompt=True,
+                return_tensors="pt",
+            )
             device = self._model.device
             inputs = {k: v.to(device) for k, v in inputs.items()}
+
+            do_sample = _env_bool("CHAT_DO_SAMPLE", True)
+            max_new_tokens = max(40, min(240, _env_int("CHAT_MAX_NEW_TOKENS", 140)))
+            repetition_penalty = max(1.0, _env_float("CHAT_REPETITION_PENALTY", 1.06))
+
+            gen_kwargs: dict[str, Any] = {
+                "max_new_tokens": max_new_tokens,
+                "do_sample": do_sample,
+                "pad_token_id": self._tokenizer.pad_token_id,
+                "repetition_penalty": repetition_penalty,
+            }
+            if do_sample:
+                gen_kwargs["temperature"] = max(0.05, min(1.5, _env_float("CHAT_TEMPERATURE", 0.75)))
+                gen_kwargs["top_p"] = max(0.05, min(1.0, _env_float("CHAT_TOP_P", 0.92)))
+                top_k = _env_int("CHAT_TOP_K", 50)
+                if top_k > 0:
+                    gen_kwargs["top_k"] = top_k
+            else:
+                gen_kwargs["temperature"] = 0.0
+
             with torch.no_grad():
-                out = self._model.generate(
-                    **inputs,
-                    max_new_tokens=110,
-                    do_sample=False,
-                    temperature=0.0,
-                    pad_token_id=self._tokenizer.pad_token_id,
-                )
+                out = self._model.generate(**inputs, **gen_kwargs)
+
             raw = self._tokenizer.decode(out[0][inputs["input_ids"].shape[1] :], skip_special_tokens=True)
             text = _clean_dialogue_artifacts(raw)
             text = _limit_sentences(text, 4)
@@ -1530,7 +1863,11 @@ class QwenGenerator:
                 return text
         except Exception:
             LOGGER.exception("chat response generation failed")
-        return ""
+        return _normalize_punctuation(_contextual_chat_fallback(
+            user_message=user_message,
+            chat_history=chat_history,
+            detected_language=detected_language,
+        ))
 
     def rewrite_to_natural_response(
         self,

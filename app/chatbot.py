@@ -7,7 +7,7 @@ from collections import deque
 from statistics import mean
 from typing import Any
 
-from app.generator import QWEN_GENERATOR
+from app.generator import QWEN_GENERATOR, _detect_language as detect_language
 from app.models import EvidenceItem, QueryResponse, UserProfile
 from app.retriever import resolve_effective_profile, retrieve
 from app.supabase_store import fetch_user_career_profile
@@ -54,13 +54,6 @@ _RESPONSE_STYLES = [
     "direct_recommendation",
     "clarification_mode",
 ]
-
-
-def detect_language(text: str) -> str:
-    q = " ".join(str(text or "").split()).strip().lower()
-    if re.search(r"\b(le|la|les|un|une|des|est|pour|avec|quelle|quelles|ecole|ecoles|universite|bonjour|salut|merci)\b", q):
-        return "fr"
-    return "en"
 
 
 def _to_int(value: Any, default: int = 0) -> int:
@@ -865,6 +858,7 @@ def _sanitize_user_facing_text(text: str) -> str:
 
 def _chat_continuity_fallback(message: str, chat_history: list[dict[str, str]] | None = None) -> str:
     user_msg = " ".join(str(message or "").strip().lower().split())
+    detected_language = detect_language(message or "")
     last_assistant = ""
     if chat_history:
         for msg in reversed(chat_history):
@@ -883,6 +877,20 @@ def _chat_continuity_fallback(message: str, chat_history: list[dict[str, str]] |
             user_msg,
         )
     )
+    if detected_language == "fr":
+        if last_assistant and is_brief_ack:
+            return "Parfait, on continue. Donne-moi juste un peu plus de details et je t aide etape par etape."
+        if last_assistant:
+            return "Je vois. Continue avec un peu plus de details et je t aide a avancer."
+        return "Salut! Je suis la. Tu veux parler de quoi exactement ?"
+
+    if detected_language == "ar":
+        if last_assistant and is_brief_ack:
+            return "Mzyan, nkemlou. 3tini chwiya tafasil ktar w n3awnk b khotwat wadhin."
+        if last_assistant:
+            return "Fhemtk. Zidni b tafasil 9lila w ghadi nkemlou mzyan."
+        return "Salam! Ana m3ak. Chno bghiti n3awnk fih bddabt ?"
+
     if last_assistant and is_brief_ack:
         return "Great, let us continue. Share a little more detail about your situation and I will help step by step."
     if last_assistant:
@@ -1258,9 +1266,9 @@ def answer_question(
     mode: str = "auto",
 ) -> QueryResponse:
     city_only_mode = False
-    is_fr = True
     user_question = " ".join(str(question or "").split())
     response_language = detect_language(user_question)
+    is_fr = response_language == "fr"
 
     normalized_mode = str(mode or "auto").strip().lower()
     if normalized_mode not in {"auto", "chat", "recommendation"}:
@@ -1286,6 +1294,8 @@ def answer_question(
             )
         except Exception:
             chat_text = ""
+        if not (chat_text or "").strip():
+            chat_text = _chat_continuity_fallback(user_question, chat_history)
         _record_output(chat_text)
         return QueryResponse(
             short_answer=chat_text,
@@ -1299,6 +1309,15 @@ def answer_question(
         )
 
     if not _profile_has_signal(profile):
+        if not is_fr:
+            return QueryResponse(
+                short_answer="I can do better than a random recommendation, but I need a bit of context about you.",
+                why_it_fits="If you tell me your main goal, I can guide you without overwhelming you with options.",
+                evidence=[],
+                alternative="For example: your preferred city and what kind of path you imagine (engineering, business, medicine, etc.).",
+                next_action="Do you want to start by clarifying your goal or your budget first?",
+                confidence=0.0,
+            )
         return QueryResponse(
             short_answer="On peut faire mieux qu une recommandation au hasard, mais j ai besoin d un peu de contexte sur toi.",
             why_it_fits=(
@@ -1355,6 +1374,15 @@ def answer_question(
     )
 
     if not hits:
+        if not is_fr:
+            return QueryResponse(
+                short_answer="I did not find a school that matches your profile closely enough.",
+                why_it_fits="The available options did not align with your budget, level, city, or direction constraints.",
+                evidence=[],
+                alternative="You can widen the target city or relax the budget constraint to get more matches.",
+                next_action="Update your profile and I will recompute the top schools using only those constraints.",
+                confidence=0.1,
+            )
         return QueryResponse(
             short_answer=(
                 "Je n ai pas trouve d ecole qui respecte exactement ton profil."

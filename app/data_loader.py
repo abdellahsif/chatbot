@@ -91,6 +91,33 @@ def _split_program_labels(value: Any) -> list[str]:
     return labels
 
 
+def _detect_language(text: str) -> str:
+    """Detect language from text. Returns 'ar', 'fr', 'en', etc."""
+    if not text:
+        return "fr"
+    text_lower = _safe_str(text).lower()
+    
+    # Arabic script detection
+    if re.search(r'[\u0600-\u06FF]', text_lower):
+        return "ar"
+    
+    # French-specific words
+    french_indicators = ["école", "lycée", "bac", "filière", "licence", "master", "ing", "génie", "étude", 
+                        "programme", "cours", "diplôme", "université", "gratuit", "professionnel"]
+    if any(word in text_lower for word in french_indicators):
+        return "fr"
+    
+    # Default to French for Morocco context
+    return "fr"
+
+
+def _preserve_accents_text(text: str) -> str:
+    """Preserve accents and special characters in text for better semantic matching."""
+    # Simply return the text as-is to preserve accents
+    # Don't use NFD or NFKD normalization for display/embedding text
+    return text
+
+
 def _legal_status_to_type(legal_status: str) -> str:
     s = _safe_str(legal_status).lower()
     return "public" if any(k in s for k in ["public", "publique", "etat", "state"]) else "private"
@@ -169,6 +196,7 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
             "programs": all_programs,
             "programs_tags": _safe_str(row.get("programs_tags")),
             "filieres": _safe_str(row.get("filieres")),
+            "domaine_principal": _safe_str(row.get("domaine_principal")),
             "admission_selectivity": "medium",
             "employability_score": 3.8,
             "salary_entry_min_mad": 6000,
@@ -184,7 +212,7 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         pricing_details = row.get("pricing_details")
         pricing_text = ""
         if isinstance(pricing_details, dict):
-            pricing_text = json.dumps(pricing_details, ensure_ascii=True)
+            pricing_text = json.dumps(pricing_details, ensure_ascii=False)  # preserve unicode
         elif pricing_details is not None:
             pricing_text = _safe_str(pricing_details)
 
@@ -195,23 +223,22 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
         if city:
             intro += f" in {city}"
 
+        common_tags = [
+            _normalize_token(city),
+            _normalize_token(school_type),
+            _normalize_token(_safe_str(row.get("acronym"))),
+        ]
+
+        # Detect language from school data
+        detected_lang = _detect_language(name + " " + city + " " + legal_status)
+        display_lang = "ar" if detected_lang == "ar" else "fr"
+
         overview_parts = [intro + "."]
         if legal_status:
-            overview_parts.append(f"Status {legal_status}.")
-
-        if pretty_program_labels:
-            overview_parts.append(f"Programs: {' | '.join(pretty_program_labels[:14])}.")
-        else:
-            overview_parts.append(f"Programs: {' | '.join(all_programs[:14])}.")
-
+            overview_parts.append(f"Status: {legal_status}.")
         if pricing_min > 0 or pricing_max > 0:
-            overview_parts.append(f"Tuition range {pricing_min} to {pricing_max} MAD.")
-
-        overview_text = " ".join(overview_parts)
-        if pricing_text:
-            overview_text += f" Pricing details: {pricing_text}."
-        if conditions:
-            overview_text += f" Conditions: {conditions}."
+            overview_parts.append(f"Tuition range: {pricing_min} to {pricing_max} MAD/year.")
+        overview_text = " ".join(overview_parts).strip()
 
         transcripts.append(
             {
@@ -220,17 +247,210 @@ def load_from_supabase_schools(limit: int = 500) -> tuple[dict[str, dict], list[
                 "school_id": school_id,
                 "program": all_programs[0] if all_programs else "general",
                 "level": "bac_plus_1",
-                "language": "fr",
+                "language": display_lang,
                 "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
-                "text": overview_text,
+                "text": _preserve_accents_text(overview_text),
                 "sentiment": "positive",
-                "tags": [
-                    _normalize_token(city),
-                    _normalize_token(school_type),
-                    _normalize_token(_safe_str(row.get("acronym"))),
-                ],
+                "tags": common_tags + ["overview"],
             }
         )
+
+        # Create a domain-level chunk if domaine_principal exists
+        domaine_principal = _safe_str(row.get("domaine_principal"))
+        if domaine_principal:
+            domaine_token = _normalize_token(domaine_principal)
+            if display_lang == "ar":
+                domain_text = f"المجال: {domaine_principal}. المؤسسة: {name}. الموقع: {city}. النوع: {school_type}. برامج متعددة في هذا المجال."
+            else:
+                domain_text = f"Domaine: {domaine_principal}. École: {name}. Localisation: {city}. Type: {school_type}. Plusieurs programmes dans ce domaine."
+            
+            transcripts.append(
+                {
+                    "chunk_id": f"sb_{_normalize_token(raw_id)}_domain_{domaine_token}",
+                    "video_id": "supabase_schools",
+                    "school_id": school_id,
+                    "program": all_programs[0] if all_programs else "general",
+                    "level": "bac_plus_1",
+                    "language": display_lang,
+                    "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                    "text": _preserve_accents_text(domain_text),
+                    "sentiment": "positive",
+                    "tags": common_tags + ["domain", domaine_token],
+                }
+            )
+
+        program_labels = pretty_program_labels if pretty_program_labels else [p for p in all_programs if _safe_str(p)]
+        if program_labels:
+            programs_chunk_size = 12
+            for j in range(0, len(program_labels), programs_chunk_size):
+                subset = program_labels[j : j + programs_chunk_size]
+                if not subset:
+                    continue
+                programs_text = f"Programmes offerts: {' | '.join(subset)}."
+                transcripts.append(
+                    {
+                        "chunk_id": f"sb_{_normalize_token(raw_id)}_programs_{(j // programs_chunk_size) + 1}",
+                        "video_id": "supabase_schools",
+                        "school_id": school_id,
+                        "program": all_programs[min(j, max(0, len(all_programs) - 1))] if all_programs else "general",
+                        "level": "bac_plus_1",
+                        "language": display_lang,
+                        "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                        "text": _preserve_accents_text(programs_text),
+                        "sentiment": "positive",
+                        "tags": common_tags + ["programs"],
+                    }
+                )
+
+        employability_score = _parse_int(row.get("employability_score"), 38) / 10.0
+        salary_min = _parse_int(row.get("salary_entry_min_mad"), 6000)
+        salary_max = _parse_int(row.get("salary_entry_max_mad"), 12000)
+
+        # Extract additional fields for richer chunks
+        domaine_principal = _safe_str(row.get("domaine_principal"))
+        ambiance_score = _parse_int(row.get("ambiance_score"), 0)
+        ambiance_label = _safe_str(row.get("ambiance_label"))
+        difficulty_score = _parse_int(row.get("difficulty_score"), 0)
+        difficulty_label = _safe_str(row.get("difficulty_label"))
+        analysis_video_count = _parse_int(row.get("analysis_video_count"), 0)
+
+        for prog_label in program_labels[:15]:
+            prog_token = _normalize_token(prog_label)
+            
+            # Create multilingual program details
+            if display_lang == "ar":
+                program_detail_parts = [
+                    f"البرنامج: {prog_label}",
+                    f"المؤسسة: {name}" + (f" ({acronym})" if acronym else ""),
+                    f"الموقع: {city}." if city else "",
+                    f"النوع: {school_type}.",
+                    "مستوى البرنامج: ليسانس إلى ماستر.",
+                ]
+            else:
+                program_detail_parts = [
+                    f"Filière/Programme: {prog_label}.",
+                    f"École: {name}" + (f" ({acronym})" if acronym else ""),
+                    f"Localisation: {city}." if city else "",
+                    f"Type: {school_type}.",
+                    "Niveaux: Bac+1 à Bac+5.",
+                ]
+
+            # Add domain if available
+            if domaine_principal:
+                if display_lang == "ar":
+                    program_detail_parts.append(f"المجال الرئيسي: {domaine_principal}.")
+                else:
+                    program_detail_parts.append(f"Domaine principal: {domaine_principal}.")
+
+            if salary_min > 0 or salary_max > 0:
+                if display_lang == "ar":
+                    program_detail_parts.append(f"الراتب الأساسي: {salary_min} إلى {salary_max} درهم/سنة.")
+                else:
+                    program_detail_parts.append(f"Salaire d'entrée: {salary_min} à {salary_max} MAD/an.")
+            
+            if employability_score >= 3.5:
+                rating = "excellent" if employability_score >= 4.2 else "très bon" if employability_score >= 3.8 else "bon"
+                if display_lang == "ar":
+                    rating = "ممتاز" if employability_score >= 4.2 else "جيد جداً" if employability_score >= 3.8 else "جيد"
+                    program_detail_parts.append(f"التوظيف: {rating} ({employability_score:.1f}/5).")
+                else:
+                    program_detail_parts.append(f"Employabilité: {rating} ({employability_score:.1f}/5).")
+            
+            # Add ambiance info if available
+            if ambiance_score > 0 or ambiance_label:
+                ambiance_text = ambiance_label if ambiance_label else f"score {ambiance_score}/5"
+                if display_lang == "ar":
+                    program_detail_parts.append(f"أجواء الحرم: {ambiance_text}.")
+                else:
+                    program_detail_parts.append(f"Ambiance campus: {ambiance_text}.")
+            
+            # Add difficulty info if available
+            if difficulty_score > 0 or difficulty_label:
+                difficulty_text = difficulty_label if difficulty_label else f"score {difficulty_score}/5"
+                if display_lang == "ar":
+                    program_detail_parts.append(f"صعوبة البرنامج: {difficulty_text}.")
+                else:
+                    program_detail_parts.append(f"Difficulté du programme: {difficulty_text}.")
+            
+            # Add video count if available
+            if analysis_video_count > 0:
+                if display_lang == "ar":
+                    program_detail_parts.append(f"محتوى الفيديو: {analysis_video_count} فيديوهات متاحة.")
+                else:
+                    program_detail_parts.append(f"Contenu vidéo: {analysis_video_count} vidéos disponibles.")
+            
+            if conditions:
+                if display_lang == "ar":
+                    program_detail_parts.append(f"الشروط: {conditions}.")
+                else:
+                    program_detail_parts.append(f"Conditions d'admission: {conditions}.")
+
+            program_detail_text = " ".join(p for p in program_detail_parts if p)
+            transcripts.append(
+                {
+                    "chunk_id": f"sb_{_normalize_token(raw_id)}_prog_{prog_token}",
+                    "video_id": "supabase_schools",
+                    "school_id": school_id,
+                    "program": prog_token,
+                    "level": "bac_plus_1",
+                    "language": display_lang,
+                    "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                    "text": _preserve_accents_text(program_detail_text),
+                    "sentiment": "positive",
+                    "tags": common_tags + ["program_detail", prog_token] + ([_normalize_token(domaine_principal)] if domaine_principal else []),
+                }
+            )
+
+        if pricing_text:
+            compact_pricing = " ".join(str(pricing_text).split())
+            if len(compact_pricing) > 800:
+                compact_pricing = compact_pricing[:800].rstrip(" ,;:.") + "..."
+            cost_parts: list[str] = []
+            if pricing_min > 0 or pricing_max > 0:
+                if display_lang == "ar":
+                    cost_parts.append(f"نطاق الرسوم: {pricing_min} إلى {pricing_max} درهم.")
+                else:
+                    cost_parts.append(f"Frais de scolarité: {pricing_min} à {pricing_max} MAD/an.")
+            
+            if display_lang == "ar":
+                cost_parts.append(f"تفاصيل الأسعار: {compact_pricing}.")
+            else:
+                cost_parts.append(f"Détails des frais: {compact_pricing}.")
+            cost_text = " ".join(cost_parts).strip()
+            transcripts.append(
+                {
+                    "chunk_id": f"sb_{_normalize_token(raw_id)}_cost",
+                    "video_id": "supabase_schools",
+                    "school_id": school_id,
+                    "program": all_programs[0] if all_programs else "general",
+                    "level": "bac_plus_1",
+                    "language": display_lang,
+                    "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                    "text": _preserve_accents_text(cost_text),
+                    "sentiment": "positive",
+                    "tags": common_tags + ["cost"],
+                }
+            )
+
+        if conditions:
+            if display_lang == "ar":
+                admission_text = f"شروط الدخول: {conditions}."
+            else:
+                admission_text = f"Conditions d'admission: {conditions}."
+            transcripts.append(
+                {
+                    "chunk_id": f"sb_{_normalize_token(raw_id)}_admission",
+                    "video_id": "supabase_schools",
+                    "school_id": school_id,
+                    "program": all_programs[0] if all_programs else "general",
+                    "level": "bac_plus_1",
+                    "language": display_lang,
+                    "recorded_at": _safe_str(row.get("created_at")) or "2026-01-01",
+                    "text": _preserve_accents_text(admission_text),
+                    "sentiment": "positive",
+                    "tags": common_tags + ["admission"],
+                }
+            )
 
     return schools, transcripts
 
@@ -327,14 +547,17 @@ def _load_from_excel_catalog_tables(tables: dict[str, list[dict[str, Any]]]) -> 
 
         summary_parts = [
             f"{name} in {city}." if city else f"{name}.",
-            f"Status: {status}." if status else "",
-            f"Domain: {domain}." if domain else "",
-            f"Programs: {filieres_text}." if filieres_text else "",
-            f"Admission: {conditions}." if conditions else "",
+            f"Statut: {status}." if status else "",
+            f"Domaine: {domain}." if domain else "",
+            f"Filières: {filieres_text}." if filieres_text else "",
+            f"Conditions d'admission: {conditions}." if conditions else "",
         ]
         if tuition_min > 0 or tuition_max > 0:
-            summary_parts.append(f"Tuition range {tuition_min} to {tuition_max} MAD.")
+            summary_parts.append(f"Frais de scolarité: {tuition_min} à {tuition_max} MAD/an.")
         summary_text = " ".join(p for p in summary_parts if p)
+
+        detected_lang = _detect_language(name + " " + city + " " + domain)
+        display_lang = "ar" if detected_lang == "ar" else "fr"
 
         transcripts.append(
             {
@@ -343,9 +566,9 @@ def _load_from_excel_catalog_tables(tables: dict[str, list[dict[str, Any]]]) -> 
                 "school_id": school_id,
                 "program": programs[0],
                 "level": "bac_plus_1",
-                "language": "fr",
+                "language": display_lang,
                 "recorded_at": _safe_str(row.get("Date de collecte")) or "2026-01-01",
-                "text": summary_text,
+                "text": _preserve_accents_text(summary_text),
                 "sentiment": "positive",
                 "tags": [
                     _normalize_token(city),

@@ -334,15 +334,54 @@ class _SemanticIndex:
             school_texts: list[str] = []
             for school_id, school in schools.items():
                 chunks = chunk_by_school.get(str(school_id), [])
+                
+                # Collect program detail chunks for richer context (preserve accents)
+                program_details: list[str] = []
+                for chunk in chunks:
+                    chunk_tags = chunk.get("tags", [])
+                    if "program_detail" in chunk_tags:
+                        program_details.append(str(chunk.get("text", ""))[:250])
+                
                 chunk_text = " ".join(str(c.get("text", ""))[:220] for c in chunks[:3])
+                program_context = " ".join(program_details[:5])
+                
+                school_type = school.get("type", "")
+                programs_list = school.get("programs", [])
+                
+                # Extract enriched metadata
+                salary_min = school.get("salary_entry_min_mad", 0)
+                salary_max = school.get("salary_entry_max_mad", 0)
+                salary_info = f"Salaire d'entrée {salary_min} à {salary_max} MAD/an." if (salary_min > 0 or salary_max > 0) else ""
+                
+                emp_score = school.get("employability_score", 0)
+                if emp_score >= 4.2:
+                    emp_rating = "excellente"
+                elif emp_score >= 3.8:
+                    emp_rating = "très bonne"
+                else:
+                    emp_rating = "bonne"
+                employability = f"Employabilité {emp_rating} ({emp_score}/5)." if emp_score > 0 else ""
+                
+                tuition_min = school.get("tuition_min_mad", 0)
+                tuition_max = school.get("tuition_max_mad", 0)
+                tuition_info = f"Frais: {tuition_min} à {tuition_max} MAD." if (tuition_min > 0 or tuition_max > 0) else ""
+                
+                # Add domain principal if available
+                domain_principal = str(school.get("domaine_principal", "")).strip() if school.get("domaine_principal") else ""
+                domain_info = f"Domaine: {domain_principal}." if domain_principal else ""
+                
                 doc_text = " ".join(
                     [
                         str(school.get("name", "")),
                         str(school.get("city", "")),
-                        " ".join(school.get("programs", [])),
-                        str(school.get("type", "")),
-                        str(school.get("tuition_max_mad", "")),
+                        domain_info,
+                        " ".join(programs_list),
+                        f"Type: {school_type}.",
+                        tuition_info,
+                        salary_info,
+                        employability,
                         chunk_text,
+                        program_context,
                     ]
                 )
                 school_docs.append(
