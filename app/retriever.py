@@ -760,16 +760,16 @@ def _normalize_bac_series(text: str) -> str:
 
 
 _BAC_SERIES_ALLOWED_DOMAINS: dict[str, set[str]] = {
-    "sm_a": {"engineering", "computer", "science", "health", "business"},
-    "sm_b": {"engineering", "computer", "science", "health", "business"},
-    "sm": {"engineering", "computer", "science", "health", "business"},
-    "spc": {"engineering", "computer", "science", "business"},
-    "svt": {"health", "science"},
-    "agro": {"science", "health"},
+    "sm_a": {"engineering", "computer", "science", "health", "business", "arts", "agriculture"},
+    "sm_b": {"engineering", "computer", "science", "health", "business", "arts", "agriculture"},
+    "sm": {"engineering", "computer", "science", "health", "business", "arts", "agriculture"},
+    "spc": {"engineering", "computer", "science", "health", "business"},
+    "svt": {"health", "science", "business", "engineering", "computer"},
+    "agro": {"science", "health", "agriculture"},
     "ste": {"engineering", "computer", "science"},
     "stm": {"engineering", "computer", "science"},
-    "eco": {"business", "law", "public_admin"},
-    "tgc": {"business", "law", "public_admin"},
+    "eco": {"business", "law", "public_admin", "engineering", "computer"},
+    "tgc": {"business", "law", "public_admin", "engineering"},
     "lettres": {"law", "humanities", "public_admin"},
     "sc_humaines": {"law", "humanities", "public_admin"},
     "langue_arabe": {"law", "humanities", "public_admin"},
@@ -779,15 +779,40 @@ _BAC_SERIES_ALLOWED_DOMAINS: dict[str, set[str]] = {
 
 _SCHOOL_DOMAIN_KEYWORDS: dict[str, set[str]] = {
     "military": {"military", "army", "defense", "defence", "gendarmerie", "royale", "parachut", "infanterie", "blind", "transport"},
-    "business": {"business", "commerce", "management", "gestion", "finance", "marketing", "entreprise", "accounting", "audit", "bank"},
-    "engineering": {"engineering", "ingenieur", "ingenierie", "tech", "technologie", "science", "appliquee", "appliquees", "telecommunication", "telecommunications", "tic", "numerique", "digital"},
+    "business": {"business", "commerce", "management", "gestion", "finance", "marketing", "entreprise", "accounting", "audit", "bank", "encg", "iscae", "fsjes"},
+    "engineering": {
+        "engineering",
+        "ingenieur",
+        "ingenierie",
+        "tech",
+        "technologie",
+        "science",
+        "appliquee",
+        "appliquees",
+        "telecommunication",
+        "telecommunications",
+        "tic",
+        "numerique",
+        "digital",
+        "cpge",
+        "ensa",
+        "ensam",
+        "emi",
+        "ehtp",
+        "ensias",
+        "inpt",
+        "fst",
+        "est",
+        "bts",
+    },
     "computer": {"informatique", "software", "computer", "cs", "data", "cyber", "programming", "code", "developpement", "telecom", "telecommunication", "telecommunications", "tic", "numerique", "digital"},
-    "health": {"health", "sante", "medical", "medecine", "pharmacie", "paramedical", "nursing", "biologie"},
-    "arts": {"art", "arts", "design", "beaux", "creative", "cinema", "architecture", "portfolio"},
-    "law": {"law", "droit", "legal", "juridique"},
-    "humanities": {"lettres", "litterature", "humanities", "communication", "education", "sharia", "philosophie"},
+    "health": {"health", "sante", "medical", "medecine", "pharmacie", "paramedical", "nursing", "biologie", "ispits", "dentaire", "dentistry"},
+    "arts": {"art", "arts", "design", "beaux", "creative", "cinema", "architecture", "portfolio", "isadac", "beauxarts", "multimedia", "mode", "fashion"},
+    "law": {"law", "droit", "legal", "juridique", "fsjes"},
+    "humanities": {"lettres", "litterature", "humanities", "communication", "education", "sharia", "philosophie", "isic", "journalisme", "tourisme", "traduction"},
     "public_admin": {"administration", "public", "gouvernance", "policy", "police", "diplomatie"},
-    "science": {"science", "sciences", "research", "recherche"},
+    "science": {"science", "sciences", "research", "recherche", "fst"},
+    "agriculture": {"agriculture", "agronomie", "agronomique", "agro", "agricole", "veterinaire", "veterinary", "elevage", "forest", "foret", "forets", "eaux", "rural", "iav"},
 }
 
 
@@ -864,7 +889,7 @@ def _has_semantic_domain_incompatibility(profile_bac_stream: str, school: dict[s
     # Explicit strict rejects from product rules.
     if bac == "eco" and "military" in school_domains:
         return True
-    if bac == "svt" and ({"engineering", "computer", "military"} & school_domains):
+    if bac == "svt" and "military" in school_domains:
         return True
     if bac == "spc" and ({"law", "military"} & school_domains):
         return True
@@ -898,11 +923,19 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
             {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
             {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
             {"science", "sciences", "math", "mathematiques"},
+            {"health", "sante", "medical", "medecine", "pharmacie", "dentaire", "paramedical"},
+            {"business", "commerce", "management", "gestion", "finance", "marketing", "encg", "iscae"},
+            {"architecture", "urbanisme", "design", "beaux"},
+            {"agriculture", "agronomie", "agro", "veterinaire", "veterinary", "iav", "forest", "foret"},
         ],
         "sm_b": [
             {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
             {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
             {"science", "sciences", "math", "mathematiques"},
+            {"health", "sante", "medical", "medecine", "pharmacie", "dentaire", "paramedical"},
+            {"business", "commerce", "management", "gestion", "finance", "marketing", "encg", "iscae"},
+            {"architecture", "urbanisme", "design", "beaux"},
+            {"agriculture", "agronomie", "agro", "veterinaire", "veterinary", "iav", "forest", "foret"},
         ],
         "eco": [
             {"business", "commerce", "management", "gestion", "finance", "accounting", "audit"},
@@ -913,19 +946,27 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
             {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
             {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
             {"science", "sciences", "math", "mathematiques"},
+            {"health", "sante", "medical", "medecine", "pharmacie", "dentaire", "paramedical"},
+            {"business", "commerce", "management", "gestion", "finance", "marketing", "encg", "iscae"},
+            {"architecture", "urbanisme", "design", "beaux"},
+            {"agriculture", "agronomie", "agro", "veterinaire", "veterinary", "iav", "forest", "foret"},
         ],
         "spc": [
             {"engineering", "ingenieur", "ingenierie", "tech", "technologie"},
             {"computer", "informatique", "software", "data", "cyber", "programming", "code"},
             {"science", "sciences", "physique", "physiques"},
+            {"health", "sante", "medical", "medecine", "pharmacie", "dentaire", "paramedical"},
+            {"business", "commerce", "management", "gestion", "finance", "marketing", "encg", "iscae"},
         ],
         "svt": [
             {"health", "sante", "medical", "medecine", "pharmacie", "paramedical", "nursing"},
             {"biology", "biologie", "bio", "life", "vie", "terre"},
             {"science", "sciences", "environment", "ecologie"},
+            {"business", "commerce", "management", "gestion", "finance", "marketing", "encg"},
+            {"engineering", "ingenieur", "ingenierie", "tech", "technologie", "est", "bts", "ofppt"},
         ],
         "agro": [
-            {"agriculture", "agronomie", "agronomique", "agro", "elevage"},
+            {"agriculture", "agronomie", "agronomique", "agro", "elevage", "veterinaire", "veterinary", "iav", "forest", "foret", "eaux"},
             {"biology", "biologie", "bio", "environment", "ecologie", "terre"},
             {"science", "sciences", "life", "vie", "nature"},
         ],
@@ -943,26 +984,27 @@ def _bac_semantic_score(profile_bac_stream: str, school: dict[str, Any], chunks:
             {"business", "commerce", "management", "gestion", "finance", "accounting", "audit"},
             {"comptabilite", "comptable", "gestion", "entreprise", "marketing"},
             {"law", "droit", "juridique", "administration", "public"},
+            {"est", "bts", "ofppt", "technicien", "technique"},
         ],
         "lettres": [
-            {"humanities", "lettres", "litterature", "communication", "education", "langue"},
+            {"humanities", "lettres", "litterature", "communication", "education", "langue", "isic", "journalisme", "tourisme", "traduction"},
             {"law", "droit", "juridique", "legal", "administration", "public", "gouvernance"},
         ],
         "sc_humaines": [
-            {"humanities", "lettres", "litterature", "communication", "education", "sociologie", "histoire"},
+            {"humanities", "lettres", "litterature", "communication", "education", "sociologie", "histoire", "isic", "journalisme", "tourisme", "traduction"},
             {"law", "droit", "juridique", "legal", "administration", "public", "gouvernance"},
         ],
         "langue_arabe": [
-            {"humanities", "lettres", "litterature", "communication", "education", "arabe", "langue"},
+            {"humanities", "lettres", "litterature", "communication", "education", "arabe", "langue", "traduction"},
             {"law", "droit", "juridique", "legal", "administration", "public"},
         ],
         "chariaa": [
             {"law", "droit", "juridique", "legal", "charia", "chariaa", "fiqh"},
-            {"humanities", "lettres", "litterature", "education", "religieux"},
+            {"humanities", "lettres", "litterature", "education", "religieux", "arabe"},
             {"administration", "public", "gouvernance"},
         ],
         "arts_appliques": [
-            {"arts", "art", "design", "creative", "cinema", "portfolio"},
+            {"arts", "art", "design", "creative", "cinema", "portfolio", "isadac", "multimedia", "mode", "fashion"},
             {"architecture", "urbanisme", "beaux", "graphique"},
         ],
     }
@@ -2003,10 +2045,10 @@ def _score_candidate(
     motivation_match = _motivation_match_score(profile, school)
 
     profile_priority = (
-        0.4 * bac_semantic
-        + 0.2 * location_match
-        + 0.2 * budget_match
-        + 0.2 * motivation_match
+        0.55 * bac_semantic
+        + 0.15 * location_match
+        + 0.15 * budget_match
+        + 0.15 * motivation_match
     )
     career_domain_match, career_overlap, domain_alignment = career_domain_match_score()
     weighted = 0.7 * profile_priority + 0.3 * career_domain_match

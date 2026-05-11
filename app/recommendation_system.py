@@ -394,10 +394,10 @@ def _school_rank_payloads(
         blended = 0.8 * profile_priority + 0.2 * career_domain_match
         if blended <= 0.0:
             blended = (
-                0.5 * float(components.get("bac_semantic", 0.0))
-                + 0.2 * float(components.get("location_match", 0.0))
-                + 0.15 * float(components.get("budget_match", 0.0))
-                + 0.15 * float(components.get("motivation_match", 0.0))
+                0.6 * float(components.get("bac_semantic", 0.0))
+                + 0.15 * float(components.get("location_match", 0.0))
+                + 0.125 * float(components.get("budget_match", 0.0))
+                + 0.125 * float(components.get("motivation_match", 0.0))
             )
         match_score = round(100.0 * blended, 1)
         match_grade = _match_grade(match_score)

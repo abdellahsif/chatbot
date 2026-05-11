@@ -1,0 +1,58 @@
+[
+  {
+    "question": "Recommend a public elite engineering school in Morocco for computer science, AI, and employability. City is flexible.",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "elite",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA",
+      "classe": "2BAC SM",
+      "note_esperee": "18.5"
+    },
+    "expected_school": "École Mohammadia d'Ingénieurs"
+  },
+  {
+    "question": "Recommend a public business and management school in Morocco, preferably ENCG, for commerce and finance. City is flexible.",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Settat",
+      "country": "MA",
+      "classe": "2BAC ECO",
+      "note_esperee": "14.2"
+    },
+    "expected_school": "École Nationale de Commerce et de Gestion de Settat"
+  },
+  {
+    "question": "Recommend a public computer science school in Morocco, especially ENSIAS, for software engineering and data science. City is flexible.",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA",
+      "classe": "2BAC SMB",
+      "note_esperee": "17.3"
+    },
+    "expected_school": "École Nationale Supérieure d'Informatique et d'Analyse des Systèmes"
+  },
+  {
+    "question": "Recommend a public architecture school in Morocco, preferably ENA, for applied arts and architecture. City is flexible.",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA",
+      "classe": "2BAC Arts Appliqués",
+      "note_esperee": "15.9"
+    },
+    "expected_school": "École Nationale d'Architecture de Rabat"
+  }
+]
