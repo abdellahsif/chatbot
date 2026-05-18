@@ -514,6 +514,10 @@
             <label for="topk">Top K</label>
             <input id="topk" type="number" min="1" max="10" value="3" />
           </div>
+          <div>
+            <label for="debugToggle">Debug</label>
+            <input id="debugToggle" type="checkbox" />
+          </div>
         </div>
       </details>
     </aside>
@@ -521,8 +525,8 @@
     <section class="workspace">
       <header class="workspace-header">
         <div>
-          <h2 class="workspace-title">Conversation</h2>
-          <p class="workspace-note">Ask naturally. Recommendations are handled behind the conversation.</p>
+          <h2 class="workspace-title">Recommendations</h2>
+          <p class="workspace-note">Profile-only recommendations powered by your profile and career signals.</p>
         </div>
         <div class="status" id="status"></div>
       </header>
@@ -531,14 +535,11 @@
 
       <footer class="composer">
         <div class="composer-shell">
-          <textarea id="question" placeholder="Message Edu Assistant..."></textarea>
-          <button class="send-btn" id="askBtn" type="button">Send</button>
+          <textarea id="question" placeholder="Chat is disabled. Use your profile to get recommendations." disabled></textarea>
+          <button class="send-btn" id="askBtn" type="button">Get Recommendations</button>
         </div>
         <div class="composer-actions">
-          <div class="composer-buttons">
-            <button class="profile-btn" id="profileOnlyBtn" type="button">Profile Only Recommendation</button>
-          </div>
-          <span class="meta">Enter to send. Shift+Enter for a newline.</span>
+          <span class="meta">Recommendations use profile + user career profile.</span>
         </div>
       </footer>
     </section>
@@ -551,7 +552,6 @@
     const questionEl = document.getElementById("question");
     const askBtn = document.getElementById("askBtn");
     const clearBtn = document.getElementById("clearBtn");
-    const profileOnlyBtn = document.getElementById("profileOnlyBtn");
     const CHAT_STORAGE_KEY = "chatbot_history_v1";
 
     let chatState = { turns: [] };
@@ -583,72 +583,39 @@
       );
     }
 
-    function buildAssistantMessage(data) {
-      const clean = (text) => {
-        const raw = String(text || "").trim();
-        if (!raw) {
-          return "";
-        }
-        return raw
-          .replace(/^Best match:\s*/i, "")
-          .replace(/^Evidence snippet:\s*/i, "")
-          .replace(/^Alternative\s+/i, "")
-          .replace(/^Evidence focus:\s*/i, "")
-          .trim();
-      };
-
-      if (data && data.message_paragraph) {
-        const paragraph = clean(data.message_paragraph);
-        if (paragraph) {
-          return paragraph;
-        }
-      }
-
-      const parts = [];
-      if (data && data.short_answer) parts.push(clean(data.short_answer));
-      if (data && data.why_it_fits) parts.push(clean(data.why_it_fits));
-      if (data && data.alternative) parts.push(clean(data.alternative));
-      if (data && data.next_action) parts.push(clean(data.next_action));
-      const message = parts.filter(Boolean).join(" ");
-      if (message) {
-        return message;
-      }
-      return buildRecommendationMessage(data);
-    }
-
-    function formatCriteria(criteria) {
-      if (!criteria || typeof criteria !== "object") {
-        return "";
-      }
-      const items = [
-        ["semantic", criteria.semantic_fit],
-        ["geo", criteria.geo_fit],
-        ["budget", criteria.budget_fit],
-        ["motivation", criteria.motivation_fit],
-      ]
-        .filter(([, value]) => value !== undefined && value !== null && value !== "")
-        .map(([label, value]) => `${label} ${Number(value).toFixed(1)}%`);
-      return items.length ? ` (${items.join(", ")})` : "";
-    }
-
     function buildRecommendationMessage(data) {
-      const ranked = Array.isArray(data?.ranked_schools) ? data.ranked_schools : [];
-      const top = Array.isArray(data?.top_schools) ? data.top_schools : [];
-      const schools = ranked.length ? ranked : top;
-      if (!schools.length) {
+      const results = Array.isArray(data?.results) ? data.results : [];
+      if (!results.length) {
         return "No matching schools passed the recommendation filters. Try widening the city, budget, or field.";
       }
 
       const lines = ["Top recommendations"];
-      schools.slice(0, 10).forEach((school, index) => {
-        const name = String(school.name || "Unnamed school").trim();
-        const city = String(school.city || "").trim();
-        const score = school.match_score !== undefined && school.match_score !== null
-          ? ` - ${Number(school.match_score).toFixed(1)}%`
+      results.slice(0, 10).forEach((item, index) => {
+        const schoolId = String(item.school_id || item.id || "unknown").trim();
+        const name = String(item.school_name || "").trim();
+        const score = item.match_score !== undefined && item.match_score !== null
+          ? ` - ${(Number(item.match_score) * 100).toFixed(1)}%`
           : "";
-        const grade = school.match_grade ? ` ${school.match_grade}` : "";
-        const criteria = formatCriteria(school.criteria);
-        lines.push(`${index + 1}. ${name}${city ? `, ${city}` : ""}${score}${grade}${criteria}`);
+        const reasons = Array.isArray(item.match_reasons) && item.match_reasons.length
+          ? ` (${item.match_reasons.join("; ")})`
+          : "";
+        const fields = item.matched_fields && typeof item.matched_fields === "object"
+          ? ` [city=${Boolean(item.matched_fields.city)}, budget=${Boolean(item.matched_fields.budget)}, domain=${Boolean(item.matched_fields.domain)}, motivation=${Boolean(item.matched_fields.motivation)}]`
+          : "";
+        lines.push(`${index + 1}. ${name || schoolId}${name ? ` (${schoolId})` : ""}${score}${reasons}`);
+        if (fields) {
+          lines.push(`   matched_fields: ${fields}`);
+        }
+
+        const breakdown = item.score_breakdown;
+        if (breakdown && typeof breakdown === "object") {
+          const profilePriority = Number(breakdown.profile_priority);
+          const careerBoost = Number(breakdown.career_profile_boost);
+          const finalScore = Number(breakdown.final_score);
+          lines.push(
+            `   debug: profile_priority=${profilePriority.toFixed(2)}, career_profile_boost=${careerBoost.toFixed(2)}, final_score=${finalScore.toFixed(2)}`
+          );
+        }
       });
       return lines.join("\n");
     }
@@ -684,7 +651,7 @@
       const messages = [];
       for (const turn of recentTurns) {
         const q = String(turn.question || "").trim();
-        const a = String((turn.response && (turn.response.message_paragraph || buildAssistantMessage(turn.response))) || "").trim();
+        const a = String((turn.response && buildRecommendationMessage(turn.response)) || "").trim();
         if (q) messages.push({ role: "user", content: q });
         if (a) messages.push({ role: "assistant", content: a });
       }
@@ -735,8 +702,8 @@
     function resetMessages() {
       panelEl.innerHTML = `
         <div class="hero">
-          <h2>Start chatting</h2>
-          <p>Ask a normal question, request school matches, or use your profile for a recommendation.</p>
+          <h2>Get recommendations</h2>
+          <p>Fill your profile and generate recommendations (school_id + match_score).</p>
         </div>
       `;
     }
@@ -773,9 +740,9 @@
     function renderTurn(turn) {
       if (!turn) return;
       const userText = String(turn.question || "").trim() || "Profile-only request";
-      const assistantText = buildAssistantMessage(turn.response || {}) || "I can help more if you share details.";
+      const assistantText = buildRecommendationMessage(turn.response || {}) || "No recommendations yet.";
       appendMessage("You", userText);
-      appendMessage("Assistant", assistantText, Array.isArray(turn.response?.evidence) ? turn.response.evidence : []);
+      appendMessage("Assistant", assistantText);
     }
 
     function restoreSavedChat() {
@@ -790,38 +757,27 @@
       }
     }
 
-    async function askChatbot({ profileOnly = false } = {}) {
+    async function askChatbot() {
       const profile = buildProfilePayload();
-      const inputText = String(questionEl.value || "").trim();
-      const question = profileOnly ? "" : inputText;
-      const requestMode = profileOnly ? "recommendation" : "auto";
       const payload = {
-        question,
         top_k: Number(document.getElementById("topk").value || "3"),
-        mode: requestMode,
         user_id: document.getElementById("userId").value.trim(),
-        chat_history: buildBackendChatHistory(),
+        debug: document.getElementById("debugToggle").checked,
         profile,
       };
 
-      if (!profileOnly && !payload.question) {
-        setStatus("Type a message before sending.");
-        return;
-      }
-
-      if (profileOnly && !hasProfileSignal(payload.profile)) {
+      if (!hasProfileSignal(payload.profile)) {
         setStatus("Please provide at least one profile field.");
         return;
       }
 
-      const displayQuestion = payload.question || buildProfileRequestSummary(payload.profile);
+      const displayQuestion = buildProfileRequestSummary(payload.profile);
       appendMessage("You", displayQuestion);
-      setStatus(profileOnly ? "Getting recommendations..." : "Sending message...");
+      setStatus("Getting recommendations...");
 
       askBtn.disabled = true;
-      profileOnlyBtn.disabled = true;
       try {
-        const endpoint = "/chat/query";
+        const endpoint = "/recommendations/query";
         const res = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -831,12 +787,11 @@
           throw new Error(`Request failed with status ${res.status}`);
         }
         const data = await res.json();
-        const assistantText = buildAssistantMessage(data) || "I can help more if you share more details.";
-        appendMessage("Assistant", assistantText, Array.isArray(data.evidence) ? data.evidence : []);
+        const assistantText = buildRecommendationMessage(data) || "No recommendations returned.";
+        appendMessage("Assistant", assistantText);
 
         chatState.turns.push({
           question: displayQuestion,
-          mode: requestMode,
           endpoint,
           response: data,
         });
@@ -852,24 +807,15 @@
         setStatus(`Error: ${err.message || "Request failed."}`);
       } finally {
         askBtn.disabled = false;
-        profileOnlyBtn.disabled = false;
       }
     }
 
     askBtn.addEventListener("click", () => askChatbot());
-    profileOnlyBtn.addEventListener("click", () => askChatbot({ profileOnly: true }));
     clearBtn.addEventListener("click", () => {
       clearChatState();
       resetMessages();
       renderHistoryList();
       setStatus("Conversation cleared.");
-    });
-
-    questionEl.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        askChatbot();
-      }
     });
 
     restoreSavedChat();

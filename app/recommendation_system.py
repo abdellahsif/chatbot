@@ -571,28 +571,13 @@ def recommend_schools(
     query_understanding_provider: QueryUnderstandingProvider | None = None,
     career_profile: dict[str, Any] | None = None,
 ) -> RecommendationResult:
-    user_question = " ".join(str(question or "").split())
     query_for_context = profile_to_retrieval_query(profile)
-    is_profile_placeholder = is_placeholder_recommendation_request(user_question)
-    base_question = query_for_context if is_profile_placeholder else (user_question or query_for_context)
-
-    query_understanding: dict[str, Any] = {}
-    if user_question and not is_profile_placeholder and query_understanding_provider is not None:
-        try:
-            query_understanding = query_understanding_provider(
-                question=user_question,
-                profile=profile,
-                chat_history=chat_history,
-            )
-        except Exception:
-            query_understanding = {}
-
     retrieval_question, retrieval_profile = _merge_query_understanding_into_request(
-        question=base_question,
+        question=query_for_context,
         profile=profile,
-        query_understanding=query_understanding,
+        query_understanding={},
     )
-    retrieval_question = " ".join(str(retrieval_question or "").split()) or base_question
+    retrieval_question = " ".join(str(retrieval_question or "").split()) or query_for_context
 
     effective_profile = resolve_effective_profile(
         question=retrieval_question,
@@ -607,14 +592,21 @@ def recommend_schools(
         except Exception:
             resolved_career_profile = None
 
+    retrieve_k = max(30, min(50, top_k * 10))
     hits = retrieve(
         question=retrieval_question,
         profile=effective_profile,
         schools=schools,
         transcripts=transcripts,
-        top_k=top_k,
+        top_k=retrieve_k,
         career_profile=resolved_career_profile,
     )
+    if hits:
+        hits = sorted(
+            hits,
+            key=lambda item: float(item.get("score_components", {}).get("final", 0.0)),
+            reverse=True,
+        )
 
     evidence = _build_evidence(hits)
     top_schools, ranked_schools = _school_rank_payloads(hits, top_k=top_k)
@@ -624,7 +616,7 @@ def recommend_schools(
         ranked_schools=ranked_schools,
     )
     hits, evidence, top_schools, ranked_schools, rejected_school, detected_city = _apply_context_filters(
-        question=user_question,
+        question="",
         chat_history=chat_history,
         hits=hits,
         evidence=evidence,
@@ -644,6 +636,6 @@ def recommend_schools(
         ranked_schools=ranked_schools,
         rejected_school=rejected_school,
         detected_city=detected_city,
-        query_understanding=query_understanding,
+        query_understanding={},
         career_profile=resolved_career_profile,
     )

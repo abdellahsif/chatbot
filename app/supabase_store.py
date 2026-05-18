@@ -236,7 +236,13 @@ def fetch_user_career_profile(user_id: str) -> dict[str, Any] | None:
     inferred_raw = _parse_json_like(row.get("inferredCareers"))
     inferred_careers: list[str] = []
     if isinstance(inferred_raw, list):
-        inferred_careers = [str(item).strip().lower() for item in inferred_raw if str(item).strip()]
+        for item in inferred_raw:
+            if isinstance(item, dict):
+                label = str(item.get("career", "")).strip()
+            else:
+                label = str(item).strip()
+            if label:
+                inferred_careers.append(label.lower())
 
     domain_raw = _parse_json_like(row.get("domainScores"))
     domain_scores: dict[str, float] = {}
@@ -245,7 +251,9 @@ def fetch_user_career_profile(user_id: str) -> dict[str, Any] | None:
             key = str(k).strip().lower()
             if not key:
                 continue
-            domain_scores[key] = max(0.0, min(1.0, _to_float(v, 0.0)))
+            raw_value = _to_float(v, 0.0)
+            normalized = raw_value / 100.0 if raw_value > 1.0 else raw_value
+            domain_scores[key] = max(0.0, min(1.0, normalized))
 
     return {
         "id": str(row.get("id", "") or "").strip(),

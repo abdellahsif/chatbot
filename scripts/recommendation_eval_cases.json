@@ -1,0 +1,23 @@
+[
+  {
+    "id": "case_001",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": ["ingenieur informatique"],
+      "domain_scores": {"engineering": 0.9, "computer": 0.9}
+    },
+    "ideal_schools": [
+      "Ecole Mohammadia d'Ingenieurs"
+    ],
+    "unacceptable_schools": [
+      "Faculte de Medecine"
+    ]
+  }
+]

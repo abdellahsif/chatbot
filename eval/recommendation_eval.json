@@ -1,0 +1,9215 @@
+[
+  {
+    "id": "case_001",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_002",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_003",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_004",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_005",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_006",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_007",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_008",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_009",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_010",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_011",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_012",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_013",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_014",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_015",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_016",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_017",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_018",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_019",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_020",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_021",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_022",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_023",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_024",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_025",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_026",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_027",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_028",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_029",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_030",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_031",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_032",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_033",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_034",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_035",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_036",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_037",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_038",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_039",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_040",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_041",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_042",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_043",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_044",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_045",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_046",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_047",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_048",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_049",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_050",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_051",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_052",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_053",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_054",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_055",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_056",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_057",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_058",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_059",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_060",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_061",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_062",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_063",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_064",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_065",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_066",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_067",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_068",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_069",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_070",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_071",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_072",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_073",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_074",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_075",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_076",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_077",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_078",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_079",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_080",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_081",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_082",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_083",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_084",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_085",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_086",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_087",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Marrakech"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_088",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_089",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_090",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_091",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_092",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_093",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_094",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_095",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_096",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_097",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_098",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_099",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_100",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_101",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Marrakech"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_102",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_103",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_104",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_105",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_106",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_107",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_108",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_109",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_110",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_111",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_112",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_113",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_114",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_115",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_116",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_117",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_118",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_119",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_120",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_121",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_122",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_123",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_124",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_125",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_126",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_127",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_128",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_129",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_130",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_131",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_132",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_133",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_134",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_135",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_136",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_137",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_138",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_139",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_140",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_141",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_142",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_143",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_144",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_145",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_146",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_147",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_148",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_149",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_150",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_151",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_152",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_153",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_154",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_155",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_156",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_157",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_158",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_159",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_160",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_161",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_162",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Marrakech"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_163",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_164",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_165",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_166",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_167",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_168",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_169",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_170",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_171",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_172",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_173",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_174",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_175",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_176",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_177",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_178",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_179",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_180",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_181",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_182",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_183",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_184",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "excellent",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_185",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_186",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_187",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_188",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_189",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_190",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_191",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_192",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_193",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_194",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_195",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_196",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_197",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_198",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_199",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_200",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_201",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_202",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_203",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_204",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_205",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_206",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_207",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_208",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_209",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_210",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_211",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_212",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_213",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_214",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_215",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_216",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_217",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_218",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_219",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_220",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_221",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_222",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_223",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_224",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Meknes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_225",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_226",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_227",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_228",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_229",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "excellent",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_230",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_231",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_232",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "assez_bien",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_233",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_234",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_235",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_236",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_237",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_238",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_239",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_240",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_241",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_242",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_243",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_244",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Meknes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_245",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_246",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_247",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_248",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_249",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_250",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_251",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_252",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_253",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_254",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_255",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_256",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_257",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_258",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "excellent",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_259",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_260",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_261",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_262",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_263",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "assez_bien",
+      "motivation": "safety",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Rabat"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_264",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "assez_bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_265",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Fes"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_266",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_267",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "bien",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tanger"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_268",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_269",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "prestige",
+      "budget_band": "tight_25k",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_270",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_271",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENSA"
+    ]
+  },
+  {
+    "id": "case_272",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_273",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Rabat"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_274",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Kenitra",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Kenitra"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_275",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "bien",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "business analyst",
+        "management consultant"
+      ],
+      "domain_scores": {
+        "business": 0.9,
+        "finance": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "ESCA"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_276",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_277",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "zero_public",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_278",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "tight_25k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_279",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "excellent",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_280",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "excellent",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_281",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "graphic designer",
+        "ux designer"
+      ],
+      "domain_scores": {
+        "arts": 0.95
+      }
+    },
+    "ideal_schools": [
+      "ESDI",
+      "EAC Casablanca",
+      "LISAA"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_282",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_283",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "assez_bien",
+      "motivation": "employability",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_284",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_285",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "tight_25k",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Marrakech"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_286",
+    "profile": {
+      "bac_stream": "spc",
+      "expected_grade_band": "passable",
+      "motivation": "passion",
+      "budget_band": "zero_public",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ENSA",
+      "ESCA",
+      "AUI",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_287",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "tres_bien",
+      "motivation": "passion",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "medical doctor",
+        "pharmacist"
+      ],
+      "domain_scores": {
+        "medicine": 0.95,
+        "healthcare": 0.9
+      }
+    },
+    "ideal_schools": [
+      "FMP Rabat",
+      "FMP Casablanca",
+      "UM6SS"
+    ],
+    "unacceptable_schools": [
+      "ENSA",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_288",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "passable",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Fes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "data scientist",
+        "machine learning engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "INPT",
+      "UM6P"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_289",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "tres_bien",
+      "motivation": "safety",
+      "budget_band": "zero_public",
+      "city": "Tanger",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "UIR",
+      "ENCG",
+      "ESCA",
+      "AUI",
+      "FMP",
+      "HEM"
+    ]
+  },
+  {
+    "id": "case_290",
+    "profile": {
+      "bac_stream": "sm_b",
+      "expected_grade_band": "tres_bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Oujda",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Oujda"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_291",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_292",
+    "profile": {
+      "bac_stream": "arts_appliques",
+      "expected_grade_band": "bien",
+      "motivation": "passion",
+      "budget_band": "tight_25k",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_293",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "bien",
+      "motivation": "safety",
+      "budget_band": "comfort_50k",
+      "city": "Casablanca",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "cybersecurity analyst",
+        "security engineer"
+      ],
+      "domain_scores": {
+        "computer": 0.9,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "INPT",
+      "ENSIAS",
+      "EHTP"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_294",
+    "profile": {
+      "bac_stream": "eco",
+      "expected_grade_band": "tres_bien",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Marrakech",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_295",
+    "profile": {
+      "bac_stream": "svt",
+      "expected_grade_band": "passable",
+      "motivation": "employability",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Meknes",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_296",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "assez_bien",
+      "motivation": "cash",
+      "budget_band": "tight_25k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "financial analyst",
+        "auditor"
+      ],
+      "domain_scores": {
+        "finance": 0.95,
+        "business": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENCG",
+      "ISCAE",
+      "HEM"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  },
+  {
+    "id": "case_297",
+    "profile": {
+      "bac_stream": "sm_a",
+      "expected_grade_band": "assez_bien",
+      "motivation": "expat",
+      "budget_band": "tight_25k",
+      "city": "Rabat",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Rabat"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_298",
+    "profile": {
+      "bac_stream": "sm",
+      "expected_grade_band": "excellent",
+      "motivation": "prestige",
+      "budget_band": "no_limit_70k_plus",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "architect",
+        "interior architect"
+      ],
+      "domain_scores": {
+        "engineering": 0.6,
+        "arts": 0.7
+      }
+    },
+    "ideal_schools": [
+      "ENA Rabat",
+      "EAC Casablanca"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_299",
+    "profile": {
+      "bac_stream": "lettres",
+      "expected_grade_band": "passable",
+      "motivation": "cash",
+      "budget_band": "comfort_50k",
+      "city": "Agadir",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "industrial engineer",
+        "civil engineer"
+      ],
+      "domain_scores": {
+        "engineering": 0.95
+      }
+    },
+    "ideal_schools": [
+      "EMI",
+      "EHTP",
+      "ENSA Agadir"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENCG"
+    ]
+  },
+  {
+    "id": "case_300",
+    "profile": {
+      "bac_stream": "tgc",
+      "expected_grade_band": "bien",
+      "motivation": "expat",
+      "budget_band": "comfort_50k",
+      "city": "Tetouan",
+      "country": "MA"
+    },
+    "career_profile": {
+      "inferred_careers": [
+        "software engineer",
+        "full stack developer"
+      ],
+      "domain_scores": {
+        "computer": 0.85,
+        "engineering": 0.6
+      }
+    },
+    "ideal_schools": [
+      "ENSIAS",
+      "EMI",
+      "ENSA Tetouan"
+    ],
+    "unacceptable_schools": [
+      "FMP",
+      "ENA"
+    ]
+  }
+]

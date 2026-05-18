@@ -672,7 +672,7 @@ def budget_allows(profile_budget: str, tuition_max_mad: int) -> bool:
     if not isinstance(tuition_max_mad, int):
         return False
     if profile_budget == "zero_public":
-        return tuition_max_mad <= 12000
+        return tuition_max_mad <= 0
     cap = BUDGET_MAX.get(profile_budget)
     if cap is None:
         return tuition_max_mad <= BUDGET_MAX["comfort_50k"]
@@ -1955,6 +1955,53 @@ def _extract_school_mentions(question: str, schools: dict[str, dict]) -> set[str
     return mentioned
 
 
+def _career_domain_alignment(
+    school: dict[str, Any],
+    chunks: list[dict[str, Any]],
+    career_profile: dict[str, Any] | None,
+) -> float:
+    if not isinstance(career_profile, dict):
+        return 0.0
+
+    domain_keywords: dict[str, set[str]] = {
+        "computer": {"computer", "software", "informatique", "data", "cyber", "ai", "devops", "reseaux"},
+        "engineering": {"engineering", "ingenierie", "ingenieur", "genie", "civil", "mecanique", "electrique"},
+        "business": {"business", "management", "finance", "marketing", "commerce", "comptabilite", "econom"},
+        "law": {"law", "droit", "juridique"},
+        "medicine": {"medicine", "medical", "medecine", "pharmacie", "sante", "health"},
+        "arts": {"arts", "design", "communication", "media", "litterature"},
+    }
+
+    text_parts = [
+        str(school.get("name", "")),
+        str(school.get("city", "")),
+        " ".join(str(x) for x in school.get("programs", []) if x),
+        " ".join(str(x) for x in school.get("programs_tags", []) if x),
+        " ".join(str(x) for x in school.get("filieres", []) if x),
+        " ".join(str(c.get("program", "")) for c in chunks[:6]),
+        " ".join(str(c.get("text", "")) for c in chunks[:3]),
+    ]
+    text = " ".join(text_parts).lower()
+    school_domains: set[str] = set()
+    for domain, keywords in domain_keywords.items():
+        if any(keyword in text for keyword in keywords):
+            school_domains.add(domain)
+
+    domain_scores = career_profile.get("domain_scores", {})
+    if not isinstance(domain_scores, dict):
+        return 0.0
+
+    domain_values: list[float] = []
+    for domain in school_domains:
+        raw = domain_scores.get(domain, 0.0)
+        try:
+            val = float(raw)
+        except (TypeError, ValueError):
+            val = 0.0
+        domain_values.append(max(0.0, min(1.0, val)))
+    return max(domain_values) if domain_values else 0.0
+
+
 def _score_candidate(
     question: str,
     profile: UserProfile,
@@ -2043,16 +2090,17 @@ def _score_candidate(
     grade_match = _grade_match_score(profile, school)
     location_match = _location_match_score(profile, school, city_intent=city_intent, fallback_cities=fallback_cities)
     motivation_match = _motivation_match_score(profile, school)
-
-    profile_priority = (
-        0.55 * bac_semantic
-        + 0.15 * location_match
-        + 0.15 * budget_match
-        + 0.15 * motivation_match
-    )
     career_domain_match, career_overlap, domain_alignment = career_domain_match_score()
-    weighted = 0.7 * profile_priority + 0.3 * career_domain_match
-    final_score = 0.75 * weighted + 0.25 * max(0.0, semantic)
+    domain_program_match = max(program_match, intent_match, domain_alignment, career_domain_match)
+    profile_priority = (
+        0.30 * bac_semantic
+        + 0.30 * domain_program_match
+        + 0.15 * motivation_match
+        + 0.15 * location_match
+        + 0.10 * budget_match
+    )
+    weighted = profile_priority
+    final_score = profile_priority
     return {
         "program_match": program_match,
         "intent_match": intent_match,
@@ -2062,6 +2110,7 @@ def _score_candidate(
         "grade_match": grade_match,
         "location_match": location_match,
         "motivation_match": motivation_match,
+        "domain_program_match": domain_program_match,
         "profile_priority": profile_priority,
         "career_domain_match": career_domain_match,
         "career_overlap": career_overlap,
@@ -2257,6 +2306,26 @@ def retrieve(
         chunks = item.get("chunks", [])
         if not _passes_strict_bac_constraint(profile.bac_stream, school, chunks):
             continue
+
+        if profile_requires_public_only(profile) and not school_is_public(school):
+            continue
+
+        tuition_max = _to_int(school.get("tuition_max_mad"), default=-1)
+        if profile.budget_band and tuition_max >= 0 and not budget_allows(profile.budget_band, tuition_max):
+            continue
+
+        if profile.bac_stream:
+            bac_semantic = _bac_semantic_score(profile.bac_stream, school, chunks)
+            bac_match = _bac_stream_match_score(profile.bac_stream, chunks, school)
+            if bac_semantic < 0.35 and bac_match < 0.35:
+                continue
+
+        if career_profile is not None:
+            program_match = _program_match_score(query_text, school, chunks)
+            domain_alignment = _career_domain_alignment(school, chunks, career_profile)
+            if program_match < 0.2 and domain_alignment < 0.35:
+                continue
+
         filtered.append(item)
 
     if city_intent and (location_only_query or explicit_city_constraint):
@@ -2365,6 +2434,10 @@ def retrieve(
             fallback_cities=fallback_cities if not city_intent else None,
             career_profile=career_profile,
         )
+        # If bac stream is known, drop results with very weak bac + program alignment.
+        if profile.bac_stream:
+            if components.get("bac_semantic", 0.0) < 0.25 and components.get("program_match", 0.0) < 0.15:
+                continue
         components["lexical_match"] = lexical
         components["name_query_match"] = name_query_match
         components["sparse_score"] = sparse
